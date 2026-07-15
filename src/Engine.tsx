@@ -2984,6 +2984,26 @@ export default function Engine(props){
 
 function EngineInner({initialTab}){
  const [tab,setTab]=useState(initialTab||"quantum"); const q=false; // corporate register only
+ // Deep-linking: keep the URL hash in sync with whichever tab is active, so
+ // any navigation (sidebar click, jumpTo, group button) produces a real,
+ // shareable link — one hook here catches every path, rather than touching
+ // each of the many setTab() call sites individually.
+ useEffect(()=>{
+  if(typeof window!=="undefined"&&window.location.hash.slice(1)!==tab){
+   window.location.hash=tab;
+  }
+ },[tab]);
+ // Two-way: back/forward button or a manually edited hash should also
+ // navigate the app, not just the reverse.
+ useEffect(()=>{
+  if(typeof window==="undefined")return;
+  const onHashChange=()=>{
+   const h=window.location.hash.slice(1);
+   if(h&&h!==tab)setTab(h);
+  };
+  window.addEventListener("hashchange",onHashChange);
+  return()=>window.removeEventListener("hashchange",onHashChange);
+ },[tab]);
  const [sel,setSel]=useState("Pleasanton");
  const [stSel,setSt]=useState("CA");
  const [beltSel,setBelt]=useState("orange");
