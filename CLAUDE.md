@@ -2,6 +2,8 @@
 
 Context for Claude Code sessions working on this repo. Read this before editing `src/Engine.tsx` — several things that look like bugs or missing features are deliberate, and the reasoning here is what keeps you from undoing them by accident.
 
+See `docs/engine/QUANTUM_METHODOLOGY.md` for the engineering-process convention used on this codebase (superposition/entanglement/measurement-collapse/decoherence applied to how the repo itself is built — distinct from the in-app Quantum PM product feature described below).
+
 ## What this is
 
 A single-file React governance dashboard for a CodeNinjas franchise network (348 modeled centers), built as a submission artifact for a Director of Franchise Development application. Deadline: July 26, 2026. The centerpiece is a "Quantum PM" scenario-governance system: approving a network posture (Optimistic/Realistic/Pessimistic) actually recomputes the network — health scores, gate outcomes, proposal viability, a live map, graph-theoretic clustering — not just labels.

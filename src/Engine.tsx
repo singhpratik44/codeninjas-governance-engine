@@ -2638,7 +2638,7 @@ const NetworkHealthDashboard = ({centers, alerts, red, staleN}) => {
 
 
 
-export const _layer1={operationalSignalsOf,checkContract,ACTION_CONTRACTS,dataConfidenceOf,uncertaintyBandOf,peerConnectionStrengthOf,patternStabilityIndexOf,networkSupportIndexOf,structureScoreOf,buildCenters,buildLeads,forecast,engageOf,alertsOf,qGate,qGovernors,computeCentersForPosture,computeOverrideView,qTau,qAmp,qResolve,qCoherence,SCENARIO_DELTAS};
+export const _layer1={operationalSignalsOf,checkContract,ACTION_CONTRACTS,dataConfidenceOf,uncertaintyBandOf,peerConnectionStrengthOf,patternStabilityIndexOf,networkSupportIndexOf,structureScoreOf,buildCenters,buildLeads,forecast,engageOf,alertsOf,qGate,qGovernors,computeCentersForPosture,computeOverrideView,qTau,qAmp,qResolve,qCoherence,SCENARIO_DELTAS,weekCompound,royaltyOf};
 export const _layer2={growthAgentRecommend,unitHealthAgentRecommend,retentionAgentRecommend,networkPropagationAgentRecommend,applyGovernance,runAllAgents,buildRecommendation,confidenceBandOf,riskBandOf};
 class EngineErrorBoundary extends React.Component{
  constructor(props){super(props);this.state={error:null};}

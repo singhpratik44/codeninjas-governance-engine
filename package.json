@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "esbuild src/main.jsx --bundle --minify --outfile=dist/bundle.js --loader:.tsx=tsx --jsx=automatic --define:__BUILD_SHA__=\"'${BUILD_SHA:-local}'\""
+    "build": "esbuild src/main.jsx --bundle --minify --outfile=dist/bundle.js --loader:.tsx=tsx --jsx=automatic --define:__BUILD_SHA__=\"'${BUILD_SHA:-local}'\"",
+    "verify": "node scripts/verify-gate.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -11,6 +12,7 @@
     "three": "^0.160.0"
   },
   "devDependencies": {
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "jsdom": "^25.0.1"
   }
 }
