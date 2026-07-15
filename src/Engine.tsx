@@ -2638,7 +2638,7 @@ const NetworkHealthDashboard = ({centers, alerts, red, staleN}) => {
 
 
 
-export const _layer1={operationalSignalsOf,checkContract,ACTION_CONTRACTS,dataConfidenceOf,uncertaintyBandOf,peerConnectionStrengthOf,patternStabilityIndexOf,networkSupportIndexOf,structureScoreOf,buildCenters,buildLeads,forecast,engageOf,alertsOf,qGate,qGovernors};
+export const _layer1={operationalSignalsOf,checkContract,ACTION_CONTRACTS,dataConfidenceOf,uncertaintyBandOf,peerConnectionStrengthOf,patternStabilityIndexOf,networkSupportIndexOf,structureScoreOf,buildCenters,buildLeads,forecast,engageOf,alertsOf,qGate,qGovernors,computeCentersForPosture,computeOverrideView,qTau,qAmp,qResolve,qCoherence,SCENARIO_DELTAS,weekCompound,royaltyOf};
 export const _layer2={growthAgentRecommend,unitHealthAgentRecommend,retentionAgentRecommend,networkPropagationAgentRecommend,applyGovernance,runAllAgents,buildRecommendation,confidenceBandOf,riskBandOf};
 class EngineErrorBoundary extends React.Component{
  constructor(props){super(props);this.state={error:null};}
@@ -2832,7 +2832,7 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
  // revenue optimism assumption — that's a design boundary, not a gap).
  const GOVERNED=[
   ["exec","Executive summary","override"],["board","Operations board","override"],["table","Network map","inherit-only"],
-  ["financials","Financials","override"],["team","Team & workload","inherit-only"],["network","Propagation","override"],
+  ["financials","Financials","override"],["team","Team & workload","override"],["network","Propagation","override"],
   ["compliance","Compliance","fixed"],["risk","Risk","override"],["fdd","FDD","fixed"],
  ];
  return(<div style={{fontFamily:"Helvetica",color:INK}}>
@@ -3599,35 +3599,49 @@ function EngineInner({initialTab}){
    </div>
    <div style={{fontFamily:"Helvetica",fontSize:9,color:MUT,marginTop:5}}>solid = verified · gray = modeled · red chip = recovery &gt; 3w (critical slowing down) · rail: green done / red hold · click = open</div>
   </div>);})()}
-  {tab==="team"&&(()=>{const tf=forecast(team);const[ar,ac2]=arrow(tf.cls);const tmTau=qTau(team);const tauStr=tmTau<=2?tmTau+"w fast":tmTau<=4?tmTau+"w slowing":tmTau+"w critical";
-   const inc=[["EBITDA",fmt(team.eb)+"k",">6k",team.eb>6,"Performance rebate"],["Retention",pct(team.ret)+"%","≥88%",team.ret>0.88,"Retention Gold"],["Chemistry",pct(team.chem)+"%","≥65%",team.chem>0.65,"Chemistry credit"],["Report",staleBase(team)?"stale":"fresh","≤21d",!staleBase(team),"Cadence rebate"],["Momentum",team.momentum,"+3",team.momentum[0]==="+"&&parseInt(team.momentum.slice(1))>=3,"Momentum spotlight"],["Recovery time",tauStr,"fast",tf.tau<=2,<span style={{fontSize:8,color:MUT}}>Slowing recovery at 3w+</span>],["Health Index",team.health,"≥85",team.health>=85,"Donor credit /adoption"]];
-   const e=engageOf(team);
-   const measured=!staleBase(team)||opt.fresh[team.name]!==undefined;
+  {tab==="team"&&(()=>{
+   // Respects a local override from Quantum PM's governed-tabs grid, same
+   // pattern as exec/network/financials/risk. Unlike those, this tab derives
+   // nearly everything from ONE center, so the override swaps `team` for a
+   // recomputed `teamOv` up front and every downstream value (radar chart,
+   // department grades, verdict, recovery time) is derived from teamOv, not
+   // team, so they stay consistent with each other. engageOf() is a pure
+   // function of center name (see CLAUDE.md) so `e` below doesn't move with
+   // the override even though it's computed from teamOv — that's expected.
+   const teamOverride=opt.quantum&&opt.quantum.overrides&&opt.quantum.overrides.team;
+   const teamGlobalPosture=(opt.quantum&&opt.quantum.approved)||"realistic";
+   const teamOverrideActive=!!(teamOverride&&teamOverride!==teamGlobalPosture);
+   const teamOv=teamOverrideActive?computeCentersForPosture(rawCenters,adj,teamOverride,opt.week).find(c=>c.name===sel)||team:team;
+   const tf=forecast(teamOv);const[ar,ac2]=arrow(tf.cls);const tmTau=qTau(teamOv);const tauStr=tmTau<=2?tmTau+"w fast":tmTau<=4?tmTau+"w slowing":tmTau+"w critical";
+   const inc=[["EBITDA",fmt(teamOv.eb)+"k",">6k",teamOv.eb>6,"Performance rebate"],["Retention",pct(teamOv.ret)+"%","≥88%",teamOv.ret>0.88,"Retention Gold"],["Chemistry",pct(teamOv.chem)+"%","≥65%",teamOv.chem>0.65,"Chemistry credit"],["Report",staleBase(teamOv)?"stale":"fresh","≤21d",!staleBase(teamOv),"Cadence rebate"],["Momentum",teamOv.momentum,"+3",teamOv.momentum[0]==="+"&&parseInt(teamOv.momentum.slice(1))>=3,"Momentum spotlight"],["Recovery time",tauStr,"fast",tf.tau<=2,<span style={{fontSize:8,color:MUT}}>Slowing recovery at 3w+</span>],["Health Index",teamOv.health,"≥85",teamOv.health>=85,"Donor credit /adoption"]];
+   const e=engageOf(teamOv);
+   const measured=!staleBase(teamOv)||opt.fresh[teamOv.name]!==undefined;
    // Measurement confidence uses the same qCoherence decay every other view reads
    // (System Alignment, the map, Six Lenses) instead of a flat measured/not-measured
    // toggle -- one concept, one formula, wherever it's shown.
-   const teamDays=opt.fresh[team.name]!==undefined?(opt.week-opt.fresh[team.name])*7:(hash(team.name)%38)+opt.week*2;
+   const teamDays=opt.fresh[teamOv.name]!==undefined?(opt.week-opt.fresh[teamOv.name])*7:(hash(teamOv.name)%38)+opt.week*2;
    const teamConf=Math.round(qCoherence(teamDays)*100);
-   const ATTR=[["Enrollment",Math.min(99,Math.round(30+team.conv*95))],["Retention",Math.round(team.ret*100)],["Instruction",Math.min(99,Math.round(38+e.pre*55))],["Community",Math.min(99,Math.round(28+e.refer*70+e.buzz*25))],["Staff chemistry",Math.round(team.chem*100)],["Measurement",teamConf],["Facilities",45+hash(team.name+"fac")%40]];
+   const ATTR=[["Enrollment",Math.min(99,Math.round(30+teamOv.conv*95))],["Retention",Math.round(teamOv.ret*100)],["Instruction",Math.min(99,Math.round(38+e.pre*55))],["Community",Math.min(99,Math.round(28+e.refer*70+e.buzz*25))],["Staff chemistry",Math.round(teamOv.chem*100)],["Measurement",teamConf],["Facilities",45+hash(teamOv.name+"fac")%40]];
    const sorted=[...ATTR].sort((a,b)=>b[1]-a[1]);
    const strengths=sorted.slice(0,2),weaks=sorted.slice(-2).reverse();
    const cx=70,cy=70,R=52,Nn=ATTR.length;
    const ptf=(i,f)=>{const a=-Math.PI/2+i*2*Math.PI/Nn;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f];};
    const poly=ATTR.map((at,i)=>ptf(i,at[1]/99).map(v=>v.toFixed(1)).join(",")).join(" ");
    const grid=[0.33,0.66,1].map(g=>ATTR.map((_,i)=>ptf(i,g).map(v=>v.toFixed(1)).join(",")).join(" "));
-   const verdict=weaks[0][1]<55?"Needs intervention — "+weaks[0][0].toLowerCase()+" is the drag":team.health>=85?"Donor-grade — a pattern source for the network":team.health>=75?"Solid unit — one gap from the next tier":"Developing — the fix is known and named";
-   const DEPT=[["Acquisition",[ATTR[0][1],ATTR[3][1]]],["Instruction",[ATTR[2][1],ATTR[5][1]]],["Retention",[ATTR[1][1],ATTR[4][1]]],["Operations",[team.health,ATTR[6][1]]]].map(([n,vs])=>{const g=Math.round(vs.reduce((a,b)=>a+b,0)/vs.length);return[n,g,g>=85?"A":g>=78?"B":g>=68?"C":g>=58?"D":"F"];});
+   const verdict=weaks[0][1]<55?"Needs intervention — "+weaks[0][0].toLowerCase()+" is the drag":teamOv.health>=85?"Donor-grade — a pattern source for the network":teamOv.health>=75?"Solid unit — one gap from the next tier":"Developing — the fix is known and named";
+   const DEPT=[["Acquisition",[ATTR[0][1],ATTR[3][1]]],["Instruction",[ATTR[2][1],ATTR[5][1]]],["Retention",[ATTR[1][1],ATTR[4][1]]],["Operations",[teamOv.health,ATTR[6][1]]]].map(([n,vs])=>{const g=Math.round(vs.reduce((a,b)=>a+b,0)/vs.length);return[n,g,g>=85?"A":g>=78?"B":g>=68?"C":g>=58?"D":"F"];});
    const FIX={Enrollment:"trial-to-enrollment coaching + day-7 follow-up",Retention:"engagement-based re-enrollment + at-risk outreach",Instruction:"pre/post-session routine + sensei certification",Community:"school partnership + demo day on the calendar",["Staff chemistry"]:"sensei 1:1 + CIT draft from Red/Black belts",Measurement:"measure now — verify the estimate first",Facilities:"floor refresh in the facility budget quarter"};
    return(<div>
+   {teamOverrideActive&&<div style={{border:`1px solid ${VIO}`,borderLeft:`3px solid ${VIO}`,background:"#faf9ff",padding:"6px 10px",marginBottom:8,fontFamily:"Helvetica",fontSize:9.5,color:"#3d3470"}}>This tab is locally overridden to <b>{teamOverride}</b> — network-wide posture is <b>{teamGlobalPosture}</b>. Radar chart, health, and recovery time reflect the override; engagement signals (pre/post/community) don't move with posture — see CLAUDE.md. Set from Quantum PM.</div>}
    <div style={{display:"flex",flexWrap:"wrap",gap:10,alignItems:"baseline",marginBottom:6}}>
-    <h2 style={{fontSize:18,margin:0}}>{team.name}</h2>
-    <span style={{fontFamily:"Helvetica",fontSize:10}}>{team.health} {tierOf(team.health)} · {team.students} students · {team.momentum+" trend"} · <b style={{color:ac2}}>{ar} {fmt(tf.proj[2])}k @90d</b></span>
+    <h2 style={{fontSize:18,margin:0}}>{teamOv.name}</h2>
+    <span style={{fontFamily:"Helvetica",fontSize:10}}>{teamOv.health} {tierOf(teamOv.health)} · {teamOv.students} students · {teamOv.momentum+" trend"} · <b style={{color:ac2}}>{ar} {fmt(tf.proj[2])}k @90d</b></span>
    </div>
    <div style={{border:`1px solid ${RULE}`,background:"#fff",marginBottom:8}}>
      <div style={{background:"linear-gradient(135deg,#161616,#232323)",padding:"12px 14px",display:"flex",gap:16,alignItems:"center",flexWrap:"wrap"}}>
       <div style={{textAlign:"center",minWidth:70}}>
-       <div style={{fontFamily:"Helvetica",fontSize:46,fontWeight:800,color:"#fff",lineHeight:0.9}}>{team.health}</div>
-       <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:1.5,color:team.health>=88?"#6fc38a":team.health>=80?"#d9a62e":team.health>=68?"#bbb":"#d96a6a"}}>{tierOf(team.health)}</div>
+       <div style={{fontFamily:"Helvetica",fontSize:46,fontWeight:800,color:"#fff",lineHeight:0.9}}>{teamOv.health}</div>
+       <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:1.5,color:teamOv.health>=88?"#6fc38a":teamOv.health>=80?"#d9a62e":teamOv.health>=68?"#bbb":"#d96a6a"}}>{tierOf(teamOv.health)}</div>
       </div>
       <svg viewBox="0 0 140 140" style={{width:118,height:118,flexShrink:0}}>
        {grid.map((g,i)=>(<polygon key={i} points={g} fill="none" stroke="#3a3a3a" strokeWidth="0.7"/>))}
@@ -3661,7 +3675,7 @@ function EngineInner({initialTab}){
      </div>
    </div>
    <svg viewBox="0 0 700 150" style={{width:"100%",height:"auto",margin:"4px 0"}}>
-    {Object.entries(team.wires).map(([w,gs],wi)=>(
+    {Object.entries(teamOv.wires).map(([w,gs],wi)=>(
      <g key={w}>
       <text x="4" y={26+wi*34} style={{font:"9px Helvetica",fill:MUT}}>{w}</text>
       <line x1="52" y1={22+wi*34} x2="690" y2={22+wi*34} stroke={INK} strokeWidth="1"/>
@@ -3673,7 +3687,7 @@ function EngineInner({initialTab}){
        </g>))}
      </g>))}
    </svg>
-   {(()=>{const amp=qAmp(team);const dom=qResolve(amp);const meas=!staleBase(team)||opt.fresh[team.name]!==undefined;
+   {(()=>{const amp=qAmp(teamOv);const dom=qResolve(amp);const meas=!staleBase(teamOv)||opt.fresh[teamOv.name]!==undefined;
     return(<div style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${VIO}`,background:"#fff",padding:"8px 10px",marginTop:8}}>
      <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:VIO,marginBottom:5}}>Unit status — {meas?"verified · measured this cycle":"estimated · awaiting P&L measurement"}</div>
      <div style={{display:"flex",gap:8,alignItems:"flex-end",height:52,marginBottom:4}}>
@@ -3685,13 +3699,13 @@ function EngineInner({initialTab}){
     </div>);})()}
    <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:GRN,margin:"8px 0 4px"}}>Incentive gates</div>
    {inc.map(([l,v,thr,met,pay],i)=><Gate key={i} inLabel={l} inVal={v} thr={thr} met={met} payout={pay} title={met?"earned":"gap to threshold"}/>)}
-   <OpHealthIndex center={team} staleBase={staleBase(team)} health={team.health} tau={Math.round(qTau(team))} />
-    
+   <OpHealthIndex center={teamOv} staleBase={staleBase(teamOv)} health={teamOv.health} tau={Math.round(qTau(teamOv))} />
+
     <div style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${AMB}`,padding:"7px 10px",marginTop:8}}>
     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:AMB,marginBottom:4}}>Quarter goal — negotiated, not assigned</div>
     <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
      {[["Stretch","margin +3.0k","full support budget"],["Standard","margin +1.5k","standard support"],["Floor","hold margin","development review"]].map(([n,t,r],i)=>(
-      <button key={i} onClick={()=>setGoals(g=>({...g,[team.name]:i}))} style={{fontFamily:"Helvetica",fontSize:9,padding:"5px 9px",cursor:"pointer",border:`1px solid ${goals[team.name]===i?AMB:RULE}`,background:goals[team.name]===i?"#fdf6e6":"#fff",textAlign:"left"}}>
+      <button key={i} onClick={()=>setGoals(g=>({...g,[teamOv.name]:i}))} style={{fontFamily:"Helvetica",fontSize:9,padding:"5px 9px",cursor:"pointer",border:`1px solid ${goals[teamOv.name]===i?AMB:RULE}`,background:goals[teamOv.name]===i?"#fdf6e6":"#fff",textAlign:"left"}}>
        <b>{n}</b> · {t}<br/><span style={{color:MUT,fontSize:8}}>unlocks {r}</span></button>))}
     </div>
    </div>
