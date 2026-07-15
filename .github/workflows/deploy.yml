@@ -33,7 +33,6 @@ jobs:
 
       - name: Copy build output to repo root
         run: |
-          cp dist/index.html ./index.html
           cp dist/bundle.js ./bundle.js
           touch .nojekyll
 
