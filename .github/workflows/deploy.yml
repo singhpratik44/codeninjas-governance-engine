@@ -29,12 +29,36 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          BUILD_SHA: ${{ github.sha }}
         run: npm run build
 
       - name: Copy build output to repo root
         run: |
           cp dist/bundle.js ./bundle.js
           touch .nojekyll
+
+      # Self-verification: the pipeline checks its own output before it's
+      # allowed to declare success. This exists because a previous version
+      # of this workflow silently failed at exactly this point (it tried to
+      # copy a dist/index.html the build never generates) for two commits in
+      # a row, and nothing caught it — the job showed a real failure status,
+      # but nobody was polling for it, so the live site quietly stayed stale
+      # while every subsequent push looked fine at a glance. This step makes
+      # that specific failure mode impossible to miss: if the freshly-copied
+      # bundle.js doesn't contain this exact commit's SHA (embedded at build
+      # time via esbuild --define, so it's guaranteed unique — unlike a
+      # hand-picked string marker, which twice already turned out to already
+      # exist in the codebase for unrelated reasons), the job fails loudly,
+      # right here, instead of completing "successfully" while shipping
+      # stale content.
+      - name: Verify build output actually contains this commit
+        run: |
+          if ! grep -q "${{ github.sha }}" bundle.js; then
+            echo "::error::bundle.js does not contain the current commit SHA (${{ github.sha }}) — the build did not actually update, or the copy step silently failed. Refusing to deploy stale content."
+            exit 1
+          fi
+          echo "Verified: bundle.js contains commit ${{ github.sha }}"
 
       - name: Commit and push if changed
         run: |

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "esbuild src/main.jsx --bundle --minify --outfile=dist/bundle.js --loader:.tsx=tsx --jsx=automatic"
+    "build": "esbuild src/main.jsx --bundle --minify --outfile=dist/bundle.js --loader:.tsx=tsx --jsx=automatic --define:__BUILD_SHA__=\"'${BUILD_SHA:-local}'\""
   },
   "dependencies": {
     "react": "^18.3.1",

@@ -10,5 +10,16 @@ import Engine from "./Engine.tsx";
 // or duplicating Engine's internal tab list just to guard a rare typo.
 const initialTab = window.location.hash ? window.location.hash.slice(1) : undefined;
 
+// Build marker: injected at build time via esbuild --define, set to the
+// triggering commit's SHA. This exists specifically so the deploy workflow
+// can verify its own output — grep the freshly-built bundle for this exact
+// commit's SHA and fail loudly if it's missing, instead of silently
+// "succeeding" while actually shipping stale content. A generic string
+// marker isn't reliable for this (proven the hard way: two markers used
+// earlier both coincidentally already existed in the codebase for unrelated
+// reasons); a commit SHA is guaranteed unique per build by construction.
+// eslint-disable-next-line no-undef
+window.__BUILD_SHA__ = typeof __BUILD_SHA__ !== "undefined" ? __BUILD_SHA__ : "dev";
+
 const root = createRoot(document.getElementById("root"));
 root.render(<Engine initialTab={initialTab} />);
