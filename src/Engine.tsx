@@ -5281,10 +5281,13 @@ function EngineInner({initialTab}){
    // owner. Reads from `red` (units below breakeven), recovery time, freshness,
    // and the recommendations already assigned to each center. No new data source.
    // Respects a local override from Quantum PM's governed-tabs grid.
-   // Note: recs.length is currently always 0 here — recommendation objects
-   // carry targetIds, not a .center field, so r.center===c.name never matches.
-   // Pre-existing in v3, unrelated to this override wiring; left as-is rather
-   // than silently changed as a drive-by fix.
+   // Fixed: previously matched via a nonexistent r.center field (always
+   // undefined, so owner/status silently showed "—"/"no proposal" for every
+   // unit regardless of real data). Recommendations carry targetIds, whose
+   // shape differs by agent (Growth: [leadId,region,anchorName]; Unit
+   // Health/Retention: [centerName]; Network Propagation: [source,target] —
+   // two centers), so matching by membership rather than a fixed index or
+   // field is what's actually correct here.
    const riskOverride=opt.quantum&&opt.quantum.overrides&&opt.quantum.overrides.risk;
    const riskGlobalPosture=(opt.quantum&&opt.quantum.approved)||"realistic";
    const riskOverrideActive=!!(riskOverride&&riskOverride!==riskGlobalPosture);
@@ -5300,7 +5303,7 @@ function EngineInner({initialTab}){
      if(rec>=3)factors.push("recovery time "+rec.toFixed(1)+"w");
      if(fresh<0.5)factors.push("stale measurement ("+Math.round(fresh*100)+"%)");
      if(infl&&infl>cap.week&&infl<=cap.week+3)factors.push("retention inflection W"+Math.round(infl));
-     const recs=riskRailData.recommendations.filter(r=>r.center===c.name);
+     const recs=riskRailData.recommendations.filter(r=>r.targetIds&&r.targetIds.includes(c.name));
      const owner=recs.length>0?recs[0].governance.approver:"—";
      risks.push({center:c.name,health:c.health,eb:c.eb,factors,owner,status:recs.length>0?recs[0].governance.allowed?"allowed":"held":"no proposal"});
     });
