@@ -1,0 +1,16 @@
+{
+  "name": "codeninjas-governance-engine",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/main.jsx --bundle --minify --outfile=dist/bundle.js --loader:.tsx=tsx --jsx=automatic"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
