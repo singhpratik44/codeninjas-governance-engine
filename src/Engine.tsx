@@ -75,6 +75,21 @@ function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedS
  const spheresRef=useRef({});
  const [highlightedState, setHighlightedState]=useState(null);
  const [hoveredState, setHoveredState]=useState(null);
+ const [impactAnimation, setImpactAnimation]=useState(null); // D. Proposal impact animation
+ const [conflictZones, setConflictZones]=useState(new Set()); // F. Conflict zones
+
+ // F. Detect conflict zones from railData
+ useEffect(() => {
+  if (!railData || !railData.conflicts) return;
+  const zones = new Set();
+  railData.conflicts.forEach(c => {
+    const aRec = railData.recommendations?.find(r => r.id === c.a);
+    const bRec = railData.recommendations?.find(r => r.id === c.b);
+    if (aRec?.targetIds) zones.add(aRec.targetIds[1]); // region for Growth proposals
+    if (bRec?.targetIds) zones.add(bRec.targetIds[1]); // region
+  });
+  setConflictZones(zones);
+ }, [railData]);
 
  useEffect(() => {
   if (!containerRef.current || !mapNodes.length) return;
@@ -169,12 +184,36 @@ function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedS
     requestAnimationFrame(animate);
 
     // E. Cluster highlighting: glow at-risk clusters
+    // F. Conflict zone highlighting: glow orange for territories with conflicts
+    // D. Proposal impact: briefly highlight affected territories when decision approved
     Object.entries(spheresRef.current).forEach(([stateId, sphere]) => {
       const isAtRisk = sphere.userData.isAtRisk;
       const isHighlighted = highlightedState === stateId;
-      sphere.material.emissive.setHex(isHighlighted ? 0x444444 : isAtRisk ? 0x660000 : 0x000000);
-      sphere.material.emissiveIntensity = isHighlighted ? 0.5 : isAtRisk ? 0.2 : 0;
+      const isConflict = conflictZones.has(stateId);
+      const isImpact = impactAnimation?.affectedStates?.has(stateId);
+
+      // Priority: impact animation > conflict zone > highlighted > at-risk
+      if (isImpact) {
+        sphere.material.emissive.setHex(0x00ff00); // green for impact
+        sphere.material.emissiveIntensity = 0.7;
+      } else if (isConflict) {
+        sphere.material.emissive.setHex(0xffa500); // orange for conflict
+        sphere.material.emissiveIntensity = 0.5;
+      } else if (isHighlighted) {
+        sphere.material.emissive.setHex(0x444444);
+        sphere.material.emissiveIntensity = 0.5;
+      } else if (isAtRisk) {
+        sphere.material.emissive.setHex(0x660000); // dark red for at-risk
+        sphere.material.emissiveIntensity = 0.2;
+      } else {
+        sphere.material.emissiveIntensity = 0;
+      }
     });
+
+    // D. Fade out impact animation after 2 seconds
+    if (impactAnimation && impactAnimation.startTime && Date.now() - impactAnimation.startTime > 2000) {
+      setImpactAnimation(null);
+    }
 
     renderer.render(scene, camera);
   };
