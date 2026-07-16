@@ -1655,7 +1655,7 @@ function solveConflictIndependentSet(recs, conflicts) {
 
   // Priority scores (what matters most in governance)
   // Growth = new expansion (score 100), Health = save a center (score 80), Retention = keep staff (score 60)
-  const agentPriority = { Growth: 100, "Unit Health": 80, Retention: 60, "Network Propagation": 40 };
+  const agentPriority = { "Franchise Growth": 100, "Center Performance": 80, "Team Vitality": 60, "Best Practices Hub": 40 };
   const recPriority = recs.reduce((m, r) => {
     m[r.id] = agentPriority[r.agent] || 50;
     return m;
@@ -1787,7 +1787,7 @@ function growthAgentRecommend(centers,states,leads,daysFn=defaultDaysSinceMeasur
   const worstDays=Math.max(...regionCenters.map(daysFn));
   const underwritingNote=l.proven?" \u00b7 proven operator, liquidity floor discounted to $"+liquidityFloor+"k":l.multi?" \u00b7 multi-unit intent, fit floor raised to "+fitFloor:"";
   out.push(buildRecommendation({
-   agent:"Growth",scope:"territory",targetIds:[l.id,region,anchor.name],
+   agent:"Franchise Growth",scope:"territory",targetIds:[l.id,region,anchor.name],
    title:region+": "+l.n+" ("+l.fit+" fit) into a "+(headroom>=0.35?"high-headroom":overlapFlag?"overlap-constrained":"moderate-headroom")+" territory",
    summary:l.note+" \u00b7 "+regionCenters.length+" existing unit(s) in "+region+" \u00b7 territory headroom "+Math.round(headroom*100)+"%"+(overlapFlag?" (adjusted for "+used+" concurrent candidate(s) already proposed into this territory this cycle)":"")+underwritingNote+(gateBlocked?" \u00b7 "+gateReason:""),
    actionType:"expansion",center:anchor,states,daysSinceMeasure:worstDays,
@@ -1836,7 +1836,7 @@ function unitHealthAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacit
   const robustAcrossScenarios=scenarioViability.every(v=>v.viable);
   const viabilityTag=robustAcrossScenarios?"robust":"scenario-dependent"+(scenarioViability.find(v=>v.posture==='pessimistic')?.viable===false?" (fails under Pessimistic)":"");
   out.push(buildRecommendation({
-   agent:"Unit Health",scope:"unit",targetIds:[c.name],
+   agent:"Center Performance",scope:"unit",targetIds:[c.name],
    title:c.name+": "+(chronic?"chronic underperformance — turnaround review":"below-floor margin — support plan"),
    summary:"margin $"+c.eb+"k · health "+c.health+" · momentum "+c.momentum+(chronic?" · sustained decline, not a single-period dip":" · likely recoverable with a support plan")+(isAllocated?"":" · deferred by health-severity optimization ("+cap+" FBC slots allocated to higher-severity cases)")+" ["+viabilityTag+"]",
    actionType:"support-plan",center:c,states:{},daysSinceMeasure:days,
@@ -1882,7 +1882,7 @@ function retentionAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacity
   const h=retentionProposalHistory[c.name]||{confidenceScore:0.7,decayFactor:1.0};
   const confidenceScore=h.confidenceScore*h.decayFactor;
   out.push(buildRecommendation({
-   agent:"Retention",scope:"unit",targetIds:[c.name],
+   agent:"Team Vitality",scope:"unit",targetIds:[c.name],
    title:c.name+": silent-churn risk",
    summary:"staff chemistry "+c.chem.toFixed(2)+" · 12mo retention "+Math.round(c.ret*100)+"% · risk builds quietly between measurement cycles"+(withinCapacity?"":" · Owner outreach capacity ceiling reached this cycle ("+cap+" concurrent)")+(confidenceScore<0.6?" [low historical success]":""),
    actionType:"outreach",center:c,states:{},daysSinceMeasure:days,
@@ -1941,7 +1941,7 @@ function networkPropagationAgentRecommend(centers,states,daysFn=defaultDaysSince
   const pairWeight=propagationPairWeights[pairKey]?.weight||1.0;
   const propagationConfidence=0.6*pairWeight; // base 0.6, scaled by pair history
   out.push(buildRecommendation({
-   agent:"Network Propagation",scope:"cluster",targetIds:[source.name,target.name],
+   agent:"Best Practices Hub",scope:"cluster",targetIds:[source.name,target.name],
    title:st+": propagate "+source.name+"'s pattern toward "+target.name,
    summary:gap+"-point health gap (top-"+k+"/bottom-"+k+" avg) within "+st+" · sample "+cs.length+" units, "+sampleConfidence+" confidence · guardrail: "+(guard?guard.guard:"data integrity — verified pattern only")+(pairWeight<0.9?" [learning from prior pairs]":""),
    actionType:"support-plan",center:target,states,daysSinceMeasure:days,
