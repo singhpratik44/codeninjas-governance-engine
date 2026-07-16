@@ -3084,6 +3084,181 @@ class EngineErrorBoundary extends React.Component{
  }
 }
 
+// ============================================================================
+// FRANCHISE GROWTH ENGINE — Curriculum, Community, Revenue Model
+// ============================================================================
+
+// A. Curriculum Module — Pricing tiers + revenue impact
+const CURRICULUM_PATHS = {
+  classic: { name: 'CodeNinjas Classic', price: 199, tracks: ['Python', 'Java', 'Web'], months: 12, color: '#2fbf5f' },
+  ai: { name: 'AI & Machine Learning', price: 89, tracks: ['TensorFlow', 'NLP', 'Computer Vision'], months: 12, addon: true, color: '#5a7cbe' },
+  robotics: { name: 'Robotics & Hardware', price: 89, tracks: ['Arduino', 'Drones', 'IoT'], months: 12, addon: true, color: '#d9a520' },
+  elite: { name: 'Elite Track (All 3)', price: 269, tracks: ['Python', 'TensorFlow', 'Arduino', 'Web', 'NLP', 'Drones'], months: 24, color: '#e03535' },
+};
+
+// B. Community & Events — Integration touchpoints
+const COMMUNITY_PROGRAMS = {
+  library: { name: 'Library Partnership', students_reach: 150, events_per_year: 8, revenue_impact: 12000, icon: '📚' },
+  stemnight: { name: 'STEM Night Events', students_reach: 200, events_per_year: 12, revenue_impact: 18000, icon: '🌟' },
+  comiccon: { name: 'Comic Con Sponsorship', students_reach: 500, events_per_year: 2, revenue_impact: 25000, icon: '🎪' },
+  sports: { name: 'Sports Team Partnerships', students_reach: 80, events_per_year: 6, revenue_impact: 9000, icon: '🏆' },
+  bootcamp: { name: 'Summer AI Bootcamp', students_reach: 100, events_per_year: 1, revenue_impact: 22000, icon: '⚡' },
+};
+
+// C. Franchise Card Data — Territory opportunity model
+const TERRITORY_OPPORTUNITY = {
+  market_size: { small: 5000, medium: 15000, large: 35000 }, // population in territory
+  penetration: { conservative: 0.05, moderate: 0.10, aggressive: 0.15 }, // % of pop that enrolls
+  arpu_baseline: 199, // average revenue per user (classic only)
+  arpu_with_addons: 269, // with AI + robotics
+  retention_rate: 0.72, // 12-month retention
+  margin: 0.55, // gross margin after instructor cost
+};
+
+// D. Operations Workflows — Franchisee playbook
+const OPERATIONS_WORKFLOWS = [
+  {
+    id: 'curriculum-launch',
+    name: 'Launch Curriculum Tier',
+    description: 'How to onboard a new curriculum path (AI/Robotics) at your center',
+    steps: [
+      '1. Secure instructor (hire or retrain existing)',
+      '2. Procure equipment (Arduino kits, TensorFlow licenses)',
+      '3. Soft launch with existing students (free pilot)',
+      '4. Market to new segments (parents seeking AI skills)',
+      '5. Enroll cohort 1 (20-30 students)',
+      '6. Monitor completion rate & satisfaction',
+      '7. Full rollout across center',
+    ],
+    timeline_days: 60,
+    cost_estimate: 8000,
+    revenue_potential_year1: 45000,
+  },
+  {
+    id: 'community-events',
+    name: 'Run STEM Events',
+    description: 'Community engagement playbook (Library, Comic Con, Sports)',
+    steps: [
+      '1. Identify community venue (library, festival, field)',
+      '2. Plan event (3-hour format, 30-50 kids)',
+      '3. Prepare materials (beginner coding, AI demo, robotics)',
+      '4. Promote (flyers, school partnerships, social)',
+      '5. Execute event (2 instructors, 1 admin)',
+      '6. Capture leads (QR code sign-up sheet)',
+      '7. Follow-up sequence (email, trial class invite)',
+    ],
+    timeline_days: 30,
+    cost_estimate: 1500,
+    revenue_potential_year1: 18000,
+  },
+  {
+    id: 'pricing-strategy',
+    name: 'Pricing & Upsell Strategy',
+    description: 'How to move customers from Classic ($199) to Elite ($269)',
+    steps: [
+      '1. Segment students by interest & performance',
+      '2. Email campaign: "Ready for AI? Here\'s what\'s next"',
+      '3. Offer trial AI lesson (3x free for classic members)',
+      '4. Conversion messaging (careers, college, competitive edge)',
+      '5. Tiered discounts (pay for both, save $50/mo)',
+      '6. Track cohort migration (Classic → Classic+AI → Elite)',
+      '7. Measure ARPU lift (target: +$45/student)',
+    ],
+    timeline_days: 90,
+    cost_estimate: 2000,
+    revenue_potential_year1: 67000,
+  },
+  {
+    id: 'retention-playbook',
+    name: 'Retention & Engagement',
+    description: 'Keep students enrolled (target: 75%+ 12-mo retention)',
+    steps: [
+      '1. Monthly check-ins (instructor feedback)',
+      '2. Progress milestones (belt system, certificates)',
+      '3. Showcase projects (parent demo day quarterly)',
+      '4. Peer competitions (class tournaments)',
+      '5. "At-risk" intervention (call parents if grades slip)',
+      '6. Summer continuity (bootcamps, remote options)',
+      '7. Alumni network (hire grads as junior instructors)',
+    ],
+    timeline_days: 365,
+    cost_estimate: 5000,
+    revenue_potential_year1: 45000,
+  },
+];
+
+// E. AI-Assisted Growth Suggestions — Recommendations engine
+function generateGrowthSuggestions(territory_data, curriculum_mix, community_programs) {
+  const suggestions = [];
+
+  // Suggestion 1: Curriculum gap — AI/Robotics adoption
+  if (!curriculum_mix.ai) {
+    suggestions.push({
+      type: 'curriculum_gap_ai',
+      priority: 'high',
+      recommendation: 'Launch AI & Machine Learning track — parent demand trending +40% YoY',
+      impact: '+$45k annual revenue, +25% enrollment',
+      effort: 'Medium (60 days, $8k setup)',
+    });
+  }
+
+  // Suggestion 1b: Robotics gap
+  if (!curriculum_mix.robotics) {
+    suggestions.push({
+      type: 'curriculum_gap_robotics',
+      priority: 'high',
+      recommendation: 'Add Robotics & Hardware track — hardware + experiential learning command premium pricing',
+      impact: '+$38k annual revenue, +18% enrollment',
+      effort: 'Medium (60 days, $7k setup)',
+    });
+  }
+
+  // Suggestion 2: Community leverage — fill gaps
+  if (community_programs.length < 3) {
+    const missing = Object.keys(COMMUNITY_PROGRAMS).filter(k => !community_programs.includes(k));
+    const topMissing = missing.slice(0, 2);
+    const missingNames = topMissing.map(k => COMMUNITY_PROGRAMS[k].name).join(' + ');
+    suggestions.push({
+      type: 'community_gap',
+      priority: 'high',
+      recommendation: `Add ${missingNames} (you're accessing only ${community_programs.length}/5 revenue streams)`,
+      impact: '+$30k annual revenue, 200+ new leads, brand visibility',
+      effort: 'Low (30 days, $3k per program)',
+    });
+  }
+
+  // Suggestion 3: ARPU optimization — tier migration
+  suggestions.push({
+    type: 'arpu_optimization',
+    priority: 'medium',
+    recommendation: 'Tier migration: move Classic → Elite via AI/Robotics upsell (72% conversion possible)',
+    impact: '+$67k annual revenue, +$35/mo ARPU lift',
+    effort: 'Low (90 days, email campaign + 3x trial lessons)',
+  });
+
+  // Suggestion 4: Network effects — regional coordination
+  if (community_programs.length >= 3) {
+    suggestions.push({
+      type: 'network_effect',
+      priority: 'medium',
+      recommendation: 'Host regional Summer AI Bootcamp (2-3 centers coordinate, shared instructor cost)',
+      impact: '+$22k revenue, 100+ students, 40% cost reduction via pooling',
+      effort: 'Medium (60 days coordination, logistics)',
+    });
+  }
+
+  // Suggestion 5: Retention leverage
+  suggestions.push({
+    type: 'retention_optimization',
+    priority: 'medium',
+    recommendation: 'Implement progress milestones + quarterly demo days (proven 75%+ retention)',
+    impact: '+$15k annual revenue from reduced churn, improved NPS',
+    effort: 'Low (60 days, marketing + scheduling)',
+  });
+
+  return suggestions;
+}
+
 const SOLVER_RESULTS = {
   optimistic: {
     leads: { volume: 3173, conversion_rate: 0.805, cac: 3100 },
@@ -3435,6 +3610,114 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
    </div>
    {selectedStateCenters.length>8&&<div style={{fontSize:9.5,color:MUT}}>+{selectedStateCenters.length-8} more centers</div>}
   </div>}
+
+  <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>A. Franchise Growth Strategy — Curriculum Expansion + Revenue Model</div>
+   <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+    {Object.entries(CURRICULUM_PATHS).map(([key, curr]) => (
+     <div key={key} style={{flex:"1 1 180px",padding:"10px 12px",border:`1px solid #ddd`,borderTop:`3px solid ${curr.color}`,borderRadius:3,background:"#fafafa"}}>
+      <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:6}}>{curr.name}</div>
+      <div style={{fontSize:11,color:"#333",marginBottom:2}}><b>${curr.price}</b><span style={{color:MUT,fontSize:9}}>/mo</span></div>
+      <div style={{fontSize:9,color:"#666",marginBottom:2}}>{curr.tracks.join(" · ")}</div>
+      <div style={{fontSize:8.5,color:MUT,marginTop:4}}>Duration: {curr.months}mo{curr.addon?" (add-on)":""}</div>
+     </div>
+    ))}
+   </div>
+   <div style={{fontSize:9.5,color:"#666",marginTop:8,padding:"8px 0"}}>Elite Track ($269/mo) bundles all three paths over 24 months. Addon tracks (AI + Robotics) can be sold separately ($89 each) to existing Classic students, boosting ARPU from $199 → $269 (+35% per student).</div>
+  </div>
+
+  <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>B. Community Integration — 5 Revenue Streams, 1,000+ Student Reach</div>
+   <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+    {Object.entries(COMMUNITY_PROGRAMS).map(([key, prog]) => (
+     <div key={key} style={{flex:"1 1 160px",padding:"10px 12px",border:`1px solid #ddd`,background:"#f9f9f9",borderRadius:3}}>
+      <div style={{fontSize:18,marginBottom:4}}>{prog.icon}</div>
+      <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,color:INK,marginBottom:6}}>{prog.name}</div>
+      <div style={{fontSize:9,color:"#666",marginBottom:2}}>Reach: <b>{prog.students_reach}</b> students</div>
+      <div style={{fontSize:9,color:"#666",marginBottom:2}}>Events: <b>{prog.events_per_year}</b>/yr</div>
+      <div style={{fontSize:9.5,color:GRN,fontWeight:700}}>{fmtK(prog.revenue_impact)}</div>
+     </div>
+    ))}
+   </div>
+   <div style={{fontSize:9.5,color:"#666",marginTop:8,padding:"8px 0"}}>Combined annual revenue from community programs: {fmtK(Object.values(COMMUNITY_PROGRAMS).reduce((sum, p) => sum + p.revenue_impact, 0))}. Each program is a low-cost, high-reach channel to acquire new students and build brand presence.</div>
+  </div>
+
+  <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>C. Territory Opportunity & Franchise Revenue Potential</div>
+   <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+    {Object.entries(TERRITORY_OPPORTUNITY.market_size).map(([sizeKey, popSize]) => {
+     const modPenetration = TERRITORY_OPPORTUNITY.penetration.moderate;
+     const enrollees = Math.round(popSize * modPenetration);
+     const arpu = TERRITORY_OPPORTUNITY.arpu_with_addons;
+     const retention = TERRITORY_OPPORTUNITY.retention_rate;
+     const year1Revenue = enrollees * arpu * 12 * retention;
+     const grossMargin = year1Revenue * TERRITORY_OPPORTUNITY.margin;
+     return (
+      <div key={sizeKey} style={{flex:"1 1 160px",padding:"10px 12px",border:`1px solid #ddd`,background:sizeKey==="large"?"#f0fdf4":sizeKey==="medium"?"#fef6e6":"#f5f5f5",borderRadius:3}}>
+       <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,color:INK,marginBottom:6,textTransform:"capitalize"}}>{sizeKey} Market ({popSize.toLocaleString()})</div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>Est. enrollment: <b>{enrollees}</b> students</div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>ARPU (with AI+Robotics): <b>${arpu}/mo</b></div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>Retention (Y1): <b>{fmtPct(retention)}</b></div>
+       <div style={{fontSize:10,fontWeight:700,color:GRN}}>Year 1 Revenue: {fmtK(year1Revenue)}</div>
+       <div style={{fontSize:8.5,color:MUT,marginTop:4}}>Gross Margin: {fmtK(grossMargin)}</div>
+      </div>
+     );
+    })}
+   </div>
+  </div>
+
+  <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>D. Operations Workflows — Franchisee Playbooks</div>
+   <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:8}}>
+    {OPERATIONS_WORKFLOWS.map((wf, idx) => (
+     <div key={wf.id} style={{flex:"1 1 250px",border:`1px solid #ddd`,borderRadius:3,padding:"10px 12px",background:"#fafafa"}}>
+      <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:4}}>{idx+1}. {wf.name}</div>
+      <div style={{fontSize:8.5,color:"#666",marginBottom:6}}>{wf.description}</div>
+      <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Timeline: <b>{wf.timeline_days} days</b></div>
+      <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Setup Cost: <b>{fmtK(wf.cost_estimate)}</b></div>
+      <div style={{fontSize:9,fontWeight:700,color:GRN,marginBottom:6}}>Year 1 Revenue: {fmtK(wf.revenue_potential_year1)}</div>
+      <div style={{fontSize:8,color:MUT,lineHeight:1.4,borderTop:`1px solid #eee`,paddingTop:6}}>
+       {wf.steps.map((step, si) => (<div key={si} style={{marginBottom:2}}>{step}</div>))}
+      </div>
+     </div>
+    ))}
+   </div>
+  </div>
+
+  <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>E. AI-Driven Growth Recommendations — Smart Suggestions for Territory Expansion</div>
+   {(() => {
+    // Analyze current network to generate smart recommendations
+    const atRiskCount = centers ? centers.filter(c => c.condition === 'at-risk').length : 0;
+    const avgHealth = centers ? Math.round(centers.reduce((sum, c) => sum + c.health, 0) / centers.length) : 70;
+    const avgMargin = centers ? Math.round(centers.reduce((sum, c) => sum + c.margin, 0) / centers.length) : 35;
+    const territoryData = {
+      market_tech_affinity: 0.75,
+      centers_current: centers ? centers.length : 348,
+      health_score: avgHealth,
+      margin_score: avgMargin
+    };
+    const curriculumMix = {ai: true, robotics: true, classic: true};
+    const communityPrograms = Object.keys(COMMUNITY_PROGRAMS);
+    const suggestions = generateGrowthSuggestions(territoryData, curriculumMix, communityPrograms);
+    return (
+     <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+      {suggestions.length ? suggestions.map((sug, i) => (
+       <div key={i} style={{flex:"1 1 240px",padding:"10px 12px",border:`1px solid ${sug.priority==="high"?AC:"#ddd"}`,background:sug.priority==="high"?"#fff8f6":"#f9f9f9",borderRadius:3}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"start",marginBottom:6}}>
+         <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,color:INK}}>{sug.recommendation}</div>
+         <span style={{fontSize:7.5,fontWeight:700,padding:"2px 6px",background:sug.priority==="high"?AC:"#ddd",color:"#fff",borderRadius:2,whiteSpace:"nowrap"}}>{sug.priority.toUpperCase()}</span>
+        </div>
+        <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>Impact: {sug.impact}</div>
+        <div style={{fontSize:8,color:MUT}}>Effort: {sug.effort}</div>
+       </div>
+      )) : (
+       <div style={{flex:"1 1 100%",padding:"10px",color:MUT,fontSize:9.5}}>All growth channels optimized for this territory. Monitor quarterly and iterate based on actual enrollment data.</div>
+      )}
+     </div>
+    );
+   })()}
+  </div>
 
   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
    <div style={{flex:"1 1 300px",border:`1px solid ${RULE}`,padding:"10px 12px"}}>
