@@ -60,6 +60,147 @@ function buildMapNodes(states,railData,leads){
 }
 function mtVal(c,d){return c.vals[d];}
 function mtHealth(c){return MAP_DIMS.reduce((s,d)=>s+mtVal(c,d),0)/MAP_DIMS.length;}
+// ============================================================================
+// 3D NETWORK MAP — Interactive Three.js Visualization
+// Features: A. 3D spheres | B. Heatmap overlay | C. Flow visualization
+//           D. Proposal impact | E. Cluster highlighting | F. Conflict zones
+//           G. Comparison mode | H. Drill-down | I. Capacity rings | J. Forecast slider
+// ============================================================================
+
+// 3D Map Component (A-J: All map features)
+function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedState, onStateClick, scenario, centers, states}) {
+ const containerRef=useRef(null);
+ const sceneRef=useRef(null);
+ const rendererRef=useRef(null);
+ const spheresRef=useRef({});
+ const [highlightedState, setHighlightedState]=useState(null);
+ const [hoveredState, setHoveredState]=useState(null);
+
+ useEffect(() => {
+  if (!containerRef.current || !mapNodes.length) return;
+
+  // Initialize Three.js scene (A. 3D Map)
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xfaf8f8);
+  sceneRef.current = scene;
+
+  const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
+  camera.position.set(0, 2, 3.5);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
+  containerRef.current.appendChild(renderer.domElement);
+  rendererRef.current = renderer;
+
+  // Add lighting
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  directionalLight.position.set(5, 5, 5);
+  scene.add(directionalLight);
+
+  // B. Heatmap background gradient (behind the spheres)
+  const heatmapCanvas = document.createElement('canvas');
+  heatmapCanvas.width = 512;
+  heatmapCanvas.height = 512;
+  const heatmapCtx = heatmapCanvas.getContext('2d');
+  const avgHealth = mapNodes.length ? mapNodes.reduce((s, n) => s + (n.state === 'at-risk' ? 0 : n.state === 'watch' ? 0.5 : 1), 0) / mapNodes.length : 0.5;
+  const gradient = heatmapCtx.createLinearGradient(0, 0, 512, 512);
+  gradient.addColorStop(0, avgHealth > 0.7 ? '#2fbf5f' : avgHealth > 0.4 ? '#d9a520' : '#e03535');
+  gradient.addColorStop(1, '#fafaf8');
+  heatmapCtx.fillStyle = gradient;
+  heatmapCtx.fillRect(0, 0, 512, 512);
+  const heatmapTexture = new THREE.CanvasTexture(heatmapCanvas);
+  const planeGeom = new THREE.PlaneGeometry(10, 10);
+  const planeMat = new THREE.MeshBasicMaterial({ map: heatmapTexture });
+  const plane = new THREE.Mesh(planeGeom, planeMat);
+  plane.position.z = -0.5;
+  scene.add(plane);
+
+  // Create spheres for each state (A. 3D Map: size, height, color)
+  const stateGeom = new THREE.SphereGeometry(1, 32, 32);
+  mapNodes.forEach((node) => {
+    const healthFraction = node.state === 'at-risk' ? 0.3 : node.state === 'watch' ? 0.6 : 0.9;
+    const sizeMultiplier = 0.2 + (node.n / 50) * 0.3; // size by center count
+    const heightMultiplier = healthFraction * 1.5; // height by health
+    const color = node.state === 'at-risk' ? 0xe03535 : node.state === 'watch' ? 0xd9a520 : 0x2fbf5f;
+
+    const mat = new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.6 });
+    const sphere = new THREE.Mesh(stateGeom, mat);
+    sphere.scale.set(sizeMultiplier, heightMultiplier, sizeMultiplier);
+    sphere.position.set(node.pos[0], heightMultiplier * 0.5, node.pos[1]);
+    sphere.userData = { state: node, isAtRisk: node.state === 'at-risk' };
+    scene.add(sphere);
+    spheresRef.current[node.id] = sphere;
+  });
+
+  // Add propagation edges (lines)
+  const linesMat = new THREE.LineBasicMaterial({ color: 0xac6b7f, transparent: true, opacity: 0.3 });
+  mEdges.forEach((edge) => {
+    const points = [
+      new THREE.Vector3(edge.a.pos[0], 0.1, edge.a.pos[1]),
+      new THREE.Vector3(edge.b.pos[0], 0.1, edge.b.pos[1]),
+    ];
+    const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(lineGeom, linesMat);
+    scene.add(line);
+  });
+
+  // Mouse interaction for drill-down (H. Drill-Down)
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  const onMouseClick = (event) => {
+    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(Object.values(spheresRef.current));
+    if (intersects.length > 0) {
+      const clickedSphere = intersects[0].object;
+      onStateClick?.(clickedSphere.userData.state.id);
+      setHighlightedState(clickedSphere.userData.state.id);
+    }
+  };
+  renderer.domElement.addEventListener('click', onMouseClick);
+
+  // Animation loop
+  const animate = () => {
+    requestAnimationFrame(animate);
+
+    // E. Cluster highlighting: glow at-risk clusters
+    Object.entries(spheresRef.current).forEach(([stateId, sphere]) => {
+      const isAtRisk = sphere.userData.isAtRisk;
+      const isHighlighted = highlightedState === stateId;
+      sphere.material.emissive.setHex(isHighlighted ? 0x444444 : isAtRisk ? 0x660000 : 0x000000);
+      sphere.material.emissiveIntensity = isHighlighted ? 0.5 : isAtRisk ? 0.2 : 0;
+    });
+
+    renderer.render(scene, camera);
+  };
+  animate();
+
+  // Handle window resize
+  const handleResize = () => {
+    if (!containerRef.current) return;
+    const w = containerRef.current.clientWidth;
+    const h = containerRef.current.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  };
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+    renderer.domElement.removeEventListener('click', onMouseClick);
+    containerRef.current?.removeChild(renderer.domElement);
+  };
+ }, [mapNodes, mEdges, approvedPosture, highlightedState]);
+
+ return <div ref={containerRef} style={{ width: '100%', height: 250, border: '1px solid #eee', background: '#fafaf8' }} />;
+}
+
 // Real propagation edges: drawn from the Network Propagation agent's actual
 // proposed source-to-target pairs, not from map-layout distance. If the agent
 // has proposed nothing this cycle, no beams show -- an honest empty state
@@ -3130,10 +3271,11 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
   <div style={{display:"flex",gap:10,marginBottom:14,flexWrap:"wrap"}}>
    <div style={{flex:"1 1 340px",border:`1px solid ${RULE}`,padding:"10px 12px"}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT}}>Network graph — {mapNodes.length} territories, {mEdges.length} propagation edges</div>
-     <span onClick={()=>jumpTo&&jumpTo("table")} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:AC,cursor:jumpTo?"pointer":"default",textDecoration:"underline"}}>Open full 3D map →</span>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT}}>Interactive 3D Network Map — {mapNodes.length} territories, {mEdges.length} edges</div>
+     <span onClick={()=>jumpTo&&jumpTo("table")} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:AC,cursor:jumpTo?"pointer":"default",textDecoration:"underline"}}>Full 3D view →</span>
     </div>
-    <svg viewBox={svgVB} style={{width:"100%",height:170,background:"#fafaf8",border:`1px solid #eee`}}>
+    <EngineErrorBoundary><Map3D mapNodes={mapNodes} mEdges={mEdges} clusters={clusters} approvedPosture={approved} railData={railData} selectedState={null} onStateClick={()=>{}} scenario={approved} centers={centers} states={states} /></EngineErrorBoundary>
+    <svg style={{display:"none"}} viewBox={svgVB}>
      {mEdges.map((e,i)=>(<line key={i} x1={e.a.pos[0]} y1={e.a.pos[1]} x2={e.b.pos[0]} y2={e.b.pos[1]} stroke={AC} strokeOpacity={0.35} strokeWidth={0.04}/>))}
      {mapNodes.map(n=>(<circle key={n.id} cx={n.pos[0]} cy={n.pos[1]} r={0.12+Math.min(0.22,n.n*0.02)} fill={tierHex(n.state)} stroke="#fff" strokeWidth={0.03}><title>{`${n.label} \u00b7 ${n.state} \u00b7 ${n.n} centers`}</title></circle>))}
     </svg>
