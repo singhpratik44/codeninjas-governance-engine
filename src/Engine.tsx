@@ -4508,97 +4508,107 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
    })()}
   </div>
 
-  <div style={{border:`2px solid #7c3aed`,padding:"12px",marginBottom:14,background:"#faf5ff",borderRadius:4}}>
-   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:"#7c3aed",marginBottom:10}}>🤖 Autonomous Optimization Engine — 24x7 Network Monitoring</div>
-   <div style={{fontSize:8.5,color:"#666",marginBottom:10}}>Real-time analysis across all 348 centers. Triggers alerts, executes playbooks, learns from results.</div>
+  <div style={{border:`2px solid #7c3aed`,padding:"16px",marginBottom:16,background:"#faf5ff",borderRadius:6,boxShadow:"0 1px 3px rgba(124,58,237,0.1)"}}>
+   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+    <span style={{fontSize:20}}>🤖</span>
+    <div>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"#7c3aed",marginBottom:2}}>Autonomous Optimization Engine</div>
+     <div style={{fontSize:9,color:"#666"}}>24x7 Real-time Monitoring & Autonomous Governance</div>
+    </div>
+   </div>
 
-   <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:10,marginBottom:12}}>
+   <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12,marginBottom:14}}>
     {/* Lead & Conversion */}
-    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
-     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>1. Lead Funnel Optimization</div>
-     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
-      <div>📊 Channel mix: organic 30%, referral 30%, paid 25%, events 15%</div>
-      <div>💰 Pricing test: Try $219 Classic in small markets (4 wks)</div>
-      <div>⚠️ Churn window: Weeks 8-12 (attendance {'<'}80%)</div>
-      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Weekly check-ins for flagged students</div>
+    <div style={{padding:"12px",border:`1px solid #e5e7eb`,background:"#ffffff",borderRadius:4,boxShadow:"0 1px 2px rgba(0,0,0,0.05)"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:"#2563eb",marginBottom:8}}>📊 Lead Funnel Optimization</div>
+     <div style={{fontSize:8.5,color:"#374151",lineHeight:1.6,marginBottom:2}}>
+      <div>• Channel mix: organic 30%, referral 30%, paid 25%, events 15%</div>
+      <div>• Test: $219 pricing in small markets (4 week pilot)</div>
+      <div>• Risk window: Weeks 8-12 (attendance {'<'}80%)</div>
      </div>
+     <div style={{marginTop:6,paddingTop:6,borderTop:"1px solid #f3f4f6",fontSize:8,color:"#059669",fontWeight:600}}>→ Weekly check-ins for flagged students</div>
     </div>
 
     {/* Capacity & Staffing */}
-    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
-     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>2. Capacity & Staffing</div>
-     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
-      <div>📈 Current utilization: 94% (RED: hire NOW)</div>
-      <div>👥 Forecast 6mo: Need 1 additional instructor</div>
-      <div>⚡ Instructor A: 93% utilization (burnout risk)</div>
-      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Post hiring now, interview, onboard in 90 days</div>
+    <div style={{padding:"12px",border:`1px solid #e5e7eb`,background:"#ffffff",borderRadius:4,boxShadow:"0 1px 2px rgba(0,0,0,0.05)"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:"#dc2626",marginBottom:8}}>👥 Capacity & Staffing</div>
+     <div style={{fontSize:8.5,color:"#374151",lineHeight:1.6,marginBottom:2}}>
+      <div>• Utilization: 94% (⚠️ Critical — hire immediately)</div>
+      <div>• Forecast: +1 instructor needed in 6 months</div>
+      <div>• Risk: Team burnout at current levels</div>
      </div>
+     <div style={{marginTop:6,paddingTop:6,borderTop:"1px solid #f3f4f6",fontSize:8,color:"#059669",fontWeight:600}}>→ Post hiring, target 90-day ramp</div>
     </div>
 
     {/* Revenue & Margin */}
-    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
-     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>3. Revenue & Margin Mix</div>
-     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
-      <div>📊 Current: 50% Classic, 30% +AI, 20% Elite</div>
-      <div>💵 Current profit: {fmtK(600)} Y1</div>
-      <div>✅ Elite focus mix: +{fmtK(50)} profit (+8%)</div>
-      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Tier migration campaign (Classic→Elite)</div>
+    <div style={{padding:"12px",border:`1px solid #e5e7eb`,background:"#ffffff",borderRadius:4,boxShadow:"0 1px 2px rgba(0,0,0,0.05)"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:"#059669",marginBottom:8}}>💰 Revenue & Margin</div>
+     <div style={{fontSize:8.5,color:"#374151",lineHeight:1.6,marginBottom:2}}>
+      <div>• Mix: 50% Classic, 30% +AI, 20% Elite</div>
+      <div>• Y1 Profit: {fmtK(600)}</div>
+      <div>• Elite shift potential: +{fmtK(50)} (+8%)</div>
      </div>
+     <div style={{marginTop:6,paddingTop:6,borderTop:"1px solid #f3f4f6",fontSize:8,color:"#059669",fontWeight:600}}>→ Classic→Elite tier migration campaign</div>
     </div>
 
     {/* Retention */}
-    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
-     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>4. Retention & Engagement</div>
-     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
-      <div>⚠️ At-risk students: ~13 (15% of cohort)</div>
-      <div>📈 Recovery rate: 60% with intervention</div>
-      <div>🧪 Test: Age-grouped cohorts vs. mixed</div>
-      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Buddy-pair system, weekly check-ins</div>
+    <div style={{padding:"12px",border:`1px solid #e5e7eb`,background:"#ffffff",borderRadius:4,boxShadow:"0 1px 2px rgba(0,0,0,0.05)"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:"#7c3aed",marginBottom:8}}>📈 Retention & Engagement</div>
+     <div style={{fontSize:8.5,color:"#374151",lineHeight:1.6,marginBottom:2}}>
+      <div>• At-risk: ~13 students (15% of cohort)</div>
+      <div>• Recovery rate: 60% with intervention</div>
+      <div>• Experiment: Age-grouped vs. mixed cohorts</div>
+     <div style={{marginTop:6,paddingTop:6,borderTop:"1px solid #f3f4f6",fontSize:8,color:"#059669",fontWeight:600}}>→ Buddy-pair system, weekly check-ins</div>
      </div>
     </div>
 
     {/* Territory Expansion */}
-    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
-     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>5. Territory & Network</div>
-     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
-      <div>🎯 Expansion: Austin (score 92), Boulder (78)</div>
-      <div>🏢 2nd location: Pleasanton →  Livermore (5mi)</div>
-      <div>🤝 Cluster bootcamp: Silicon Valley (3-center shared)</div>
-      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Capital planning, franchisee recruitment</div>
+    <div style={{padding:"12px",border:`1px solid #e5e7eb`,background:"#ffffff",borderRadius:4,boxShadow:"0 1px 2px rgba(0,0,0,0.05)"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:"#f59e0b",marginBottom:8}}>🎯 Territory & Network</div>
+     <div style={{fontSize:8.5,color:"#374151",lineHeight:1.6,marginBottom:2}}>
+      <div>• Expansion opportunities: Austin (92), Boulder (78)</div>
+      <div>• 2nd location: Pleasanton → Livermore (5mi)</div>
+      <div>• Network: Silicon Valley 3-center cluster</div>
      </div>
+     <div style={{marginTop:6,paddingTop:6,borderTop:"1px solid #f3f4f6",fontSize:8,color:"#059669",fontWeight:600}}>→ Capital planning & franchisee recruitment</div>
     </div>
 
-    {/* MyStudio Integration */}
-    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
-     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>⚙️ MyStudio Integration</div>
-     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
-      <div>🔄 Data frequency: Every 6 hours</div>
-      <div>📡 Data freshness: {'<'}12 hours lag</div>
-      <div>🚨 Alert levels: CRITICAL, HIGH, MED, LOW</div>
-      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Status: Connected & monitoring</div>
+    {/* Data Integration */}
+    <div style={{padding:"12px",border:`1px solid #e5e7eb`,background:"#ffffff",borderRadius:4,boxShadow:"0 1px 2px rgba(0,0,0,0.05)"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:"#6366f1",marginBottom:8}}>🔗 Data Integration</div>
+     <div style={{fontSize:8.5,color:"#374151",lineHeight:1.6,marginBottom:2}}>
+      <div>• Real-time data ingestion</div>
+      <div>• Freshness target: {'<'}12 hours lag</div>
+      <div>• Alert levels: CRITICAL, HIGH, MEDIUM, LOW</div>
      </div>
+     <div style={{marginTop:6,paddingTop:6,borderTop:"1px solid #f3f4f6",fontSize:8,color:"#059669",fontWeight:600}}>→ Connected & monitoring network</div>
     </div>
    </div>
 
-   <div style={{background:"#fff",padding:"10px",borderRadius:3,borderLeft:`3px solid #7c3aed`}}>
-    <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:4}}>Active Alerts &amp; A/B Tests</div>
-    <div style={{display:"flex",gap:10,flexWrap:"wrap",fontSize:8}}>
+   <div style={{background:"#f9fafb",padding:"12px",borderRadius:4,border:`1px solid #e5e7eb`,marginTop:12}}>
+    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:"#111827",marginBottom:8}}>📊 Live Alerts &amp; Active Tests</div>
+    <div style={{display:"flex",gap:10,flexWrap:"wrap",fontSize:8.5}}>
      {(() => {
       const criticalAlerts = alerts.filter(a => a.severity === "CRITICAL" || a.ev === "CRITICAL");
       const highAlerts = alerts.filter(a => a.severity === "HIGH" || a.ev === "HIGH");
+      const mediumAlerts = alerts.filter(a => a.severity === "MEDIUM" || a.ev === "MEDIUM");
       return (
        <>
         {criticalAlerts.length > 0 && (
-         <div style={{padding:"6px 10px",background:"#fee2e2",color:"#991b1b",borderRadius:2,fontWeight:700}}>🔴 CRITICAL: {criticalAlerts.length} center{criticalAlerts.length > 1 ? 's' : ''}</div>
+         <div style={{padding:"6px 12px",background:"#fecaca",color:"#7f1d1d",borderRadius:3,fontWeight:600,fontSize:8.5}}>🔴 CRITICAL: {criticalAlerts.length}</div>
         )}
         {highAlerts.length > 0 && (
-         <div style={{padding:"6px 10px",background:"#fef3c7",color:"#92400e",borderRadius:2,fontWeight:700}}>🟡 HIGH: {highAlerts.length} alert{highAlerts.length > 1 ? 's' : ''}</div>
+         <div style={{padding:"6px 12px",background:"#fed7aa",color:"#92400e",borderRadius:3,fontWeight:600,fontSize:8.5}}>🟠 HIGH: {highAlerts.length}</div>
         )}
-        {abTests.map((test, i) => (
-         <div key={i} style={{padding:"6px 10px",background:"#dbeafe",color:"#0c4a6e",borderRadius:2,fontWeight:700}}>
-          🔵 TEST: {test.test_id} ({test.centers.length} centers)
-         </div>
-        ))}
+        {mediumAlerts.length > 0 && (
+         <div style={{padding:"6px 12px",background:"#bfdbfe",color:"#1e40af",borderRadius:3,fontWeight:600,fontSize:8.5}}>🔵 MEDIUM: {mediumAlerts.length}</div>
+        )}
+        {abTests.length > 0 && (
+         <div style={{padding:"6px 12px",background:"#d1d5db",color:"#374151",borderRadius:3,fontWeight:600,fontSize:8.5}}>🧪 {abTests.length} Test{abTests.length > 1 ? 's' : ''} Active</div>
+        )}
+        {criticalAlerts.length === 0 && highAlerts.length === 0 && mediumAlerts.length === 0 && abTests.length === 0 && (
+         <div style={{padding:"6px 12px",color:"#6b7280",fontSize:8.5}}>✓ No active alerts. System monitoring normally.</div>
+        )}
        </>
       );
      })()}
@@ -4694,36 +4704,47 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
   </div>
 
   {/* Feedback Loop & Execution Tracking */}
-  <div style={{display:"flex",gap:10,flexWrap:"wrap",marginTop:14}}>
-   <div style={{flex:"1 1 300px",border:`1px solid ${RULE}`,padding:"10px 12px"}}>
-    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:8}}>Feedback Loop — A/B Test Results</div>
-    <div style={{fontSize:8.5,color:"#666",lineHeight:1.6}}>
-     <div style={{marginBottom:6}}>
-      <b>pricing_small_219</b>: enrollment -2%, margin +8% → <span style={{color:"#059669"}}>net +$200/center</span>
+  <div style={{display:"flex",gap:12,flexWrap:"wrap",marginTop:16}}>
+   <div style={{flex:"1 1 320px",border:`1px solid #e5e7eb`,padding:"12px",background:"#f9fafb",borderRadius:4}}>
+    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",color:"#111827",marginBottom:10}}>📊 Feedback Loop — Test Results</div>
+    <div style={{fontSize:8.5,color:"#374151",lineHeight:1.7,space:"pre-line"}}>
+     <div style={{marginBottom:8,paddingBottom:8,borderBottom:"1px solid #d1d5db"}}>
+      <div style={{fontWeight:600}}>pricing_small_219</div>
+      <div style={{fontSize:8,color:"#6b7280"}}>Enrollment -2%, Margin +8%</div>
+      <div style={{fontSize:8.5,fontWeight:600,color:"#059669",marginTop:2}}>✓ +$200/center net impact</div>
      </div>
-     <div style={{marginBottom:6}}>
-      <b>robotics_first</b>: completion rate 88%, vs control +4% → <span style={{color:"#059669"}}>roll out phase 2</span>
+     <div style={{marginBottom:8,paddingBottom:8,borderBottom:"1px solid #d1d5db"}}>
+      <div style={{fontWeight:600}}>robotics_first</div>
+      <div style={{fontSize:8,color:"#6b7280"}}>Completion 88%, +4% vs control</div>
+      <div style={{fontSize:8.5,fontWeight:600,color:"#059669",marginTop:2}}>✓ Scale to phase 2</div>
      </div>
-     <div style={{marginBottom:6}}>
-      <b>elite_messaging_v2</b>: tier migration 22%, vs control +3% → <span style={{color:"#f59e0b"}}>strong signal, continue</span>
+     <div style={{marginBottom:0}}>
+      <div style={{fontWeight:600}}>elite_messaging_v2</div>
+      <div style={{fontSize:8,color:"#6b7280"}}>Tier migration 22%, +3% vs control</div>
+      <div style={{fontSize:8.5,fontWeight:600,color:"#f59e0b",marginTop:2}}>⟳ Keep running (high signal)</div>
      </div>
     </div>
-    <div style={{fontSize:8,color:"#999",marginTop:8}}>Results feed into recommendation weights weekly. High-signal playbooks auto-scaled to network.</div>
+    <div style={{fontSize:8,color:"#6b7280",marginTop:10,paddingTop:10,borderTop:"1px solid #d1d5db"}}>Weights auto-adjust based on statistical significance. Rolling 4-week measurement window.</div>
    </div>
-   <div style={{flex:"1 1 300px",border:`1px solid ${RULE}`,padding:"10px 12px"}}>
-    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:8}}>Execution Tracking</div>
-    <div style={{fontSize:8.5,color:"#666",lineHeight:1.6}}>
-     <div style={{marginBottom:6}}>
-      Playbooks sent this week: <b>{Object.keys(executionTracking).length}</b> centers
+   <div style={{flex:"1 1 320px",border:`1px solid #e5e7eb`,padding:"12px",background:"#f9fafb",borderRadius:4}}>
+    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",color:"#111827",marginBottom:10}}>📈 Execution Tracking</div>
+    <div style={{fontSize:8.5,color:"#374151",lineHeight:1.7}}>
+     <div style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:8,borderBottom:"1px solid #d1d5db"}}>
+      <span>Playbooks sent this week</span>
+      <span style={{fontWeight:700,fontSize:11,color:"#111827"}}>{Object.keys(executionTracking).length}</span>
      </div>
-     <div style={{marginBottom:6}}>
-      Execution rate: <b>{Object.values(executionTracking).filter((x=>x.executed)).length}/{Object.keys(executionTracking).length}</b> ({Object.keys(executionTracking).length > 0 ? Math.round(Object.values(executionTracking).filter((x=>x.executed)).length/Object.keys(executionTracking).length*100) : 0}%)
+     <div style={{marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:8,borderBottom:"1px solid #d1d5db"}}>
+      <span>Execution rate</span>
+      <span style={{fontWeight:700,color:"#059669"}}>{Object.keys(executionTracking).length > 0 ? Math.round(Object.values(executionTracking).filter((x=>x.executed)).length/Object.keys(executionTracking).length*100) : 0}%</span>
      </div>
-     <div style={{marginBottom:6}}>
-      Avg outcome: <b>health +3.2</b>, churn -1.8%, ARPU +$32
+     <div style={{marginBottom:0}}>
+      <div style={{marginBottom:4}}>Post-execution outcomes:</div>
+      <div style={{fontSize:8,color:"#6b7280"}}>• Health: <span style={{color:"#059669",fontWeight:600}}>+3.2</span></div>
+      <div style={{fontSize:8,color:"#6b7280"}}>• Churn: <span style={{color:"#059669",fontWeight:600}}>-1.8%</span></div>
+      <div style={{fontSize:8,color:"#6b7280"}}>• ARPU: <span style={{color:"#059669",fontWeight:600}}>+$32</span></div>
      </div>
     </div>
-    <div style={{fontSize:8,color:"#999",marginTop:8}}>Tracks which centers execute which playbooks & post-execution metrics.</div>
+    <div style={{fontSize:8,color:"#6b7280",marginTop:10,paddingTop:10,borderTop:"1px solid #d1d5db"}}>Measures outcomes at 2-week checkpoints. Signals when playbook effectiveness changes.</div>
    </div>
   </div>
  </div>);
