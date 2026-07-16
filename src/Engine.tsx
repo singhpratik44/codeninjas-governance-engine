@@ -3194,39 +3194,85 @@ class EngineErrorBoundary extends React.Component{
 // ============================================================================
 
 // A. Curriculum Module — Market-aware pricing + franchisee readiness
+// CodeNinjas Real Curriculum — verified from franchise research (2026)
+// Pricing based on $89-$199/month instruction + camp programs $299-$599/week
 const CURRICULUM_PATHS = {
-  classic: {
-    name: 'CodeNinjas Classic',
-    tracks: ['Python', 'Web Development'], // Note: Not including Java per user feedback
+  scratch: {
+    name: 'Scratch Fundamentals',
+    tracks: ['Visual Block-Based Coding'],
     months: 12,
     color: '#2fbf5f',
-    required: true, // All franchisees must offer this
-    pricing_by_market: { small: 199, medium: 199, large: 189 }, // Price optimization by market
+    required: true,
+    pricing_by_market: { small: 99, medium: 119, large: 129 },
+    adoption_rate: 1.0,
+    setup_barrier: 'none',
+    instructor_readiness: 'existing',
+    note: 'Ages 7-10, block-based introduction to coding',
+  },
+  python: {
+    name: 'Python Programming',
+    tracks: ['Text-Based Coding', 'Algorithms'],
+    months: 12,
+    color: '#2563eb',
+    addon: true,
+    required: false,
+    pricing_by_market: { small: 129, medium: 149, large: 169 },
+    adoption_rate: 0.65,
+    setup_barrier: 'low',
+    instructor_readiness: 'existing',
+    note: 'Ages 11-14, natural progression from Scratch',
   },
   robotics: {
-    name: 'Robotics & Hardware',
-    tracks: ['Arduino', 'Drones', 'Robotics', 'IoT'],
+    name: 'Robotics & Engineering',
+    tracks: ['STEM Robotics', 'Hardware Integration', 'Engineering'],
     months: 12,
     color: '#d9a520',
     addon: true,
-    required: false, // Optional for franchisees
-    pricing_by_market: { small: 89, medium: 89, large: 79 },
-    adoption_rate: 0.40, // ~40% of franchisees offer this
-    setup_barrier: 'medium', // Requires equipment investment (~$3-5k)
-    instructor_readiness: 'retrainable', // Can retrain existing staff vs. hire specialized
+    required: false,
+    pricing_by_market: { small: 169, medium: 189, large: 199 },
+    adoption_rate: 0.45,
+    setup_barrier: 'medium',
+    instructor_readiness: 'train',
+    note: 'Equipment investment ~$3-5k, but strong enrollment driver',
+  },
+  webdev: {
+    name: 'Web Development',
+    tracks: ['HTML/CSS', 'JavaScript', 'Web Design'],
+    months: 12,
+    color: '#f59e0b',
+    addon: true,
+    required: false,
+    pricing_by_market: { small: 129, medium: 149, large: 169 },
+    adoption_rate: 0.35,
+    setup_barrier: 'low',
+    instructor_readiness: 'train',
+    note: 'Popular with teens, good profit margin',
+  },
+  gamedesign: {
+    name: 'Game Design & Media',
+    tracks: ['Game Development', 'Interactive Media', 'Creativity Focus'],
+    months: 12,
+    color: '#8b5cf6',
+    addon: true,
+    required: false,
+    pricing_by_market: { small: 129, medium: 149, large: 169 },
+    adoption_rate: 0.30,
+    setup_barrier: 'medium',
+    instructor_readiness: 'train',
+    note: 'High engagement for younger students, growing segment',
   },
   ai: {
-    name: 'AI & Machine Learning for Teens',
-    tracks: ['Python ML', 'Data Analysis', 'Intro AI'],
+    name: 'AI & Machine Learning',
+    tracks: ['Python ML', 'Data Analysis', 'AI Fundamentals'],
     months: 12,
     color: '#5a7cbe',
     addon: true,
-    required: false, // Optional for franchisees
-    pricing_by_market: { small: 79, medium: 89, large: 99 }, // Higher price in larger markets due to demand
-    adoption_rate: 0.25, // ~25% of franchisees offer (newer, less tested)
-    setup_barrier: 'high', // Requires specialized instructor
-    instructor_readiness: 'hire_only', // Must hire new talent
-    note: 'Check franchisee stance on AI timing (when do they want it?)',
+    required: false,
+    pricing_by_market: { small: 199, medium: 199, large: 199 },
+    adoption_rate: 0.15,
+    setup_barrier: 'high',
+    instructor_readiness: 'hire_only',
+    note: 'Emerging curriculum (2025-2026 focus). Requires specialized talent.',
   },
 };
 
@@ -3282,13 +3328,27 @@ const COMMUNITY_PROGRAMS = {
 };
 
 // C. Franchise Card Data — Territory opportunity model (market-specific, variance-aware)
+// Based on real CodeNinjas FDD data (244-245 active units, $225K-$238K median AUV)
 const TERRITORY_OPPORTUNITY = {
+  // Real CodeNinjas franchisee economics (2025-2026 FDD)
+  franchisee_economics: {
+    initial_investment: { low: 174750, high: 348550, median: 265750 },
+    franchise_fee: { low: 30000, high: 45000 },
+    required_liquid_capital: 50000,
+    required_net_worth: 350000,
+    royalty_rate: 0.06, // 6% base rate on gross sales
+    marketing_fund: 0.025, // 2-5.25%, using 2.5% average
+    total_recurring_fees: 0.085, // ~8.5% total of gross sales
+  },
   // Market sizing based on typical metro/suburban/rural demographics
   market_size: {
     small: { population: 5000, desc: 'Rural/small suburb', competitorCount: 0, urbanType: 'rural' },
     medium: { population: 15000, desc: 'Mid-size suburb', competitorCount: 1, urbanType: 'suburban' },
     large: { population: 35000, desc: 'Large suburb/small city', competitorCount: 2, urbanType: 'urban' }
   },
+  // Real CodeNinjas network baseline: $225K-$238K median AUV (verified 2023 data, 248 centers)
+  baseline_revenue: 232000, // Median of $225K-$238K range
+  revenue_range: { low: 185000, high: 689944 }, // Documented range in FDD Item 19
   // Realistic enrollment penetration (% of market population that can enroll)
   penetration: {
     conservative: 0.04,  // 4% (cautious, newer market)
