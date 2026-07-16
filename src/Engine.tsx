@@ -85,8 +85,8 @@ function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedS
  };
 
  // H. Get centers for drill-down detail
- const selectedStateCenters = selectedStateDetail && states[selectedStateDetail] ?
-  states[selectedStateDetail].map(c => ({
+ const selectedStateCenters = selectedState && states[selectedState] ?
+  states[selectedState].map(c => ({
    ...c,
    condition: c.health < 55 || c.eb < QFLOORS.margin_ebitda_k ? 'at-risk' : c.health < 70 ? 'watch' : 'thriving',
    margin: c.eb,
