@@ -3394,6 +3394,73 @@ function generateGrowthSuggestions(territory_data, curriculum_mix, community_pro
   return suggestions;
 }
 
+// Territory Suitability Analyzer — Helps franchisees find right-fit market
+function analyzeTerritoryFit(franchiseeProfile = {}) {
+  // franchiseeProfile = { capital: 'high'/'med'/'low', experience: 'new'/'multi'/'operator', team: 'small'/'medium'/'large', growth_ambition: 'stable'/'growth'/'aggressive' }
+  const { capital = 'med', experience = 'new', team = 'small', growth_ambition = 'growth' } = franchiseeProfile;
+
+  const analysis = {
+    small: { fit: 0, pros: [], cons: [], barriers: [] },
+    medium: { fit: 0, pros: [], cons: [], barriers: [] },
+    large: { fit: 0, pros: [], cons: [], barriers: [] }
+  };
+
+  // Small market suitability (population 5k, rural/small suburb)
+  analysis.small.pros.push('Low competition (0-1 centers)');
+  analysis.small.pros.push('Lower startup costs');
+  analysis.small.pros.push('Easier community relationships');
+  analysis.small.cons.push('Limited student pool (~400 max enrollees)');
+  analysis.small.cons.push('$199 pricing (lower margins)');
+  analysis.small.cons.push('Limited curriculum options (no premium programs)');
+  analysis.small.barriers.push('Geographic isolation');
+  analysis.small.barriers.push('Longer payback period');
+
+  // Fit scoring for small market
+  if (capital === 'low') analysis.small.fit += 30; // good for bootstrappers
+  if (experience === 'new') analysis.small.fit += 20; // manageable complexity
+  if (team === 'small') analysis.small.fit += 25; // doesn't need big team
+  if (growth_ambition === 'stable') analysis.small.fit += 15; // matching expectations
+  analysis.small.fit = Math.min(100, analysis.small.fit + 10); // baseline
+
+  // Medium market suitability (population 15k, suburban)
+  analysis.medium.pros.push('Balanced competition (1-2 centers)');
+  analysis.medium.pros.push('Diverse student demographics');
+  analysis.medium.pros.push('$229-299 pricing (good margins)');
+  analysis.medium.pros.push('All community programs viable');
+  analysis.medium.cons.push('Requires experienced management');
+  analysis.medium.cons.push('Medium startup capital needed');
+  analysis.medium.barriers.push('School coordination complexity');
+  analysis.medium.barriers.push('Competitive positioning required');
+
+  // Fit scoring for medium market
+  if (capital === 'med' || capital === 'high') analysis.medium.fit += 25;
+  if (experience === 'multi' || experience === 'operator') analysis.medium.fit += 30;
+  if (team === 'medium' || team === 'large') analysis.medium.fit += 20;
+  if (growth_ambition === 'growth') analysis.medium.fit += 20;
+  analysis.medium.fit = Math.min(100, analysis.medium.fit + 5); // baseline
+
+  // Large market suitability (population 35k+, urban/large suburb)
+  analysis.large.pros.push('Highest growth ceiling ($5.8M+ Y1)');
+  analysis.large.pros.push('Premium pricing ($269-329)');
+  analysis.large.pros.push('Multiple revenue streams');
+  analysis.large.pros.push('Talent pool for hiring');
+  analysis.large.cons.push('Intense competition (2+ centers)');
+  analysis.large.cons.push('Complex operations');
+  analysis.large.cons.push('Requires specialized instructors');
+  analysis.large.barriers.push('Heavy marketing spend needed');
+  analysis.large.barriers.push('Multi-center coordination');
+  analysis.large.barriers.push('Staff recruitment & retention');
+
+  // Fit scoring for large market
+  if (capital === 'high') analysis.large.fit += 35;
+  if (experience === 'operator') analysis.large.fit += 30;
+  if (team === 'large') analysis.large.fit += 25;
+  if (growth_ambition === 'aggressive') analysis.large.fit += 20;
+  analysis.large.fit = Math.min(100, analysis.large.fit);
+
+  return analysis;
+}
+
 const SOLVER_RESULTS = {
   optimistic: {
     leads: { volume: 3173, conversion_rate: 0.805, cac: 3100 },
