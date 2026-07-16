@@ -78,6 +78,21 @@ function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedS
  const [impactAnimation, setImpactAnimation]=useState(null); // D. Proposal impact animation
  const [conflictZones, setConflictZones]=useState(new Set()); // F. Conflict zones
 
+ // D. Proposal impact: detect affected states when decision approved
+ const triggerImpactAnimation = (affectedStateIds) => {
+  setMapImpactAnimation({ affectedStates: new Set(affectedStateIds), startTime: Date.now() });
+  setTimeout(() => setMapImpactAnimation(null), 2500);
+ };
+
+ // H. Get centers for drill-down detail
+ const selectedStateCenters = selectedStateDetail && states[selectedStateDetail] ?
+  states[selectedStateDetail].map(c => ({
+   ...c,
+   condition: c.health < 55 || c.eb < QFLOORS.margin_ebitda_k ? 'at-risk' : c.health < 70 ? 'watch' : 'thriving',
+   margin: c.eb,
+   health: c.health,
+  })) : [];
+
  // F. Detect conflict zones from railData
  useEffect(() => {
   if (!railData || !railData.conflicts) return;
@@ -3071,6 +3086,9 @@ const SOLVER_RESULTS = {
 function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers, states, railData, ledger, jumpTo, leads}) {
  const approved=opt.quantum.approved;
  const scenarios=["optimistic","realistic","pessimistic"];
+ const [selectedStateDetail, setSelectedStateDetail]=useState(null); // H. Drill-down detail
+ const [comparisonMode, setComparisonMode]=useState(false); // G. Comparison mode
+ const [mapImpactAnimation, setMapImpactAnimation]=useState(null); // D. Impact animation trigger
  // real consequence diff: recompute governor gates for the network under the
  // approved posture vs the realistic (zero-delta) baseline, using the same
  // qGate()/qGovernors() the rest of the artifact enforces measurement writes
@@ -3266,7 +3284,11 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
    </div>
   </div>
 
-  <div style={{display:"flex",gap:10,marginBottom:14,flexWrap:"wrap"}}>
+  <div style={{display:"flex",gap:10,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
+   <button onClick={()=>setComparisonMode(!comparisonMode)} style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,padding:"6px 12px",cursor:"pointer",border:`1px solid ${comparisonMode?AC:RULE}`,background:comparisonMode?AC:"#fff",color:comparisonMode?"#fff":INK,borderRadius:3}}>
+    {comparisonMode?"✓ Comparison Mode":"G. Comparison Mode"}
+   </button>
+   <div style={{display:"flex",gap:10,flexWrap:"wrap",flex:"1 1 auto"}}>
    {scenarios.map(s=>{
     const d=opt.quantum.scenarios[s];
     const isApproved=approved===s;
@@ -3282,9 +3304,10 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
      <div style={{fontSize:11,color:"#444",marginBottom:2}}>Senseis <b style={{float:"right",color:INK}}>{d.staffing.senseis}</b></div>
      <div style={{fontSize:11,color:"#444",marginBottom:2}}>Retention <b style={{float:"right",color:INK}}>{fmtPct(d.retention_rate)}</b></div>
      <div style={{fontSize:11,color:"#444",marginBottom:10}}>New territories <b style={{float:"right",color:INK}}>{d.expansion.new_territories}</b></div>
-     <button onClick={()=>approveScenario(s)} style={{width:"100%",fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",padding:"7px 0",cursor:"pointer",border:`1px solid ${isApproved?GRN:INK}`,background:isApproved?GRN:INK,color:"#fff"}}>{isApproved?"✓ Approved":"Approve"}</button>
+     <button onClick={()=>{approveScenario(s);triggerImpactAnimation([]);}} style={{width:"100%",fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",padding:"7px 0",cursor:"pointer",border:`1px solid ${isApproved?GRN:INK}`,background:isApproved?GRN:INK,color:"#fff"}}>{isApproved?"✓ Approved":"Approve"}</button>
     </div>);
    })}
+   </div>
   </div>
 
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
@@ -3313,7 +3336,7 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
      <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT}}>Interactive 3D Network Map — {mapNodes.length} territories, {mEdges.length} edges</div>
      <span onClick={()=>jumpTo&&jumpTo("table")} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:AC,cursor:jumpTo?"pointer":"default",textDecoration:"underline"}}>Full 3D view →</span>
     </div>
-    <EngineErrorBoundary><Map3D mapNodes={mapNodes} mEdges={mEdges} clusters={clusters} approvedPosture={approved} railData={railData} selectedState={null} onStateClick={()=>{}} scenario={approved} centers={centers} states={states} /></EngineErrorBoundary>
+    <EngineErrorBoundary><Map3D mapNodes={mapNodes} mEdges={mEdges} clusters={clusters} approvedPosture={approved} railData={railData} selectedState={selectedStateDetail} onStateClick={setSelectedStateDetail} scenario={approved} centers={centers} states={states} /></EngineErrorBoundary>
     <svg style={{display:"none"}} viewBox={svgVB}>
      {mEdges.map((e,i)=>(<line key={i} x1={e.a.pos[0]} y1={e.a.pos[1]} x2={e.b.pos[0]} y2={e.b.pos[1]} stroke={AC} strokeOpacity={0.35} strokeWidth={0.04}/>))}
      {mapNodes.map(n=>(<circle key={n.id} cx={n.pos[0]} cy={n.pos[1]} r={0.12+Math.min(0.22,n.n*0.02)} fill={tierHex(n.state)} stroke="#fff" strokeWidth={0.03}><title>{`${n.label} \u00b7 ${n.state} \u00b7 ${n.n} centers`}</title></circle>))}
@@ -3331,6 +3354,21 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
     <div style={{fontSize:9.5,color:MUT,marginTop:8}}>Union-find over the propagation-edge graph: at-risk territories linked by a support edge count as one connected problem, not several independent ones. {clusters.count>1?"Multiple clusters mean isolated interventions won't cross-pollinate — each cluster needs its own support path.":clusters.total?"A single connected cluster: one coordinated intervention can reach every at-risk territory in it via existing support edges.":"No at-risk territories under this posture."}</div>
    </div>
   </div>
+
+  {selectedStateDetail&&<div style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${SCOLOR[approved||"realistic"]}`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT}}>H. Drill-Down Detail — {selectedStateDetail} ({selectedStateCenters.length} centers)</div>
+    <span onClick={()=>setSelectedStateDetail(null)} style={{cursor:"pointer",color:AC,fontSize:12}}>✕</span>
+   </div>
+   <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:10}}>
+    {selectedStateCenters.slice(0,8).map((c,i)=>(<div key={i} style={{flex:"1 1 140px",padding:"6px 8px",background:c.condition==="at-risk"?"#ffe6e6":c.condition==="watch"?"#fef6e6":"#f0fdf4",border:`1px solid ${c.condition==="at-risk"?AC:c.condition==="watch"?AMB:GRN}`,borderRadius:3}}>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:INK}}>{c.name}</div>
+     <div style={{fontSize:9,color:"#666",marginTop:2}}>Health <b>{c.health}</b> · Margin $<b>{c.margin}k</b></div>
+     <div style={{fontSize:8,color:MUT,marginTop:2}}>{c.condition}</div>
+    </div>))}
+   </div>
+   {selectedStateCenters.length>8&&<div style={{fontSize:9.5,color:MUT}}>+{selectedStateCenters.length-8} more centers</div>}
+  </div>}
 
   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
    <div style={{flex:"1 1 300px",border:`1px solid ${RULE}`,padding:"10px 12px"}}>
