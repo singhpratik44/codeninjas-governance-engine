@@ -3870,6 +3870,59 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
    })()}
   </div>
 
+  <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14,background:"#f9f9f9"}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>Network Scale Impact — 348 Franchise Units</div>
+   {(() => {
+    // Calculate network-wide impact if average franchise executes growth strategy
+    const unitsInNetwork = 348;
+    const avgBaselineMonthly = 18500;
+    const avgBaselineAnnual = avgBaselineMonthly * 12;
+
+    // Conservative: 60% of units adopt curriculum, 40% add communities
+    const curriculumAdopters = Math.floor(unitsInNetwork * 0.60);
+    const communityAdopters = Math.floor(unitsInNetwork * 0.40);
+    const pricingAdopters = Math.floor(unitsInNetwork * 0.70);
+
+    // Revenue impact from growth levers
+    const curriculumImpact = curriculumAdopters * 45000; // Year 1
+    const communityImpact = communityAdopters * 30000; // Year 1
+    const pricingImpact = pricingAdopters * 67000; // Year 1
+
+    const currentNetworkRevenue = unitsInNetwork * avgBaselineAnnual;
+    const potentialNetworkRevenue = currentNetworkRevenue + curriculumImpact + communityImpact + pricingImpact;
+    const revenueIncrease = potentialNetworkRevenue - currentNetworkRevenue;
+    const percentageGrowth = (revenueIncrease / currentNetworkRevenue) * 100;
+
+    // Enrollment impact
+    const estimatedNewStudents = (curriculumAdopters * 15) + (communityAdopters * 8) + (pricingAdopters * 0); // community drives new, pricing converts existing
+
+    return (
+     <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+      <div style={{flex:"1 1 240px",padding:"10px",border:`1px solid #ddd`,borderRadius:3}}>
+       <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:MUT,marginBottom:6}}>CURRENT NETWORK</div>
+       <div style={{fontSize:11,color:"#333",marginBottom:2}}>Revenue <b>{fmtM(currentNetworkRevenue)}</b></div>
+       <div style={{fontSize:9,color:"#666",marginBottom:4}}>348 units × {fmtK(avgBaselineAnnual)}/year</div>
+       <div style={{fontSize:9,color:"#999"}}>Baseline operations, Classic-only curriculum</div>
+      </div>
+      <div style={{flex:"1 1 240px",padding:"10px",border:`1px solid #ddd`,borderRadius:3,background:"#f0fdf4"}}>
+       <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:GRN,marginBottom:6}}>WITH GROWTH STRATEGY</div>
+       <div style={{fontSize:11,color:GRN,marginBottom:2}}>Revenue <b>{fmtM(potentialNetworkRevenue)}</b></div>
+       <div style={{fontSize:9,color:"#666",marginBottom:4}}>+{fmtM(revenueIncrease)} (+{percentageGrowth.toFixed(1)}%)</div>
+       <div style={{fontSize:9,color:"#999"}}>{estimatedNewStudents.toLocaleString()} new student enrollments</div>
+      </div>
+      <div style={{flex:"1 1 240px",padding:"10px",border:`1px solid #ddd`,borderRadius:3}}>
+       <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:AC,marginBottom:6}}>ADOPTION SNAPSHOT</div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Curriculum launch: <b>{curriculumAdopters}</b> units ({Math.round(curriculumAdopters/unitsInNetwork*100)}%)</div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Community programs: <b>{communityAdopters}</b> units ({Math.round(communityAdopters/unitsInNetwork*100)}%)</div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>Pricing optimization: <b>{pricingAdopters}</b> units ({Math.round(pricingAdopters/unitsInNetwork*100)}%)</div>
+       <div style={{fontSize:8,color:"#999"}}>Conservative adoption rates</div>
+      </div>
+     </div>
+    );
+   })()}
+   <div style={{fontSize:8.5,color:"#666",marginTop:8,padding:"8px 0"}}>Network-scale analysis assumes conservative adoption (40-70%) with realistic execution. Individual territory performance varies by market size, competition, and franchisee capability — top quartile centers can exceed these projections 2-3x.</div>
+  </div>
+
   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
    <div style={{flex:"1 1 300px",border:`1px solid ${RULE}`,padding:"10px 12px"}}>
     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:8}}>Scenario comparison</div>
