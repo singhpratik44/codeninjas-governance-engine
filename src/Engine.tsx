@@ -4956,8 +4956,45 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
  </div>);
 }
 
+function ApplicationAuthGate({children}){
+ const [authenticated,setAuthenticated]=useState(false);
+ const [authCode,setAuthCode]=useState("");
+ const [error,setError]=useState("");
+ const deadline=new Date("2026-07-26T23:59:59Z").getTime();
+ const now=new Date().getTime();
+ const isExpired=now>deadline;
+ const SECRET_CODE="codeninjas2026";
+ if(isExpired){
+  return React.createElement("div",{style:{width:"100%",height:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#1c2650",color:"#cdd6f4",fontFamily:"Helvetica"}},
+   React.createElement("div",{style:{textAlign:"center",maxWidth:400}},
+    React.createElement("div",{style:{fontSize:32,fontWeight:700,marginBottom:16}},"Application Expired"),
+    React.createElement("div",{style:{fontSize:14,color:"#8a97c4",marginBottom:20}},"This Director of Franchise Development submission expired on July 26, 2026."),
+    React.createElement("div",{style:{fontSize:12,color:"#5a6a9e"}},"Contact: parry.s.2324@gmail.com")
+   )
+  );
+ }
+ if(authenticated){
+  return React.createElement(React.Fragment,null,
+   children,
+   React.createElement("div",{style:{position:"fixed",bottom:12,right:12,fontSize:9,color:"#666",background:"#fff",padding:"4px 8px",borderRadius:3,border:"1px solid #ddd",fontFamily:"Helvetica",zIndex:10000}},"🔒 Confidential Submission — Expires July 26, 2026")
+  );
+ }
+ return React.createElement("div",{style:{width:"100%",height:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#1c2650",color:"#cdd6f4",fontFamily:"Helvetica"}},
+  React.createElement("div",{style:{textAlign:"center",maxWidth:400}},
+   React.createElement("div",{style:{fontSize:28,fontWeight:700,marginBottom:8}},"CodeNinjas Governance Engine"),
+   React.createElement("div",{style:{fontSize:12,color:"#8a97c4",marginBottom:24}},"Director of Franchise Development","Application — Pratik Singh"),
+   React.createElement("div",{style:{background:"#141d3d",padding:20,borderRadius:6,border:"1px solid #2b3d78"}},
+    React.createElement("div",{style:{fontSize:11,fontWeight:700,color:"#aab4dd",marginBottom:8,textAlign:"left"}},"Authorization Required"),
+    React.createElement("input",{type:"password",placeholder:"Enter access code",value:authCode,onChange:e=>setAuthCode(e.target.value),onKeyDown:e=>{if(e.key==="Enter"){if(authCode===SECRET_CODE){setAuthenticated(true);setError("");}else{setError("Invalid code");setAuthCode("");}}},style:{width:"100%",padding:"8px 10px",border:"1px solid #2b3d78",background:"#05060e",color:"#cdd6f4",borderRadius:3,fontFamily:"Helvetica",fontSize:11,marginBottom:error?8:0,boxSizing:"border-box"}}),
+    error&&React.createElement("div",{style:{fontSize:10,color:"#e03535",marginBottom:8}},error),
+    React.createElement("button",{onClick:()=>{if(authCode===SECRET_CODE){setAuthenticated(true);setError("");}else{setError("Invalid code");setAuthCode("");}},style:{width:"100%",padding:"8px 10px",background:"#2b3d78",color:"#e8ecff",border:"1px solid #3a4d88",borderRadius:3,cursor:"pointer",fontFamily:"Helvetica",fontSize:11,fontWeight:700}},"Unlock")
+   ),
+   React.createElement("div",{style:{fontSize:10,color:"#5a6a9e",marginTop:20}},"Contact hiring team for access code.")
+  )
+ );
+}
 export default function Engine(props){
- return(<EngineErrorBoundary><EngineInner {...props}/></EngineErrorBoundary>);
+ return React.createElement(ApplicationAuthGate,null,React.createElement(EngineErrorBoundary,null,React.createElement(EngineInner,{...props})));
 }
 
 function EngineInner({initialTab}){
