@@ -1178,18 +1178,32 @@ function trackPlaybookExecution(centerName, playbookType, executed, outcome) {
 
 // Close feedback loop: update recommendation weights based on test results
 function updateRecommendationWeights(abTest, results) {
- // Simple Bayesian-style update: if effect is significant, boost weight
+ // ENHANCED: Bayesian-style update with execution outcome tracking (from "Agentic Feedback Loop Modeling")
+ // Integrates both statistical significance and real-world execution outcomes
  const baseWeight = 0.7;
  const effectSize = results.effect_size || 0;
  const pValue = results.p_value || 1.0;
  const isSignificant = pValue < 0.05;
+ const executionOutcome = results.outcome || null; // 'success'/'partial'/'failed'
+ const outcomeStrength = results.churnDelta || 0; // actual churn improvement measured
 
+ let adjustedWeight = baseWeight;
+
+ // Primary signal: statistical significance
  if(isSignificant && effectSize > 0) {
-  return Math.min(1.0, baseWeight + (effectSize * 0.3)); // boost if positive
+  adjustedWeight = Math.min(1.0, baseWeight + (effectSize * 0.3));
  } else if(isSignificant && effectSize < 0) {
-  return Math.max(0.0, baseWeight - (Math.abs(effectSize) * 0.3)); // suppress if negative
+  adjustedWeight = Math.max(0.0, baseWeight - (Math.abs(effectSize) * 0.3));
  }
- return baseWeight; // no change if not significant
+
+ // Secondary signal: execution outcome (stronger if positive real-world results)
+ if(executionOutcome === 'success' && outcomeStrength > 0) {
+  adjustedWeight = Math.min(1.0, adjustedWeight + (outcomeStrength * 0.25));
+ } else if(executionOutcome === 'failed' && outcomeStrength < 0) {
+  adjustedWeight = Math.max(0.0, adjustedWeight + (outcomeStrength * 0.15)); // suppress more gently
+ }
+
+ return adjustedWeight;
 }
 const AGENT_LEX={score:"Measurement",transfer:"Best practice",wave:"Rollout",peer:"Peer review",fcst:"Forecast",gate:"Approval",view:"Reporting",cap:"Labor governor",pipeline:"Enrollment",staffing:"Staff retention"};
 const VERB_LEX={measure:"Measure",transfer:"Transfer",schedule:"Schedule",ship:"Send",hold:"Escalate",review:"Cross-review",promote:"Adopt",retire:"Remove"};
@@ -1741,6 +1755,18 @@ function growthAgentRecommend(centers,states,leads,daysFn=defaultDaysSinceMeasur
 // than a human approver could realistically work through. Proposals beyond the
 // ceiling are held with the reason stated, mirroring the Growth agent's territory gate.
 const ROLE_CAPACITY={FBC:10,Owner:8,Director:12};
+// ENHANCED: Scenario-aware viability analysis (from "Scenario Analysis with Bayesian ML")
+// Evaluates whether a unit stays above floor under all 3 scenario postures
+function evaluateScenarioViability(center,posture,week){
+ // Applies scenario delta + weekly drift to center metrics
+ const sd=SCENARIO_DELTAS[posture]||SCENARIO_DELTAS.realistic;
+ const wk=weekCompound(posture,week);
+ const projHealth=Math.max(0,Math.min(100,center.health+(sd.chem+wk.chem)*50));
+ const projEb=Math.max(-20,Math.min(50,center.eb+(sd.eb+wk.eb)));
+ // Check if proposed support plan would keep unit above floor under this scenario
+ const onFloor=projHealth>=55||projEb>=QFLOORS.margin_ebitda_k;
+ return{posture,health:projHealth,eb:projEb,viable:onFloor,margin:projEb-QFLOORS.margin_ebitda_k};
+}
 function unitHealthAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacityLedger){
  const ledger=capacityLedger||{};
  const out=[];
@@ -1755,13 +1781,18 @@ function unitHealthAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacit
   const used=(ledger.FBC||0)+1;
   const cap=ROLE_CAPACITY.FBC;
   ledger.FBC=used-1+(isAllocated?1:0);
+  // ENHANCED: Evaluate scenario viability
+  const scenarioViability=['realistic','optimistic','pessimistic'].map(p=>evaluateScenarioViability(c,p,0));
+  const robustAcrossScenarios=scenarioViability.every(v=>v.viable);
+  const viabilityTag=robustAcrossScenarios?"robust":"scenario-dependent"+(scenarioViability.find(v=>v.posture==='pessimistic')?.viable===false?" (fails under Pessimistic)":"");
   out.push(buildRecommendation({
    agent:"Unit Health",scope:"unit",targetIds:[c.name],
    title:c.name+": "+(chronic?"chronic underperformance — turnaround review":"below-floor margin — support plan"),
-   summary:"margin $"+c.eb+"k · health "+c.health+" · momentum "+c.momentum+(chronic?" · sustained decline, not a single-period dip":" · likely recoverable with a support plan")+(isAllocated?"":" · deferred by health-severity optimization ("+cap+" FBC slots allocated to higher-severity cases)"),
+   summary:"margin $"+c.eb+"k · health "+c.health+" · momentum "+c.momentum+(chronic?" · sustained decline, not a single-period dip":" · likely recoverable with a support plan")+(isAllocated?"":" · deferred by health-severity optimization ("+cap+" FBC slots allocated to higher-severity cases)")+" ["+viabilityTag+"]",
    actionType:"support-plan",center:c,states:{},daysSinceMeasure:days,
    suggestedActionPlan:actionPlan,
    agentTag:"support-needed",
+   scenarioViability:scenarioViability, // NEW: multi-posture forecast
    extraHold:{blocked:!isAllocated,reason:isAllocated?null:"Deferred by RQAOA severity weighting — other centers have higher health loss risk",capacity:cap,used:used},
   }));
  });
@@ -1769,6 +1800,25 @@ function unitHealthAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacit
 }
 
 // ---- Retention Agent: silent-churn risk from staff chemistry + retention trend ----
+// ENHANCED: Incorporates "Agentic Feedback Loop Modeling" learning from execution outcomes
+let retentionProposalHistory={}; // tracks execution outcomes per center
+function updateRetentionFeedback(centerName,approved,executionOutcome,churnChangeDelta){
+ // Feedback loop: track what happened after a proposal was approved
+ // executionOutcome: 'success'/'partial'/'failed'
+ // churnChangeDelta: change in 12mo retention rate (e.g., +0.08 = improved by 8%)
+ if(!retentionProposalHistory[centerName]){
+  retentionProposalHistory[centerName]={proposals:[],confidenceScore:0.7,decayFactor:1.0};
+ }
+ const h=retentionProposalHistory[centerName];
+ h.proposals.push({approved,outcome:executionOutcome,churnDelta:churnChangeDelta,ts:Date.now()});
+ // Bayesian update: boost confidence if outcomes are positive
+ const recentOutcomes=h.proposals.slice(-5); // last 5 proposals
+ const successCount=recentOutcomes.filter(p=>p.outcome==='success').length;
+ const avgChurnImprovement=recentOutcomes.reduce((s,p)=>s+p.churnDelta,0)/Math.max(1,recentOutcomes.length);
+ h.confidenceScore=Math.max(0.3,Math.min(1.0,0.6+(successCount/5)*0.35+(Math.max(0,avgChurnImprovement)*0.5)));
+ // Apply time decay: older proposals less influential
+ h.decayFactor=Math.exp(-(Date.now()-h.proposals[h.proposals.length-1].ts)/(1000*60*60*24*14)); // 2-week half-life
+}
 function retentionAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacityLedger){
  const ledger=capacityLedger||{};
  const out=[];
@@ -1778,13 +1828,17 @@ function retentionAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacity
   const cap=ROLE_CAPACITY.Owner;
   const withinCapacity=used<cap;
   ledger.Owner=used+1;
+  // ENHANCED: Include feedback-loop confidence in recommendation strength
+  const h=retentionProposalHistory[c.name]||{confidenceScore:0.7,decayFactor:1.0};
+  const confidenceScore=h.confidenceScore*h.decayFactor;
   out.push(buildRecommendation({
    agent:"Retention",scope:"unit",targetIds:[c.name],
    title:c.name+": silent-churn risk",
-   summary:"staff chemistry "+c.chem.toFixed(2)+" · 12mo retention "+Math.round(c.ret*100)+"% · risk builds quietly between measurement cycles"+(withinCapacity?"":" · Owner outreach capacity ceiling reached this cycle ("+cap+" concurrent)"),
+   summary:"staff chemistry "+c.chem.toFixed(2)+" · 12mo retention "+Math.round(c.ret*100)+"% · risk builds quietly between measurement cycles"+(withinCapacity?"":" · Owner outreach capacity ceiling reached this cycle ("+cap+" concurrent)")+(confidenceScore<0.6?" [low historical success]":""),
    actionType:"outreach",center:c,states:{},daysSinceMeasure:days,
    suggestedActionPlan:null,
    agentTag:"silent-churn-risk",
+   confidenceScore:confidenceScore, // NEW: feedback-loop learned confidence
    extraHold:{blocked:!withinCapacity,reason:withinCapacity?null:"Owner outreach capacity ceiling reached this cycle",capacity:cap,used:used+1},
   }));
  });
@@ -3197,82 +3251,100 @@ class EngineErrorBoundary extends React.Component{
 // CodeNinjas Real Curriculum — verified from franchise research (2026)
 // Pricing based on $89-$199/month instruction + camp programs $299-$599/week
 const CURRICULUM_PATHS = {
-  scratch: {
-    name: 'Scratch Fundamentals',
-    tracks: ['Visual Block-Based Coding'],
+  jr: {
+    name: 'JR',
+    ageRange: '5-7 years (K-1st)',
+    tracks: ['Visual fundamentals', 'Problem-solving'],
+    months: 12,
+    color: '#FF6B35',
+    required: true,
+    pricing_by_market: { small: 100, medium: 115, large: 130 },
+    adoption_rate: 0.95,
+    setup_barrier: 'none',
+    instructor_readiness: 'existing',
+    note: 'Foundational coding for youngest learners. No reading required. Gateway to IMPACT.',
+  },
+  impact: {
+    name: 'IMPACT',
+    ageRange: '8-10 years (3rd-5th)',
+    tracks: ['Block-based coding', 'Personalized learning paths'],
     months: 12,
     color: '#2fbf5f',
     required: true,
-    pricing_by_market: { small: 99, medium: 119, large: 129 },
+    pricing_by_market: { small: 100, medium: 115, large: 130 },
     adoption_rate: 1.0,
     setup_barrier: 'none',
     instructor_readiness: 'existing',
-    note: 'Ages 7-10, block-based introduction to coding',
+    note: 'Proprietary IMPACT platform (developed with Microsoft). ISTE Seal of Approval.',
   },
-  python: {
-    name: 'Python Programming',
-    tracks: ['Text-Based Coding', 'Algorithms'],
-    months: 12,
+  create: {
+    name: 'CREATE',
+    ageRange: '11-14 years (6th-8th)',
+    tracks: ['JavaScript', 'C#', 'Game development', '9-belt progression'],
+    months: 24,
     color: '#2563eb',
-    addon: true,
     required: false,
-    pricing_by_market: { small: 129, medium: 149, large: 169 },
-    adoption_rate: 0.65,
+    pricing_by_market: { small: 100, medium: 115, large: 130 },
+    adoption_rate: 0.85,
     setup_barrier: 'low',
     instructor_readiness: 'existing',
-    note: 'Ages 11-14, natural progression from Scratch',
+    note: 'Best-selling program. 9-belt system (White→Black). Transitions to professional environments (Unity).',
   },
-  robotics: {
-    name: 'Robotics & Engineering',
-    tracks: ['STEM Robotics', 'Hardware Integration', 'Engineering'],
-    months: 12,
+  robotics_academy: {
+    name: 'Robotics Academy',
+    ageRange: '6-14 years',
+    tracks: ['LEGO SPIKE', 'VEX GO', 'Ozobot', 'Autonomous design'],
+    months: 8,
     color: '#d9a520',
     addon: true,
     required: false,
-    pricing_by_market: { small: 169, medium: 189, large: 199 },
+    pricing_by_market: { small: 150, medium: 170, large: 190 },
     adoption_rate: 0.45,
     setup_barrier: 'medium',
     instructor_readiness: 'train',
-    note: 'Equipment investment ~$3-5k, but strong enrollment driver',
+    note: 'Multi-week modules. Equipment investment ~$3-5k. Strong enrollment driver.',
   },
-  webdev: {
-    name: 'Web Development',
-    tracks: ['HTML/CSS', 'JavaScript', 'Web Design'],
-    months: 12,
-    color: '#f59e0b',
-    addon: true,
-    required: false,
-    pricing_by_market: { small: 129, medium: 149, large: 169 },
-    adoption_rate: 0.35,
-    setup_barrier: 'low',
-    instructor_readiness: 'train',
-    note: 'Popular with teens, good profit margin',
-  },
-  gamedesign: {
-    name: 'Game Design & Media',
-    tracks: ['Game Development', 'Interactive Media', 'Creativity Focus'],
-    months: 12,
-    color: '#8b5cf6',
-    addon: true,
-    required: false,
-    pricing_by_market: { small: 129, medium: 149, large: 169 },
-    adoption_rate: 0.30,
-    setup_barrier: 'medium',
-    instructor_readiness: 'train',
-    note: 'High engagement for younger students, growing segment',
-  },
-  ai: {
-    name: 'AI & Machine Learning',
-    tracks: ['Python ML', 'Data Analysis', 'AI Fundamentals'],
+  ai_academy: {
+    name: 'AI Academy',
+    ageRange: '10-14 years',
+    tracks: ['Safe AI tool usage', 'Debugging', 'Function generation', 'Critical thinking'],
     months: 12,
     color: '#5a7cbe',
     addon: true,
     required: false,
-    pricing_by_market: { small: 199, medium: 199, large: 199 },
-    adoption_rate: 0.15,
-    setup_barrier: 'high',
-    instructor_readiness: 'hire_only',
-    note: 'Emerging curriculum (2025-2026 focus). Requires specialized talent.',
+    pricing_by_market: { small: 130, medium: 145, large: 160 },
+    adoption_rate: 0.25,
+    setup_barrier: 'low',
+    instructor_readiness: 'existing',
+    note: 'Self-paced. Emerging 2025-2026 focus. Teaches responsible AI thinking.',
+  },
+  gamedesign_academy: {
+    name: 'Game Design Academy',
+    ageRange: '8-14 years',
+    tracks: ['Game development', 'Interactive media', 'Creative design'],
+    months: 8,
+    color: '#8b5cf6',
+    addon: true,
+    required: false,
+    pricing_by_market: { small: 120, medium: 135, large: 150 },
+    adoption_rate: 0.35,
+    setup_barrier: 'low',
+    instructor_readiness: 'existing',
+    note: 'High engagement for younger students. Growing segment.',
+  },
+  digitalart_academy: {
+    name: 'Digital Art Academy',
+    ageRange: '6-14 years',
+    tracks: ['Digital content creation', 'Visual design', 'Creative expression'],
+    months: 8,
+    color: '#EC4899',
+    addon: true,
+    required: false,
+    pricing_by_market: { small: 100, medium: 120, large: 140 },
+    adoption_rate: 0.20,
+    setup_barrier: 'low',
+    instructor_readiness: 'existing',
+    note: 'Emerging add-on. Attracts younger students interested in visual creativity.',
   },
 };
 
