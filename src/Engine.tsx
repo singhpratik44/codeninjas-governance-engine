@@ -4142,6 +4142,13 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
  const [mapImpactAnimation, setMapImpactAnimation]=useState(null); // D. Impact animation trigger
  const [forecastWeek, setForecastWeek]=useState(0); // J. Forecast slider (weeks 0-12)
  const [marketContext, setMarketContext]=useState("medium"); // A-E. Market type selector (small/medium/large)
+ const selectedStateCenters = selectedStateDetail && states && states[selectedStateDetail] ?
+  states[selectedStateDetail].map(c => ({
+   ...c,
+   condition: c.health < 55 || c.eb < QFLOORS.margin_ebitda_k ? 'at-risk' : c.health < 70 ? 'watch' : 'thriving',
+   margin: c.eb,
+   health: c.health,
+  })) : [];
  // real consequence diff: recompute governor gates for the network under the
  // approved posture vs the realistic (zero-delta) baseline, using the same
  // qGate()/qGovernors() the rest of the artifact enforces measurement writes
@@ -4419,7 +4426,7 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
      <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT}}>Interactive 3D Network Map — {mapNodes.length} territories, {mEdges.length} edges</div>
      <span onClick={()=>jumpTo&&jumpTo("table")} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:AC,cursor:jumpTo?"pointer":"default",textDecoration:"underline"}}>Full 3D view →</span>
     </div>
-    {false && <EngineErrorBoundary><Map3D mapNodes={mapNodes} mEdges={mEdges} clusters={clusters} approvedPosture={approved} railData={railData} selectedState={selectedStateDetail} onStateClick={setSelectedStateDetail} scenario={approved} centers={centers} states={states||{}} /></EngineErrorBoundary>}
+    <EngineErrorBoundary><Map3D mapNodes={mapNodes} mEdges={mEdges} clusters={clusters} approvedPosture={approved} railData={railData} selectedState={selectedStateDetail} onStateClick={setSelectedStateDetail} scenario={approved} centers={centers} states={states||{}} /></EngineErrorBoundary>
     <svg style={{display:"none"}} viewBox={svgVB}>
      {mEdges.map((e,i)=>(<line key={i} x1={e.a.pos[0]} y1={e.a.pos[1]} x2={e.b.pos[0]} y2={e.b.pos[1]} stroke={AC} strokeOpacity={0.35} strokeWidth={0.04}/>))}
      {mapNodes.map(n=>(<circle key={n.id} cx={n.pos[0]} cy={n.pos[1]} r={0.12+Math.min(0.22,n.n*0.02)} fill={tierHex(n.state)} stroke="#fff" strokeWidth={0.03}><title>{`${n.label} \u00b7 ${n.state} \u00b7 ${n.n} centers`}</title></circle>))}
