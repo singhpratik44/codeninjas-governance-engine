@@ -4963,7 +4963,7 @@ function ApplicationAuthGate({children}){
  const deadline=new Date("2026-07-26T23:59:59Z").getTime();
  const now=new Date().getTime();
  const isExpired=now>deadline;
- const SECRET_CODE="codeninjas2026";
+ const SECRET_CODE="DirectorHiring2026Q2";
  if(isExpired){
   return React.createElement("div",{style:{width:"100%",height:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#1c2650",color:"#cdd6f4",fontFamily:"Helvetica"}},
    React.createElement("div",{style:{textAlign:"center",maxWidth:400}},
