@@ -10,7 +10,7 @@ const path = require('path');
     executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
     args: ['--no-sandbox'],
   });
-  const page = await browser.newPage();
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 
   const consoleMessages = [];
   const pageErrors = [];
@@ -27,7 +27,7 @@ const path = require('path');
   console.log('Navigating to', filePath);
   await page.goto(filePath, { waitUntil: 'networkidle' });
 
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(1200);
 
   console.log('\n--- CONSOLE MESSAGES ---');
   consoleMessages.forEach(m => console.log(m));
@@ -35,12 +35,30 @@ const path = require('path');
   console.log('\n--- PAGE ERRORS ---');
   pageErrors.forEach(e => console.log(e));
 
-  const bodyText = await page.evaluate(() => document.body.innerText.slice(0, 2000));
-  console.log('\n--- BODY TEXT (first 2000 chars) ---');
-  console.log(bodyText);
+  // Screenshot 1: default landing (quantum tab, has the embedded map preview)
+  await page.screenshot({ path: 'test-screenshot-quantum.png', fullPage: false });
 
-  await page.screenshot({ path: 'test-screenshot.png', fullPage: true });
-  console.log('\nScreenshot saved to test-screenshot.png');
+  // "table" (Network Map) lives under the CENTERS group — open the group
+  // first, then click the specific view tab.
+  const groupClicked = await page.evaluate(() => {
+    const btns = Array.from(document.querySelectorAll('button[role="tab"]'));
+    const btn = btns.find(b => (b.getAttribute('aria-label') || '') === 'Section: Centers');
+    if (btn) { btn.click(); return true; }
+    return false;
+  });
+  console.log('\nClicked Centers group:', groupClicked);
+  await page.waitForTimeout(300);
+  const tableTabClicked = await page.evaluate(() => {
+    const btns = Array.from(document.querySelectorAll('button[role="tab"]'));
+    const btn = btns.find(b => (b.getAttribute('aria-label') || '').toLowerCase().includes('network map'));
+    if (btn) { btn.click(); return true; }
+    return false;
+  });
+  console.log('Clicked Network Map tab:', tableTabClicked);
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: 'test-screenshot-map.png', fullPage: false });
+
+  console.log('\nScreenshots saved.');
 
   await browser.close();
 

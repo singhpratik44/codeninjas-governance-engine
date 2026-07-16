@@ -6,7 +6,7 @@
 // FDD Item 20 = 244 authoritative units. Engine proposes; it does not enact.
 // ============================================================================
 import React, { useState, useEffect, useMemo, useRef, Fragment } from "react";
-import * as THREE from "three";
+import { US_MAP_VIEWBOX, US_STATE_PATHS, US_STATE_CENTROIDS, US_MAP_CANADA_PINS } from "./usMapData.js";
 
 // ---- Network Command Table (compact, embedded) ----
 // Approximate US + adjacent-province layout (cartogram, not a precise
@@ -61,253 +61,70 @@ function buildMapNodes(states,railData,leads){
 function mtVal(c,d){return c.vals[d];}
 function mtHealth(c){return MAP_DIMS.reduce((s,d)=>s+mtVal(c,d),0)/MAP_DIMS.length;}
 // ============================================================================
-// 3D NETWORK MAP — Interactive Three.js Visualization
-// Features: A. 3D spheres | B. Heatmap overlay | C. Flow visualization
-//           D. Proposal impact | E. Cluster highlighting | F. Conflict zones
-//           G. Comparison mode | H. Drill-down | I. Capacity rings | J. Forecast slider
+// US NETWORK MAP — real Albers-USA state geometry (src/usMapData.js), not an
+// abstract cartogram. Used everywhere the app shows a map: the embedded
+// preview inside Quantum PM, and the full "table" tab. One component, one
+// source of truth, so the two never drift the way two independent Three.js
+// scenes previously could.
+// Canadian provinces (BC/AB/ON) this network models have no coordinates in
+// an Albers-USA projection -- it doesn't define space for Canada -- so they
+// render as labeled pins just outside the frame instead of pretending to be
+// projected.
 // ============================================================================
-
-// 3D Map Component (A-J: All map features)
-function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedState, onStateClick, scenario, centers, states}) {
- const containerRef=useRef(null);
- const sceneRef=useRef(null);
- const rendererRef=useRef(null);
- const spheresRef=useRef({});
- const [highlightedState, setHighlightedState]=useState(null);
- const [hoveredState, setHoveredState]=useState(null);
- const [impactAnimation, setImpactAnimation]=useState(null); // D. Proposal impact animation
- const [conflictZones, setConflictZones]=useState(new Set()); // F. Conflict zones
-
- // D. Proposal impact: detect affected states when decision approved
- const triggerImpactAnimation = (affectedStateIds) => {
-  setMapImpactAnimation({ affectedStates: new Set(affectedStateIds), startTime: Date.now() });
-  setTimeout(() => setMapImpactAnimation(null), 2500);
- };
-
- // H. Get centers for drill-down detail
- const selectedStateCenters = selectedState && states && states[selectedState] ?
-  states[selectedState].map(c => ({
-   ...c,
-   condition: c.health < 55 || c.eb < QFLOORS.margin_ebitda_k ? 'at-risk' : c.health < 70 ? 'watch' : 'thriving',
-   margin: c.eb,
-   health: c.health,
-  })) : [];
-
- // F. Detect conflict zones from railData
- useEffect(() => {
-  if (!railData || !railData.conflicts) return;
-  const zones = new Set();
-  railData.conflicts.forEach(c => {
-    const aRec = railData.recommendations?.find(r => r.id === c.a);
-    const bRec = railData.recommendations?.find(r => r.id === c.b);
-    if (aRec?.targetIds) zones.add(aRec.targetIds[1]); // region for Growth proposals
-    if (bRec?.targetIds) zones.add(bRec.targetIds[1]); // region
-  });
-  setConflictZones(zones);
- }, [railData]);
-
- useEffect(() => {
-  if (!containerRef.current || !mapNodes.length) return;
-
-  // Initialize Three.js scene (A. 3D Map)
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xfaf8f8);
-  sceneRef.current = scene;
-
-  const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
-  camera.position.set(0, 2, 3.5);
-  camera.lookAt(0, 0, 0);
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-  renderer.setPixelRatio(window.devicePixelRatio || 1);
-  containerRef.current.appendChild(renderer.domElement);
-  rendererRef.current = renderer;
-
-  // Add lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-  scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(5, 5, 5);
-  scene.add(directionalLight);
-
-  // B. Heatmap background gradient (behind the spheres)
-  const heatmapCanvas = document.createElement('canvas');
-  heatmapCanvas.width = 512;
-  heatmapCanvas.height = 512;
-  const heatmapCtx = heatmapCanvas.getContext('2d');
-  const avgHealth = mapNodes.length ? mapNodes.reduce((s, n) => s + (n.state === 'at-risk' ? 0 : n.state === 'watch' ? 0.5 : 1), 0) / mapNodes.length : 0.5;
-  const gradient = heatmapCtx.createLinearGradient(0, 0, 512, 512);
-  gradient.addColorStop(0, avgHealth > 0.7 ? '#2fbf5f' : avgHealth > 0.4 ? '#d9a520' : '#e03535');
-  gradient.addColorStop(1, '#fafaf8');
-  heatmapCtx.fillStyle = gradient;
-  heatmapCtx.fillRect(0, 0, 512, 512);
-  const heatmapTexture = new THREE.CanvasTexture(heatmapCanvas);
-  const planeGeom = new THREE.PlaneGeometry(10, 10);
-  const planeMat = new THREE.MeshBasicMaterial({ map: heatmapTexture });
-  const plane = new THREE.Mesh(planeGeom, planeMat);
-  plane.position.z = -0.5;
-  scene.add(plane);
-
-  // Create spheres for each state (A. 3D Map: size, height, color)
-  // I. Add capacity rings (torus around sphere showing FBC/sensei load)
-  const stateGeom = new THREE.SphereGeometry(1, 32, 32);
-  const ringGeom = new THREE.TorusGeometry(1.05, 0.08, 16, 100); // I. Capacity ring
-  mapNodes.forEach((node) => {
-    const healthFraction = node.state === 'at-risk' ? 0.3 : node.state === 'watch' ? 0.6 : 0.9;
-    const sizeMultiplier = 0.2 + (node.n / 50) * 0.3; // size by center count
-    const heightMultiplier = healthFraction * 1.5; // height by health
-    const color = node.state === 'at-risk' ? 0xe03535 : node.state === 'watch' ? 0xd9a520 : 0x2fbf5f;
-
-    const mat = new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.6 });
-    const sphere = new THREE.Mesh(stateGeom, mat);
-    sphere.scale.set(sizeMultiplier, heightMultiplier, sizeMultiplier);
-    sphere.position.set(node.pos[0], heightMultiplier * 0.5, node.pos[1]);
-    sphere.userData = { state: node, isAtRisk: node.state === 'at-risk' };
-    scene.add(sphere);
-    spheresRef.current[node.id] = sphere;
-
-    // I. Capacity ring around sphere (blue=normal, red=stressed)
-    const ringMat = new THREE.MeshBasicMaterial({ color: node.state === 'at-risk' ? 0xff4444 : 0x4488ff, transparent: true, opacity: 0.5 });
-    const ring = new THREE.Mesh(ringGeom, ringMat);
-    ring.position.copy(sphere.position);
-    ring.position.y += heightMultiplier * 0.05;
-    ring.scale.set(sizeMultiplier, 1, sizeMultiplier);
-    scene.add(ring);
-  });
-
-  // Add propagation edges (lines)
-  const linesMat = new THREE.LineBasicMaterial({ color: 0xac6b7f, transparent: true, opacity: 0.3 });
-  mEdges.forEach((edge) => {
-    const points = [
-      new THREE.Vector3(edge.a.pos[0], 0.1, edge.a.pos[1]),
-      new THREE.Vector3(edge.b.pos[0], 0.1, edge.b.pos[1]),
-    ];
-    const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(lineGeom, linesMat);
-    scene.add(line);
-  });
-
-  // C. Flow Visualization - animated arrows showing resource allocation
-  const atRiskStates = mapNodes.filter(n => n.state === 'at-risk').slice(0, 5); // top 5 at-risk for clarity
-  let arrowTime = 0;
-  atRiskStates.forEach((atRiskNode) => {
-    const healthiestNode = [...mapNodes].sort((a, b) => {
-      const aHealth = a.state === 'at-risk' ? 0 : a.state === 'watch' ? 0.5 : 1;
-      const bHealth = b.state === 'at-risk' ? 0 : b.state === 'watch' ? 0.5 : 1;
-      return bHealth - aHealth;
-    })[0];
-
-    if (!healthiestNode) return;
-
-    // Create animated flow arrow from healthy → at-risk
-    const startPos = new THREE.Vector3(healthiestNode.pos[0], 0.2, healthiestNode.pos[1]);
-    const endPos = new THREE.Vector3(atRiskNode.pos[0], 0.2, atRiskNode.pos[1]);
-    const midPos = startPos.clone().lerp(endPos, 0.5);
-
-    // Flow particle (animated dot moving along path)
-    const particleGeom = new THREE.SphereGeometry(0.08, 8, 8);
-    const particleMat = new THREE.MeshBasicMaterial({ color: 0x4488ff, transparent: true });
-    const particle = new THREE.Mesh(particleGeom, particleMat);
-    particle.userData = { startPos, endPos, speed: 0.003 + Math.random() * 0.002, t: Math.random() };
-    scene.add(particle);
-
-    // Arrow line from healthy to at-risk
-    const arrowGeom = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
-    const arrowMat = new THREE.LineBasicMaterial({ color: 0x4488ff, transparent: true, opacity: 0.4, linewidth: 2 });
-    const arrowLine = new THREE.Line(arrowGeom, arrowMat);
-    scene.add(arrowLine);
-  });
-
-
-  // Mouse interaction for drill-down (H. Drill-Down)
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-  const onMouseClick = (event) => {
-    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(Object.values(spheresRef.current));
-    if (intersects.length > 0) {
-      const clickedSphere = intersects[0].object;
-      onStateClick?.(clickedSphere.userData.state.id);
-      setHighlightedState(clickedSphere.userData.state.id);
-    }
-  };
-  renderer.domElement.addEventListener('click', onMouseClick);
-
-  // Animation loop
-  const animate = () => {
-    requestAnimationFrame(animate);
-
-    // C. Flow visualization: animate flow particles
-    scene.children.forEach(child => {
-      if (child.userData && child.userData.t !== undefined) {
-        child.userData.t += child.userData.speed;
-        if (child.userData.t > 1) child.userData.t -= 1;
-        const lerpPos = child.userData.startPos.clone().lerp(child.userData.endPos, child.userData.t);
-        child.position.copy(lerpPos);
-        if (child.material.opacity !== undefined) {
-          child.material.opacity = Math.sin(child.userData.t * Math.PI) * 0.8;
-        }
-      }
-    });
-
-    // E. Cluster highlighting: glow at-risk clusters
-    // F. Conflict zone highlighting: glow orange for territories with conflicts
-    // D. Proposal impact: briefly highlight affected territories when decision approved
-    Object.entries(spheresRef.current).forEach(([stateId, sphere]) => {
-      const isAtRisk = sphere.userData.isAtRisk;
-      const isHighlighted = highlightedState === stateId;
-      const isConflict = conflictZones.has(stateId);
-      const isImpact = impactAnimation?.affectedStates?.has(stateId);
-
-      // Priority: impact animation > conflict zone > highlighted > at-risk
-      if (isImpact) {
-        sphere.material.emissive.setHex(0x00ff00); // green for impact
-        sphere.material.emissiveIntensity = 0.7;
-      } else if (isConflict) {
-        sphere.material.emissive.setHex(0xffa500); // orange for conflict
-        sphere.material.emissiveIntensity = 0.5;
-      } else if (isHighlighted) {
-        sphere.material.emissive.setHex(0x444444);
-        sphere.material.emissiveIntensity = 0.5;
-      } else if (isAtRisk) {
-        sphere.material.emissive.setHex(0x660000); // dark red for at-risk
-        sphere.material.emissiveIntensity = 0.2;
-      } else {
-        sphere.material.emissiveIntensity = 0;
-      }
-    });
-
-    // D. Fade out impact animation after 2 seconds
-    if (impactAnimation && impactAnimation.startTime && Date.now() - impactAnimation.startTime > 2000) {
-      setImpactAnimation(null);
-    }
-
-    renderer.render(scene, camera);
-  };
-  animate();
-
-  // Handle window resize
-  const handleResize = () => {
-    if (!containerRef.current) return;
-    const w = containerRef.current.clientWidth;
-    const h = containerRef.current.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  };
-  window.addEventListener('resize', handleResize);
-
-  return () => {
-    window.removeEventListener('resize', handleResize);
-    renderer.domElement.removeEventListener('click', onMouseClick);
-    containerRef.current?.removeChild(renderer.domElement);
-  };
- }, [mapNodes, mEdges, approvedPosture, highlightedState]);
-
- return <div ref={containerRef} style={{ width: '100%', height: 250, border: '1px solid #eee', background: '#fafaf8' }} />;
+function USNetworkMap({mapNodes, mEdges, selectedState, onStateClick, dark=true, height=320}) {
+ const byId={};(mapNodes||[]).forEach(n=>{byId[n.id]=n;});
+ const hexStr=h=>"#"+h.toString(16).padStart(6,"0");
+ const centroidFor=id=>US_STATE_CENTROIDS[id]||US_MAP_CANADA_PINS[id]||null;
+ const bg=dark?"#05060e":"#fafaf8";
+ const strokeCol=dark?"#0a0d1f":"#fff";
+ const labelCol=dark?"#8a97c4":MUT;
+ const LEGEND=[["thriving",0x2fbf5f],["watch",0xd9a520],["at-risk",0xe03535]];
+ return(<div>
+  <svg viewBox={US_MAP_VIEWBOX} style={{width:"100%",height,display:"block",background:bg,borderRadius:6,border:dark?"1px solid #1c2650":`1px solid ${RULE}`}} role="img" aria-label="US network map, states colored by health tier">
+   {Object.keys(US_STATE_PATHS).map(postal=>{
+    const node=byId[postal];
+    const fill=node?hexStr(node.hex):(dark?"#141d3d":"#e8e8e4");
+    const isSel=selectedState===postal;
+    return(<path key={postal} d={US_STATE_PATHS[postal]} fill={fill} fillOpacity={node?0.92:0.35}
+     stroke={isSel?"#6fe8ff":strokeCol} strokeWidth={isSel?2.2:0.75}
+     onClick={()=>node&&onStateClick&&onStateClick(postal)}
+     style={{cursor:node?"pointer":"default"}}>
+     <title>{node?`${node.label} · ${node.state} · ${node.n} center${node.n===1?"":"s"}`:postal}</title>
+    </path>);
+   })}
+   {(mEdges||[]).map((e,i)=>{
+    const a=centroidFor(e.a.id),b=centroidFor(e.b.id);
+    if(!a||!b)return null;
+    const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2-40;
+    return<path key={i} d={`M${a[0]},${a[1]} Q${mx},${my} ${b[0]},${b[1]}`} fill="none" stroke="#27c8e8" strokeOpacity={0.45} strokeWidth={1.4} style={{pointerEvents:"none"}}/>;
+   })}
+   {Object.keys(US_MAP_CANADA_PINS).map(postal=>{
+    const node=byId[postal];if(!node)return null;
+    const[x,y]=US_MAP_CANADA_PINS[postal];
+    const isSel=selectedState===postal;
+    return(<g key={postal} onClick={()=>onStateClick&&onStateClick(postal)} style={{cursor:"pointer"}}>
+     <circle cx={x} cy={y} r={isSel?15:12} fill={hexStr(node.hex)} stroke={isSel?"#6fe8ff":strokeCol} strokeWidth={isSel?2.2:1.2}/>
+     <text x={x} y={y+3} textAnchor="middle" fontSize={9} fontWeight={700} fill="#fff" style={{pointerEvents:"none"}}>{postal}</text>
+     <title>{`${node.label} (province) · ${node.state} · ${node.n} center${node.n===1?"":"s"}`}</title>
+    </g>);
+   })}
+   {(mapNodes||[]).filter(n=>US_STATE_CENTROIDS[n.id]).map(n=>{
+    const[x,y]=US_STATE_CENTROIDS[n.id];
+    const r=3+Math.min(9,n.n*0.35);
+    return(<g key={n.id} style={{pointerEvents:"none"}}>
+     {n.conflicted&&<circle cx={x} cy={y} r={r+4} fill="none" stroke="#ffa500" strokeWidth={1.6}><animate attributeName="stroke-opacity" values="0.9;0.2;0.9" dur="1.6s" repeatCount="indefinite"/></circle>}
+     <circle cx={x} cy={y} r={r} fill="#fff" fillOpacity={0.88} stroke={hexStr(n.hex)} strokeWidth={1.5}/>
+     {n.leadCount>0&&<circle cx={x+r} cy={y-r} r={3} fill="#6fe8ff"/>}
+    </g>);
+   })}
+  </svg>
+  <div style={{display:"flex",gap:10,marginTop:6,flexWrap:"wrap"}}>
+   {LEGEND.map(([label,hex])=>(<span key={label} style={{display:"flex",alignItems:"center",gap:4,fontFamily:"Helvetica",fontSize:8.5,color:labelCol,textTransform:"capitalize"}}><span style={{width:8,height:8,borderRadius:"50%",background:hexStr(hex),display:"inline-block"}}/>{label}</span>))}
+   <span style={{display:"flex",alignItems:"center",gap:4,fontFamily:"Helvetica",fontSize:8.5,color:labelCol}}><span style={{width:8,height:8,borderRadius:"50%",background:"#fff",border:"1.5px solid #999",display:"inline-block"}}/>size = center count</span>
+   <span style={{display:"flex",alignItems:"center",gap:4,fontFamily:"Helvetica",fontSize:8.5,color:labelCol}}><span style={{width:8,height:8,borderRadius:"50%",border:"1.6px solid #ffa500",display:"inline-block"}}/>cross-agent conflict</span>
+   <span style={{display:"flex",alignItems:"center",gap:4,fontFamily:"Helvetica",fontSize:8.5,color:labelCol}}><span style={{width:10,height:1.4,background:"#27c8e8",display:"inline-block"}}/>propagation candidate</span>
+  </div>
+ </div>);
 }
 
 // Real propagation edges: drawn from the Network Propagation agent's actual
@@ -349,90 +166,10 @@ function buildPropagationEdges(mapNodes){
  return edges;
 }
 function CommandTableTab({centers,states,opt,setOpt,railData,leads,jumpTo}){
- const mountRef=useRef(null);const [sel,setSel]=useState(null);const [sel2,setSel2]=useState(null);
- const [viewMode,setViewMode]=useState("3d");
- const currentWeek=opt&&typeof opt.week==="number"?opt.week:0;
- const [week,setWeek]=useState(currentWeek);
- useEffect(()=>{setWeek(currentWeek);},[currentWeek]);
- const weekRef=useRef(currentWeek);const selRef=useRef(null);const apiRef=useRef({});
- const[webglFailed,setWebglFailed]=useState(false);
+ const [sel,setSel]=useState(null);const [sel2,setSel2]=useState(null);
+ const [viewMode,setViewMode]=useState("map");
  const mapNodes=useMemo(()=>buildMapNodes(states,railData||{recommendations:[],conflicts:[]},leads),[states,railData,leads]);
- const nodesRef=useRef(mapNodes);nodesRef.current=mapNodes;
  const edges=useMemo(()=>buildPropagationEdges(mapNodes),[mapNodes]);
- const edgesRef=useRef(edges);edgesRef.current=edges;
- useEffect(()=>{weekRef.current=week;apiRef.current.w&&apiRef.current.w(week);},[week]);
- const DEFAULT_ORBIT={theta:0.9,phi:1.02,radius:24};
- useEffect(()=>{
-  const mount=mountRef.current;if(!mount)return;
-  const W=mount.clientWidth||900,H=460;let renderer;
-  try{renderer=new THREE.WebGLRenderer({antialias:true});}catch(e){setWebglFailed(true);return;}
-  renderer.setSize(W,H);mount.appendChild(renderer.domElement);
-  const scene=new THREE.Scene();scene.background=new THREE.Color(0x05060e);scene.fog=new THREE.FogExp2(0x05060e,0.024);
-  const camera=new THREE.PerspectiveCamera(55,W/H,0.1,200);
-  const orbit={...DEFAULT_ORBIT};
-  const cam=()=>{camera.position.set(orbit.radius*Math.sin(orbit.phi)*Math.cos(orbit.theta),1.2+orbit.radius*Math.cos(orbit.phi),orbit.radius*Math.sin(orbit.phi)*Math.sin(orbit.theta));camera.lookAt(0,1.2,0);};cam();
-  scene.add(new THREE.AmbientLight(0x223344,1.0));
-  const kl=new THREE.DirectionalLight(0x8899ff,0.4);kl.position.set(10,20,10);scene.add(kl);
-  const SEG=60;const tg=new THREE.PlaneGeometry(70,80,SEG,SEG);tg.rotateX(-Math.PI/2);
-  const tp=tg.attributes.position;const bY=new Float32Array(tp.count);
-  for(let k=0;k<tp.count;k++){const x=tp.getX(k),z=tp.getZ(k);const d=Math.sqrt(x*x+z*z);bY[k]=Math.sin(x*0.25)*Math.cos(z*0.22)*0.35-Math.max(0,d-18)*0.1;}
-  const wells=()=>{const list=nodesRef.current;for(let k=0;k<tp.count;k++){const x=tp.getX(k),z=tp.getZ(k);let y=bY[k];
-   for(const c of list){const dx=x-c.pos[0],dz=z-c.pos[1];const r=1-mtHealth(c);const s=2.2+r*1.2;y-=r*r*6.5*Math.exp(-(dx*dx+dz*dz)/(2*s*s));}
-   tp.setY(k,y);}tp.needsUpdate=true;};
-  wells();
-  scene.add(new THREE.Mesh(tg,new THREE.MeshBasicMaterial({color:0x1a2547,wireframe:true,transparent:true,opacity:0.5})));
-  const gY=(cx,cz)=>{let y=Math.sin(cx*0.25)*Math.cos(cz*0.22)*0.35;for(const c of nodesRef.current){const dx=cx-c.pos[0],dz=cz-c.pos[1];const r=1-mtHealth(c);const s=2.2+r*1.2;y-=r*r*6.5*Math.exp(-(dx*dx+dz*dz)/(2*s*s));}return y;};
-  const picks=[];const dyn=[];const refs={};
-  nodesRef.current.forEach(c=>{const g=new THREE.Group();scene.add(g);
-   const tm=new THREE.MeshStandardMaterial({color:0x0e1430,emissive:c.hex,emissiveIntensity:0.5,metalness:0.75,roughness:0.28,transparent:true,opacity:0.92});
-   const scale=0.55+Math.min(0.5,c.n/40);
-   const tw=new THREE.Mesh(new THREE.CylinderGeometry(0.32*scale,0.48*scale,1,6),tm);tw.userData.c=c;g.add(tw);picks.push(tw);
-   const rim=new THREE.Mesh(new THREE.TorusGeometry(1.3*scale,0.04,8,36),new THREE.MeshBasicMaterial({color:c.hex,transparent:true,opacity:c.conflicted?0.95:0.8}));rim.rotation.x=Math.PI/2;rim.position.y=0.19;g.add(rim);
-   const bc=new THREE.Mesh(new THREE.SphereGeometry(0.18*scale,12,12),new THREE.MeshBasicMaterial({color:c.conflicted?0xff3b3b:c.hex}));g.add(bc);
-   let lm=null;
-   if(c.leadCount>0){lm=new THREE.Mesh(new THREE.ConeGeometry(0.14*scale,0.32*scale,5),new THREE.MeshBasicMaterial({color:0x6fe8ff}));g.add(lm);}
-   const pc=c.conflicted?70:36;const pg=new THREE.BufferGeometry();const pp=new Float32Array(pc*3);const pa=new Float32Array(pc),pr=new Float32Array(pc),ph=new Float32Array(pc);
-   for(let k=0;k<pc;k++){pa[k]=Math.random()*6.28;pr[k]=0.8+Math.random()*1.1;ph[k]=Math.random();}
-   pg.setAttribute("position",new THREE.BufferAttribute(pp,3));
-   g.add(new THREE.Points(pg,new THREE.PointsMaterial({color:c.hex,size:0.08,transparent:true,opacity:0.85})));
-   refs[c.id]={g,tw,tm,rim,bc,lm,pg,pp,pa,pr,ph,pc};
-   dyn.push(t=>{const r=refs[c.id];const hp=mtHealth(c);
-    r.g.position.set(c.pos[0],gY(c.pos[0],c.pos[1]),c.pos[1]);
-    const th=1.0+hp*4.5;r.tw.scale.set(1,th,1);r.tw.position.y=0.18+th/2;
-    r.bc.position.y=0.3+th;r.rim.position.y=Math.max(r.rim.position.y,0.19);
-    if(r.lm)r.lm.position.y=0.6+th;
-    r.tm.emissiveIntensity=(c.conflicted?0.35+0.4*Math.sin(t*3.2):0.4+0.25*Math.sin(t*1.1))*(0.4+hp);
-    const vc=Math.max(8,Math.round(hp*r.pc));const sp=0.15+hp*0.7;
-    for(let k=0;k<r.pc;k++){if(k<vc){r.pa[k]+=0.004*sp*(1+(k%5)*0.15);r.pp[k*3]=Math.cos(r.pa[k])*r.pr[k];r.pp[k*3+1]=0.3+r.ph[k]*(th+0.6);r.pp[k*3+2]=Math.sin(r.pa[k])*r.pr[k];}else r.pp[k*3+1]=-999;}
-    r.pg.attributes.position.needsUpdate=true;
-    r.rim.scale.setScalar(selRef.current===c.id?1.3:1);});});
-  let beams=[];
-  const mkBeams=()=>{beams.forEach(b=>{scene.remove(b.m);scene.remove(b.p);b.m.geometry.dispose();});beams=[];
-   edgesRef.current.forEach(({a,b})=>{
-    const pa2=new THREE.Vector3(a.pos[0],gY(a.pos[0],a.pos[1])+1,a.pos[1]);
-    const pb=new THREE.Vector3(b.pos[0],gY(b.pos[0],b.pos[1])+1,b.pos[1]);
-    const mid=pa2.clone().add(pb).multiplyScalar(0.5);mid.y=Math.max(pa2.y,pb.y)+2.2;
-    const cv=new THREE.QuadraticBezierCurve3(pa2,mid,pb);
-    const m=new THREE.Mesh(new THREE.TubeGeometry(cv,24,0.05,6,false),new THREE.MeshBasicMaterial({color:0x27c8e8,transparent:true,opacity:0.35}));
-    const p=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),new THREE.MeshBasicMaterial({color:0x6fe8ff,transparent:true,opacity:0.8}));
-    scene.add(m);scene.add(p);beams.push({m,p,cv,o:Math.random()});});};
-  mkBeams();
-  dyn.push(t=>{beams.forEach(b=>{b.p.position.copy(b.cv.getPoint((t*0.15+b.o)%1));});});
-  apiRef.current.w=()=>{wells();mkBeams();};
-  apiRef.current.reset=()=>{orbit.theta=DEFAULT_ORBIT.theta;orbit.phi=DEFAULT_ORBIT.phi;orbit.radius=DEFAULT_ORBIT.radius;cam();};
-  const ray=new THREE.Raycaster();const mo=new THREE.Vector2();let drag=false,mv=false,px=0,py=0;
-  const dn=e=>{drag=true;mv=false;px=e.clientX;py=e.clientY;};
-  const mvf=e=>{const rc=renderer.domElement.getBoundingClientRect();mo.x=((e.clientX-rc.left)/rc.width)*2-1;mo.y=-((e.clientY-rc.top)/rc.height)*2+1;
-   if(drag){const dx=e.clientX-px,dy=e.clientY-py;if(Math.abs(dx)+Math.abs(dy)>3)mv=true;orbit.theta+=dx*0.006;orbit.phi=Math.max(0.3,Math.min(1.45,orbit.phi-dy*0.005));px=e.clientX;py=e.clientY;cam();}};
-  const up=()=>{if(drag&&!mv){ray.setFromCamera(mo,camera);const h=ray.intersectObjects(picks);
-   if(h.length){const id=h[0].object.userData.c.id;selRef.current=selRef.current===id?null:id;setSel(selRef.current);}else{selRef.current=null;setSel(null);}}drag=false;};
-  const wl=e=>{e.preventDefault();orbit.radius=Math.max(9,Math.min(48,orbit.radius+e.deltaY*0.02));cam();};
-  renderer.domElement.addEventListener("mousedown",dn);renderer.domElement.addEventListener("mousemove",mvf);
-  window.addEventListener("mouseup",up);renderer.domElement.addEventListener("wheel",wl,{passive:false});
-  let raf;const ck=new THREE.Clock();
-  const loop=()=>{const t=ck.getElapsedTime();dyn.forEach(f=>f(t));renderer.render(scene,camera);raf=requestAnimationFrame(loop);};loop();
-  return()=>{cancelAnimationFrame(raf);window.removeEventListener("mouseup",up);renderer.dispose();mount.removeChild(renderer.domElement);};
- },[mapNodes,edges]);
  const sc=mapNodes.find(c=>c.id===sel);
  const sc2=mapNodes.find(c=>c.id===sel2);
  const fallbackList=[...mapNodes].sort((a,b)=>mtHealth(b)-mtHealth(a));
@@ -441,29 +178,27 @@ function CommandTableTab({centers,states,opt,setOpt,railData,leads,jumpTo}){
  const scProposals=sc?(railData&&railData.recommendations||[]).filter(r=>r.targetIds.some(t=>sc.centerNames.has(t))):[];
  const LEGEND=[["thriving",0x2fbf5f],["watch",0xd9a520],["at-risk",0xe03535]];
  return(<div>
-  <div style={{fontFamily:"Helvetica",fontSize:9,color:MUT,marginBottom:6}}>Every node below is a real state from the canonical network ({centers.length} centers across {mapNodes.length} territories shown, including three Canadian provinces) — not a separate dataset. Beams connect the weakest territories to their nearest strong neighbor by the same top-versus-bottom gap test the Network Propagation agent runs within a state, applied here across states (the agent itself only ever proposes within one state, so this is the map's own cross-territory read, not a direct agent feed); a cyan marker flags a territory with candidates active in the Growth pipeline.</div>
+  <div style={{fontFamily:"Helvetica",fontSize:9,color:MUT,marginBottom:6}}>Every shape below is a real state from the canonical network ({centers.length} centers across {mapNodes.length} territories shown, including three Canadian provinces pinned outside the US frame) — not a separate dataset, and real Albers-USA state geometry, not an abstract layout. Beams connect the weakest territories to their nearest strong neighbor by the same top-versus-bottom gap test the Network Propagation agent runs within a state, applied here across states (the agent itself only ever proposes within one state, so this is the map's own cross-territory read, not a direct agent feed); a cyan marker flags a territory with candidates active in the Growth pipeline.</div>
   <div style={{display:"flex",gap:6,marginBottom:6,flexWrap:"wrap",alignItems:"center"}}>
-   <button onClick={()=>setViewMode("3d")} aria-pressed={viewMode==="3d"} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,padding:"4px 10px",cursor:"pointer",border:`1px solid ${viewMode==="3d"?INK:RULE}`,background:viewMode==="3d"?INK:"#fff",color:viewMode==="3d"?"#fff":MUT}}>3D view</button>
+   <button onClick={()=>setViewMode("map")} aria-pressed={viewMode==="map"} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,padding:"4px 10px",cursor:"pointer",border:`1px solid ${viewMode==="map"?INK:RULE}`,background:viewMode==="map"?INK:"#fff",color:viewMode==="map"?"#fff":MUT}}>Map view</button>
    <button onClick={()=>setViewMode("table")} aria-pressed={viewMode==="table"} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,padding:"4px 10px",cursor:"pointer",border:`1px solid ${viewMode==="table"?INK:RULE}`,background:viewMode==="table"?INK:"#fff",color:viewMode==="table"?"#fff":MUT}}>Table view</button>
-   {viewMode==="3d"&&!webglFailed&&<button onClick={()=>apiRef.current.reset&&apiRef.current.reset()} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,padding:"4px 10px",cursor:"pointer",border:`1px solid ${RULE}`,background:"#fff",color:MUT}}>Reset view</button>}
    <span style={{marginLeft:"auto",display:"flex",gap:10,alignItems:"center"}}>
     {LEGEND.map(([label,hex])=>(<span key={label} style={{display:"flex",alignItems:"center",gap:4,fontFamily:"Helvetica",fontSize:8.5,color:MUT,textTransform:"capitalize"}}><span style={{width:8,height:8,borderRadius:"50%",background:"#"+hex.toString(16).padStart(6,"0"),display:"inline-block"}}/>{label}</span>))}
     <span style={{display:"flex",alignItems:"center",gap:4,fontFamily:"Helvetica",fontSize:8.5,color:MUT}}><span style={{width:0,height:0,borderLeft:"4px solid transparent",borderRight:"4px solid transparent",borderBottom:"7px solid #6fe8ff",display:"inline-block"}}/>pipeline active</span>
    </span>
   </div>
-  {/* Keyboard-navigable state picker: every state reachable without the mouse, same selection state a 3D click sets. */}
+  {/* Keyboard-navigable state picker: every state reachable without the mouse, same selection state a map click sets. */}
   <div role="listbox" aria-label="Select a state to view detail" style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>
    {[...mapNodes].sort((a,b)=>a.id.localeCompare(b.id)).map(c=>(
-    <button key={c.id} role="option" aria-selected={sel===c.id} onClick={()=>{selRef.current=selRef.current===c.id?null:c.id;setSel(selRef.current);}} title={c.label+" — "+c.state+(c.verifiedN===0?" (no verified units)":"")} style={{fontFamily:"Helvetica",fontSize:8,fontWeight:700,padding:"2px 6px",cursor:"pointer",border:`1px solid ${sel===c.id?INK:c.conflicted?AC:RULE}`,background:sel===c.id?INK:"#fff",color:sel===c.id?"#fff":c.conflicted?AC:MUT}}>{c.label}{c.conflicted?" ⚠":""}{c.verifiedN===0?" ~":""}</button>
+    <button key={c.id} role="option" aria-selected={sel===c.id} onClick={()=>setSel(sel===c.id?null:c.id)} title={c.label+" — "+c.state+(c.verifiedN===0?" (no verified units)":"")} style={{fontFamily:"Helvetica",fontSize:8,fontWeight:700,padding:"2px 6px",cursor:"pointer",border:`1px solid ${sel===c.id?INK:c.conflicted?AC:RULE}`,background:sel===c.id?INK:"#fff",color:sel===c.id?"#fff":c.conflicted?AC:MUT}}>{c.label}{c.conflicted?" ⚠":""}{c.verifiedN===0?" ~":""}</button>
    ))}
   </div>
   <div style={{position:"relative"}}>
-   <div ref={mountRef} style={{width:"100%",minHeight:460,borderRadius:6,overflow:"hidden",border:"1px solid #1c2650",background:"#05060e",display:(viewMode==="3d"&&!webglFailed)?"block":"none"}}/>
-   {(viewMode==="table"||webglFailed)&&<div style={{padding:16,fontFamily:"Helvetica",background:webglFailed?"#05060e":"#fff",color:webglFailed?"#cdd6f4":INK,border:webglFailed?"none":`1px solid ${RULE}`,borderRadius:6}}>
-    {webglFailed&&<div style={{fontSize:11,fontWeight:700,marginBottom:8}}>3D rendering isn't available in this environment — showing the same data as a table instead.</div>}
+   {viewMode==="map"&&<USNetworkMap mapNodes={mapNodes} mEdges={edges} selectedState={sel} onStateClick={id=>setSel(sel===id?null:id)} height={460}/>}
+   {viewMode==="table"&&<div style={{padding:16,fontFamily:"Helvetica",background:"#fff",color:INK,border:`1px solid ${RULE}`,borderRadius:6}}>
     <table style={{width:"100%",borderCollapse:"collapse",fontSize:10}}>
-     <thead><tr style={{textAlign:"left",color:webglFailed?"#8a97c4":MUT}}><th style={{padding:"4px 6px"}}>State</th><th>Units</th><th>Verified</th><th>Condition</th><th>Composite</th><th>Pipeline</th></tr></thead>
-     <tbody>{fallbackList.map(c=>(<tr key={c.id} onClick={()=>{selRef.current=selRef.current===c.id?null:c.id;setSel(selRef.current);}} style={{borderTop:webglFailed?"1px solid #1c2650":`1px solid ${RULE}`,cursor:"pointer",background:sel===c.id?(webglFailed?"#141d3d":"#f5f5f5"):"transparent"}}>
+     <thead><tr style={{textAlign:"left",color:MUT}}><th style={{padding:"4px 6px"}}>State</th><th>Units</th><th>Verified</th><th>Condition</th><th>Composite</th><th>Pipeline</th></tr></thead>
+     <tbody>{fallbackList.map(c=>(<tr key={c.id} onClick={()=>setSel(sel===c.id?null:c.id)} style={{borderTop:`1px solid ${RULE}`,cursor:"pointer",background:sel===c.id?"#f5f5f5":"transparent"}}>
       <td style={{padding:"4px 6px",fontWeight:700}}>{c.label}{c.conflicted?" ⚠":""}</td>
       <td style={{padding:"4px 6px"}}>{c.n}{c.verifiedN===0?" ~":""}</td>
       <td style={{padding:"4px 6px"}}>{c.verifiedN}</td>
@@ -473,21 +208,21 @@ function CommandTableTab({centers,states,opt,setOpt,railData,leads,jumpTo}){
      </tr>))}</tbody>
     </table>
    </div>}
-   {sc&&(<div style={{position:viewMode==="3d"?"absolute":"static",top:10,right:10,width:260,marginTop:viewMode==="table"?10:0,background:viewMode==="3d"?"rgba(8,10,24,0.92)":"#fff",border:viewMode==="3d"?"1px solid #2b3d78":`1px solid ${RULE}`,borderRadius:6,padding:12,fontFamily:"Helvetica",color:viewMode==="3d"?"#cdd6f4":INK}}>
-    <div style={{display:"flex",justifyContent:"space-between"}}><b style={{fontSize:12,color:viewMode==="3d"?"#e8ecff":INK}}>{sc.label} — {sc.state}</b><button onClick={()=>{selRef.current=null;setSel(null);}} aria-label="Close state detail" style={{cursor:"pointer",color:viewMode==="3d"?"#5a6a9e":MUT,background:"none",border:"none",padding:0}}>✕</button></div>
-    <div style={{fontSize:9,color:viewMode==="3d"?"#8a97c4":MUT,margin:"3px 0 7px"}}>{sc.n} unit{sc.n>1?"s":""} in this state ({sc.verifiedN} verified, {sc.n-sc.verifiedN} modeled){sc.conflicted?" · open cross-agent conflict":""}{sc.leadCount>0?" · "+sc.leadCount+" candidate(s) in pipeline":""}</div>
+   {sc&&(<div style={{position:viewMode==="map"?"absolute":"static",top:10,right:10,width:260,marginTop:viewMode==="table"?10:0,background:viewMode==="map"?"rgba(8,10,24,0.92)":"#fff",border:viewMode==="map"?"1px solid #2b3d78":`1px solid ${RULE}`,borderRadius:6,padding:12,fontFamily:"Helvetica",color:viewMode==="map"?"#cdd6f4":INK}}>
+    <div style={{display:"flex",justifyContent:"space-between"}}><b style={{fontSize:12,color:viewMode==="map"?"#e8ecff":INK}}>{sc.label} — {sc.state}</b><button onClick={()=>setSel(null)} aria-label="Close state detail" style={{cursor:"pointer",color:viewMode==="map"?"#5a6a9e":MUT,background:"none",border:"none",padding:0}}>✕</button></div>
+    <div style={{fontSize:9,color:viewMode==="map"?"#8a97c4":MUT,margin:"3px 0 7px"}}>{sc.n} unit{sc.n>1?"s":""} in this state ({sc.verifiedN} verified, {sc.n-sc.verifiedN} modeled){sc.conflicted?" · open cross-agent conflict":""}{sc.leadCount>0?" · "+sc.leadCount+" candidate(s) in pipeline":""}</div>
     {MAP_DIMS.map(d=>{const v=mtVal(sc,d);return(<div key={d} style={{margin:"6px 0"}}>
-     <div style={{display:"flex",justifyContent:"space-between",fontSize:9}}><span style={{textTransform:"capitalize",color:viewMode==="3d"?"#aab4dd":MUT}}>{d}</span><b style={{color:viewMode==="3d"?"#e8ecff":INK}}>{v.toFixed(2)}</b></div>
-     <div style={{height:4,background:viewMode==="3d"?"#141d3d":"#eee",borderRadius:2}}><div style={{height:4,width:(v*100)+"%",borderRadius:2,background:v<0.35?"#e03535":v<0.6?"#d9a520":"#2fbf5f"}}/></div></div>);})}
-    {scProposals.length>0&&<div style={{marginTop:8,paddingTop:6,borderTop:viewMode==="3d"?"1px solid #2b3d78":`1px solid ${RULE}`}}>
-     <div style={{fontSize:8,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",color:viewMode==="3d"?"#8a97c4":MUT,marginBottom:3}}>{scProposals.length} open proposal{scProposals.length>1?"s":""} in this state</div>
-     {scProposals.slice(0,3).map(r=>(<div key={r.id} style={{fontSize:8.5,color:viewMode==="3d"?"#cdd6f4":"#444",marginBottom:2}}>• {r.agent}: {r.governance.allowed?"cleared":"held"}</div>))}
+     <div style={{display:"flex",justifyContent:"space-between",fontSize:9}}><span style={{textTransform:"capitalize",color:viewMode==="map"?"#aab4dd":MUT}}>{d}</span><b style={{color:viewMode==="map"?"#e8ecff":INK}}>{v.toFixed(2)}</b></div>
+     <div style={{height:4,background:viewMode==="map"?"#141d3d":"#eee",borderRadius:2}}><div style={{height:4,width:(v*100)+"%",borderRadius:2,background:v<0.35?"#e03535":v<0.6?"#d9a520":"#2fbf5f"}}/></div></div>);})}
+    {scProposals.length>0&&<div style={{marginTop:8,paddingTop:6,borderTop:viewMode==="map"?"1px solid #2b3d78":`1px solid ${RULE}`}}>
+     <div style={{fontSize:8,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",color:viewMode==="map"?"#8a97c4":MUT,marginBottom:3}}>{scProposals.length} open proposal{scProposals.length>1?"s":""} in this state</div>
+     {scProposals.slice(0,3).map(r=>(<div key={r.id} style={{fontSize:8.5,color:viewMode==="map"?"#cdd6f4":"#444",marginBottom:2}}>• {r.agent}: {r.governance.allowed?"cleared":"held"}</div>))}
     </div>}
     <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
      {jumpTo&&sc.repCenter&&<button onClick={()=>jumpTo("lenses",sc.repCenter.name,"reviewing "+sc.label+" from the network map — "+sc.repCenter.name+" is this state's weakest unit")} style={{fontFamily:"Helvetica",fontSize:9,color:"#6fe8ff",cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>view {sc.repCenter.name} in Six Lenses →</button>}
-     <button onClick={()=>setSel2(sel2===sc.id?null:(sel2||mapNodes.find(m=>m.id!==sc.id)?.id))} style={{fontFamily:"Helvetica",fontSize:9,color:viewMode==="3d"?"#6fe8ff":AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>{sel2?"stop comparing":"compare with another state"}</button>
-     {jumpTo&&sc.repCenter&&<button onClick={()=>jumpTo("network",sc.repCenter.name,"reviewing "+sc.label+"'s cluster from the network map")} style={{fontFamily:"Helvetica",fontSize:9,color:viewMode==="3d"?"#6fe8ff":AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>view {sc.label} cluster in Network →</button>}
-     {jumpTo&&sc.leadCount>0&&<button onClick={()=>jumpTo("leads",null,sc.leadCount+" candidate(s) active in "+sc.label+", seen from the network map")} style={{fontFamily:"Helvetica",fontSize:9,color:viewMode==="3d"?"#6fe8ff":AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>view {sc.label} pipeline in Growth →</button>}
+     <button onClick={()=>setSel2(sel2===sc.id?null:(sel2||mapNodes.find(m=>m.id!==sc.id)?.id))} style={{fontFamily:"Helvetica",fontSize:9,color:viewMode==="map"?"#6fe8ff":AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>{sel2?"stop comparing":"compare with another state"}</button>
+     {jumpTo&&sc.repCenter&&<button onClick={()=>jumpTo("network",sc.repCenter.name,"reviewing "+sc.label+"'s cluster from the network map")} style={{fontFamily:"Helvetica",fontSize:9,color:viewMode==="map"?"#6fe8ff":AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>view {sc.label} cluster in Network →</button>}
+     {jumpTo&&sc.leadCount>0&&<button onClick={()=>jumpTo("leads",null,sc.leadCount+" candidate(s) active in "+sc.label+", seen from the network map")} style={{fontFamily:"Helvetica",fontSize:9,color:viewMode==="map"?"#6fe8ff":AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>view {sc.label} pipeline in Growth →</button>}
     </div>
    </div>)}
   </div>
@@ -504,11 +239,7 @@ function CommandTableTab({centers,states,opt,setOpt,railData,leads,jumpTo}){
     <span style={{width:52,fontSize:8.5,color:delta>=0?GRN:AC}}>{delta>=0?"+":""}{delta.toFixed(2)}</span>
    </div>);})}
   </div>)}
-  <div style={{marginTop:8,padding:"8px 12px",background:"#0a0d1f",border:"1px solid #1c2650",borderRadius:6,fontFamily:"Helvetica"}}>
-   <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:"#8a97c4",marginBottom:4}}><b style={{color:"#e8ecff"}}>Week {week}{week===currentWeek?" (current)":" (preview — does not change the shared clock)"}</b><span>{edges.length} active propagation link{edges.length===1?"":"s"} this cycle</span></div>
-   <input type="range" min="0" max={currentWeek} step="1" value={week} onChange={e=>setWeek(parseInt(e.target.value))} aria-label={"Preview an earlier week, currently showing week "+week} style={{width:"100%"}}/>
-  </div>
-  <div style={{fontFamily:"Helvetica",fontSize:9,color:"#888",marginTop:5}}>drag = orbit · scroll = zoom · click a state (or use the list above) = unit readout · reads the live canonical state, same as every other view</div>
+  <div style={{fontFamily:"Helvetica",fontSize:9,color:"#888",marginTop:5}}>click a state (map or list above) = unit readout · reads the live canonical state, same as every other view · {edges.length} active propagation link{edges.length===1?"":"s"} this cycle</div>
  </div>);}
 // ---- end Command Table ----
 
@@ -4239,12 +3970,6 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
   const sizes=Object.values(groups);
   return{count:sizes.length,largest:sizes.length?Math.max(...sizes):0,isolated:sizes.filter(s=>s===1).length,total:atRisk.length};
  },[mapNodes,mEdges]);
- const coordVals=Object.values(MAP_STATE_COORDS);
- const cxMin=Math.min(...coordVals.map(v=>v[0])),cxMax=Math.max(...coordVals.map(v=>v[0]));
- const cyMin=Math.min(...coordVals.map(v=>v[1])),cyMax=Math.max(...coordVals.map(v=>v[1]));
- const padS=0.9;
- const svgVB=`${cxMin-padS} ${cyMin-padS} ${cxMax-cxMin+padS*2} ${cyMax-cyMin+padS*2}`;
- const tierHex=t=>t==="at-risk"?"#e03535":t==="watch"?"#d9a520":"#2fbf5f";
  const SLABEL={optimistic:"Optimistic",realistic:"Realistic",pessimistic:"Pessimistic"};
  const SPROB={optimistic:"30%",realistic:"75%",pessimistic:"25%"};
  const SCOLOR={optimistic:GRN,realistic:AC,pessimistic:AMB};
@@ -4423,15 +4148,11 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
   <div style={{display:"flex",gap:10,marginBottom:14,flexWrap:"wrap"}}>
    <div style={{flex:"1 1 340px",border:`1px solid ${RULE}`,padding:"10px 12px"}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT}}>Interactive 3D Network Map — {mapNodes.length} territories, {mEdges.length} edges</div>
-     <span onClick={()=>jumpTo&&jumpTo("table")} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:AC,cursor:jumpTo?"pointer":"default",textDecoration:"underline"}}>Full 3D view →</span>
+     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT}}>Network Map — real US state geometry — {mapNodes.length} territories, {mEdges.length} edges</div>
+     <span onClick={()=>jumpTo&&jumpTo("table")} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,color:AC,cursor:jumpTo?"pointer":"default",textDecoration:"underline"}}>Full map view →</span>
     </div>
-    <EngineErrorBoundary><Map3D mapNodes={mapNodes} mEdges={mEdges} clusters={clusters} approvedPosture={approved} railData={railData} selectedState={selectedStateDetail} onStateClick={setSelectedStateDetail} scenario={approved} centers={centers} states={states||{}} /></EngineErrorBoundary>
-    <svg style={{display:"none"}} viewBox={svgVB}>
-     {mEdges.map((e,i)=>(<line key={i} x1={e.a.pos[0]} y1={e.a.pos[1]} x2={e.b.pos[0]} y2={e.b.pos[1]} stroke={AC} strokeOpacity={0.35} strokeWidth={0.04}/>))}
-     {mapNodes.map(n=>(<circle key={n.id} cx={n.pos[0]} cy={n.pos[1]} r={0.12+Math.min(0.22,n.n*0.02)} fill={tierHex(n.state)} stroke="#fff" strokeWidth={0.03}><title>{`${n.label} \u00b7 ${n.state} \u00b7 ${n.n} centers`}</title></circle>))}
-    </svg>
-    <div style={{fontSize:9.5,color:MUT,marginTop:6}}>Same buildMapNodes()/buildPropagationEdges() the full Network Map tab renders — this is a live sync, not a separate drawing. Circle size ∝ center count; lines are the same strong→weak support-propagation pairs the 3D map beams.</div>
+    <EngineErrorBoundary><USNetworkMap mapNodes={mapNodes} mEdges={mEdges} selectedState={selectedStateDetail} onStateClick={setSelectedStateDetail} height={260}/></EngineErrorBoundary>
+    <div style={{fontSize:9.5,color:MUT,marginTop:6}}>Same buildMapNodes()/buildPropagationEdges() the full Network Map tab renders — this is a live sync, not a separate drawing. Circle size ∝ center count; beams are the same strong→weak support-propagation pairs.</div>
    </div>
    <div style={{flex:"1 1 220px",border:`1px solid ${RULE}`,borderLeft:`3px solid ${clusters.count>1?AC:GRN}`,padding:"10px 12px"}}>
     <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:8}}>Graph theory — at-risk clustering</div>
