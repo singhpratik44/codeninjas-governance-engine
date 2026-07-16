@@ -4990,14 +4990,6 @@ function EngineInner({initialTab}){
   return()=>window.removeEventListener("hashchange",onHashChange);
  },[tab]);
 
- // Seed A/B tests when centers are available
- useEffect(()=>{
-  if(centers && centers.length > 0 && abTests.length === 0) {
-   const tests = seedABTests(centers);
-   setAbTests(tests);
-  }
- },[centers]);
-
  const [sel,setSel]=useState("Pleasanton");
  const [stSel,setSt]=useState("CA");
  const [beltSel,setBelt]=useState("orange");
@@ -5065,6 +5057,13 @@ function EngineInner({initialTab}){
   return computeCentersForPosture(rawCenters,adj,posture,opt.week);
  },[rawCenters,adj,opt.quantum&&opt.quantum.approved,opt.week]);
  const LEADS=useMemo(buildLeads,[]);
+ // Seed A/B tests when centers are available
+ useEffect(()=>{
+  if(centers && centers.length > 0 && abTests.length === 0) {
+   const tests = seedABTests(centers);
+   setAbTests(tests);
+  }
+ },[centers]);
  const team=centers.find(c=>c.name===sel)||centers[32];
  const states=useMemo(()=>{const m={};centers.forEach(c=>{(m[c.st]=m[c.st]||[]).push(c);});return m;},[centers]);
  const fAll=useMemo(()=>centers.map(c=>({c,f:forecast(c)})),[centers]);
