@@ -3724,6 +3724,67 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
   </div>
 
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>Growth Trajectory: 3-Year Revenue Compounding</div>
+   {(() => {
+    // Model 3-year growth for a medium market territory
+    const baselineMonthly = 18500; // baseline center revenue
+    const year1Goal = baselineMonthly * 12;
+
+    // Year 1: Baseline + curriculum launch
+    const year1Revenue = year1Goal + OPERATIONS_WORKFLOWS[0].revenue_potential_year1;
+    const year1Cost = OPERATIONS_WORKFLOWS[0].cost_estimate;
+    const year1Profit = (year1Revenue * TERRITORY_OPPORTUNITY.margin) - year1Cost;
+
+    // Year 2: Year 1 + community programs (running 3 programs)
+    const communityImpact = Object.values(COMMUNITY_PROGRAMS).slice(0, 3).reduce((sum, p) => sum + p.revenue_impact, 0);
+    const year2Revenue = year1Revenue + communityImpact;
+    const year2Cost = OPERATIONS_WORKFLOWS[1].cost_estimate + 2000; // ongoing community costs
+    const year2Profit = (year2Revenue * TERRITORY_OPPORTUNITY.margin) - year2Cost;
+
+    // Year 3: Year 2 + pricing optimization
+    const year3Revenue = year2Revenue + OPERATIONS_WORKFLOWS[2].revenue_potential_year1;
+    const year3Cost = OPERATIONS_WORKFLOWS[2].cost_estimate + 2000;
+    const year3Profit = (year3Revenue * TERRITORY_OPPORTUNITY.margin) - year3Cost;
+
+    const roi = {
+      year1: ((year1Profit / year1Cost) * 100).toFixed(0),
+      year2: ((year2Profit / (year1Cost + year2Cost)) * 100).toFixed(0),
+      year3: ((year3Profit / (year1Cost + year2Cost + year3Cost)) * 100).toFixed(0)
+    };
+
+    return (
+     <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+      <div style={{flex:"1 1 200px",padding:"10px 12px",border:`1px solid #ddd`,background:"#f5f5f5",borderRadius:3}}>
+       <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:MUT,marginBottom:6}}>YEAR 1 — CURRICULUM LAUNCH</div>
+       <div style={{fontSize:10,fontWeight:700,color:GRN,marginBottom:4}}>{fmtK(year1Revenue)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:2}}>Revenue: {fmtK(year1Revenue)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:2}}>Gross Profit: {fmtK(year1Profit)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:4}}>Investment: {fmtK(year1Cost)}</div>
+       <div style={{fontSize:8.5,fontWeight:700,color:AC,borderTop:"1px solid #ddd",paddingTop:4}}>ROI: {roi.year1}%</div>
+      </div>
+      <div style={{flex:"1 1 200px",padding:"10px 12px",border:`1px solid #ddd`,background:"#fef6e6",borderRadius:3}}>
+       <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:MUT,marginBottom:6}}>YEAR 2 — COMMUNITY INTEGRATION</div>
+       <div style={{fontSize:10,fontWeight:700,color:GRN,marginBottom:4}}>{fmtK(year2Revenue)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:2}}>Revenue: {fmtK(year2Revenue)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:2}}>Gross Profit: {fmtK(year2Profit)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:4}}>Investment: {fmtK(year2Cost)}</div>
+       <div style={{fontSize:8.5,fontWeight:700,color:GRN,borderTop:"1px solid #ddd",paddingTop:4}}>ROI: {roi.year2}%</div>
+      </div>
+      <div style={{flex:"1 1 200px",padding:"10px 12px",border:`1px solid #ddd`,background:"#f0fdf4",borderRadius:3}}>
+       <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:MUT,marginBottom:6}}>YEAR 3 — PRICING OPTIMIZATION</div>
+       <div style={{fontSize:10,fontWeight:700,color:GRN,marginBottom:4}}>{fmtK(year3Revenue)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:2}}>Revenue: {fmtK(year3Revenue)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:2}}>Gross Profit: {fmtK(year3Profit)}</div>
+       <div style={{fontSize:8,color:"#666",marginBottom:4}}>Investment: {fmtK(year3Cost)}</div>
+       <div style={{fontSize:8.5,fontWeight:700,color:GRN,borderTop:"1px solid #ddd",paddingTop:4}}>ROI: {roi.year3}%</div>
+      </div>
+     </div>
+    );
+   })()}
+   <div style={{fontSize:8.5,color:"#666",marginTop:8,padding:"8px 0"}}>Growth trajectory assumes sequential implementation of curriculum launch → community programs → pricing optimization. Each phase builds on the previous, compounding revenue and engagement. Totals cumulative across all active initiatives.</div>
+  </div>
+
+  <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>D. Operations Workflows — Franchisee Playbooks</div>
    <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:8}}>
     {OPERATIONS_WORKFLOWS.map((wf, idx) => (
