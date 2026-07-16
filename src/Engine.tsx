@@ -3659,6 +3659,39 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
    {selectedStateCenters.length>8&&<div style={{fontSize:9.5,color:MUT}}>+{selectedStateCenters.length-8} more centers</div>}
   </div>}
 
+  <div style={{border:`2px solid ${GRN}`,padding:"12px",marginBottom:14,background:"#f0fdf4",borderRadius:4}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:GRN,marginBottom:8}}>FRANCHISE OPPORTUNITY CARD — Example Territory</div>
+   <div style={{display:"flex",gap:16,alignItems:"start",flexWrap:"wrap"}}>
+    <div style={{flex:"1 1 280px"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,color:INK,marginBottom:8}}>Market Profile</div>
+     <div style={{fontSize:9,color:"#666",lineHeight:1.6}}>
+      <div>📍 <b>Suburban Market</b> (15,000 population)</div>
+      <div>👥 <b>Target Enrollment:</b> 1,200 students (8% penetration)</div>
+      <div>🎓 <b>Current Programs:</b> Classic coding only</div>
+      <div>⭐ <b>Competition:</b> 1 other center in area</div>
+     </div>
+    </div>
+    <div style={{flex:"1 1 280px",borderLeft:`1px solid #ddd`,paddingLeft:16}}>
+     <div style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,color:INK,marginBottom:8}}>Year 1 Opportunity</div>
+     <div style={{fontSize:9,color:"#666",lineHeight:1.6}}>
+      <div>💰 <b>Baseline Revenue:</b> {fmtK(18500 * 12)}/year</div>
+      <div>🚀 <b>Growth Potential:</b> +${(45000 + 30000 + 67000 - (8000 + 1500 + 2000)).toFixed(0)}k/year (Year 3)</div>
+      <div>📈 <b>Margin:</b> ${((18500 * TERRITORY_OPPORTUNITY.margin * 12) / 1000).toFixed(0)}k gross annually</div>
+      <div>✅ <b>Achievable Timeline:</b> 60-90 days to first growth initiative</div>
+     </div>
+    </div>
+    <div style={{flex:"1 1 280px",borderLeft:`1px solid #ddd`,paddingLeft:16}}>
+     <div style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,color:INK,marginBottom:8}}>Growth Roadmap</div>
+     <div style={{fontSize:8.5,color:"#666",lineHeight:1.7}}>
+      <div>📚 <b>Month 1-2:</b> Launch AI track (hire instructor, procure kits)</div>
+      <div>🌟 <b>Month 2-3:</b> First community event (library partnership)</div>
+      <div>🎪 <b>Month 3-4:</b> Expand to 2-3 community programs</div>
+      <div>💵 <b>Month 4-6:</b> Pricing strategy campaign (Classic→Elite migration)</div>
+     </div>
+    </div>
+   </div>
+  </div>
+
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>A. Franchise Growth Strategy — Curriculum Expansion + Revenue Model</div>
    <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
