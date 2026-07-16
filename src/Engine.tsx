@@ -4921,8 +4921,8 @@ function EngineInner({initialTab}){
  const staleN=centers.filter(staleBase).length;
  const red=centers.filter(c=>c.eb<0);
  const blocker=useMemo(()=>{let best=null,bs=-1;PATH.forEach((b,i)=>{const s=COHORT[b[0]][1]*(PATH.length-1-i);if(s>bs){bs=s;best=b;}});return best;},[]);
- const GROUPS={OVERVIEW:["quantum","exec","franchise","rail","board","alignment","compliance","workload","queue","blockers","warning","signals"],GROWTH:["leads","deals","expansion","growth","whitespace"],CENTERS:["team","lenses","engagement","mastery","table","batch","compare"],NETWORK:["network","optimizer","transfers","fivebasis","cohort"],WORKFLOW:["acquire","deliver","retain","operate","plan","metrics","failure","onboarding"],PROGRAMS:["portfolio","pain","calendar","financials","growthfin"],METHOD:["agenda","dynamics","audit","success","reports","playback","risk","fdd","review","sensitivity","glossary"],ADAPTIVE:["twin","lifecycle","labor","ltv","velocity","auction","scheduler","sentinel","precedent","constitution"],LIVE:["dojo","season","simulator","monitor","apisview","immune","dagify","ledgerview","brief","negotiate","joy"]};
- const TABL={quantum:"quantum pm",alignment:"system alignment",dynamics:"operations dynamics",board:"operations board",lenses:"six lenses",rail:"threads & queue",network:"network health",table:"network map",team:"center detail",mastery:"belts",transfers:"transfers",optimizer:"operations",pain:"franchisee support",portfolio:"programs",engagement:"engagement",franchise:"overview",agenda:"methodology",growth:"growth",calendar:"calendar",acquire:"acquire",deliver:"deliver",retain:"retain",operate:"operate",plan:"first 90",metrics:"metrics",failure:"failure",warning:"early warning",leads:"lead pipeline",expansion:"expansion engine",fivebasis:"unified views",signals:"network signals",compliance:"compliance & safety",workload:"approver workload",whitespace:"territory white space",financials:"financial roll-up",audit:"audit trail",blockers:"growth blockers",deals:"deals",onboarding:"opening project plan",growthfin:"financial growth",success:"success rate",reports:"reports & exports",batch:"batch operations",playback:"historical playback",exec:"executive summary",glossary:"glossary",risk:"risk register",fdd:"fdd item 20",review:"week in review",compare:"center comparison",queue:"approval queue",cohort:"cohort analysis",sensitivity:"sensitivity analysis",twin:"network twin",lifecycle:"lifecycle engine",labor:"sensei supply chain",ltv:"family forward value",velocity:"curriculum velocity",auction:"territory portfolio",scheduler:"interaction scheduler",sentinel:"compliance sentinel",precedent:"precedent & calibration",constitution:"governance constitution",dojo:"the dojo floor",season:"the season",simulator:"year simulator",monitor:"state monitor",apisview:"agent systems",immune:"signal integrity",dagify:"dependency graphs",ledgerview:"decision ledger",brief:"weekly brief",negotiate:"negotiation prep",joy:"joy ledger"};
+ const GROUPS={OVERVIEW:["quantum","exec","franchise","integrated","rail","board","alignment","compliance","workload","queue","blockers","warning","signals"],GROWTH:["leads","deals","expansion","growth","whitespace"],CENTERS:["team","lenses","engagement","mastery","table","batch","compare"],NETWORK:["network","optimizer","transfers","fivebasis","cohort"],WORKFLOW:["acquire","deliver","retain","operate","plan","metrics","failure","onboarding"],PROGRAMS:["portfolio","pain","calendar","financials","growthfin"],METHOD:["agenda","dynamics","audit","success","reports","playback","risk","fdd","review","sensitivity","glossary"],ADAPTIVE:["twin","lifecycle","labor","ltv","velocity","auction","scheduler","sentinel","precedent","constitution"],LIVE:["dojo","season","simulator","monitor","apisview","immune","dagify","ledgerview","brief","negotiate","joy"]};
+ const TABL={quantum:"quantum pm",integrated:"mission control",alignment:"system alignment",dynamics:"operations dynamics",board:"operations board",lenses:"six lenses",rail:"threads & queue",network:"network health",table:"network map",team:"center detail",mastery:"belts",transfers:"transfers",optimizer:"operations",pain:"franchisee support",portfolio:"programs",engagement:"engagement",franchise:"overview",agenda:"methodology",growth:"growth",calendar:"calendar",acquire:"acquire",deliver:"deliver",retain:"retain",operate:"operate",plan:"first 90",metrics:"metrics",failure:"failure",warning:"early warning",leads:"lead pipeline",expansion:"expansion engine",fivebasis:"unified views",signals:"network signals",compliance:"compliance & safety",workload:"approver workload",whitespace:"territory white space",financials:"financial roll-up",audit:"audit trail",blockers:"growth blockers",deals:"deals",onboarding:"opening project plan",growthfin:"financial growth",success:"success rate",reports:"reports & exports",batch:"batch operations",playback:"historical playback",exec:"executive summary",glossary:"glossary",risk:"risk register",fdd:"fdd item 20",review:"week in review",compare:"center comparison",queue:"approval queue",cohort:"cohort analysis",sensitivity:"sensitivity analysis",twin:"network twin",lifecycle:"lifecycle engine",labor:"sensei supply chain",ltv:"family forward value",velocity:"curriculum velocity",auction:"territory portfolio",scheduler:"interaction scheduler",sentinel:"compliance sentinel",precedent:"precedent & calibration",constitution:"governance constitution",dojo:"the dojo floor",season:"the season",simulator:"year simulator",monitor:"state monitor",apisview:"agent systems",immune:"signal integrity",dagify:"dependency graphs",ledgerview:"decision ledger",brief:"weekly brief",negotiate:"negotiation prep",joy:"joy ledger"};
  const groupOf=t=>Object.keys(GROUPS).find(g=>GROUPS[g].includes(t));
  // Keyboard nav: Left/Right cycles through the visible tabs in the current
  // group, matching what a mouse click on adjacent tab buttons would do —
@@ -5161,6 +5161,59 @@ function EngineInner({initialTab}){
    {!compact&&<div style={{fontSize:8,color:MUT,marginTop:2,lineHeight:1.4}}>{measured?<span>Measured — verified as <b style={{color:HCOL[d]}}>{L[d]}</b> · confidence {pct(coh)}%.</span>:<span>Estimated · confidence {pct(coh)}% — estimate ages until measured.</span>}{note?" · "+note:""}</div>}
   </div>);};
  const arrow=cls=>cls==="rising"?["↑",GRN]:cls==="deteriorating"?["↓",AC]:["→",AMB];
+
+ // ===== UNIFIED GOVERNANCE CENTER — INTEGRATED UI SYSTEM =====
+ const [integratedView,setIntegratedView]=useState("network");
+ const [workflowStepSel,setWorkflowStepSel]=useState(null);
+ const WORKFLOW_PHASE_COLORS={acquire:"#2196F3",deliver:"#4CAF50",retain:"#9C27B0",operate:"#FF9800"};
+ const WorkflowStepComponent=({step,phaseColor,idx})=>{
+  const isGate=step.gate===true;
+  const isDecision=step.decision===true;
+  const alertCount=(railData.recommendations||[]).filter(r=>r.targetIds&&r.targetIds.includes(step.s)).length;
+  return(
+   <div key={idx} onClick={()=>setWorkflowStepSel(step.n)}
+    style={{padding:"8px 10px",border:`1px solid ${workflowStepSel===step.n?VIO:RULE}`,background:workflowStepSel===step.n?"#f5e8ff":"#fff",cursor:"pointer",marginBottom:6,borderRadius:3,borderLeft:`3px solid ${phaseColor}`,position:"relative"}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+     <b style={{fontFamily:"Helvetica",fontSize:11,color:INK}}>{step.n}. {step.s}</b>
+     <span style={{fontSize:9,color:MUT,fontFamily:"Helvetica"}}>{step.p.toUpperCase()}</span>
+    </div>
+    <div style={{display:"flex",gap:6,marginTop:4,fontSize:9,color:"#666"}}>
+     <span>👤 {step.o}</span>
+     {step.sys!=="—"&&<span>💻 {step.sys}</span>}
+     {isGate&&<span style={{color:AC,fontWeight:700}}>🔒 GATE</span>}
+     {isDecision&&<span style={{color:AMB,fontWeight:700}}>⚠ DECISION</span>}
+     {alertCount>0&&<span style={{color:AC,fontWeight:700}}>⚡ {alertCount}</span>}
+    </div>
+    {workflowStepSel===step.n&&<div style={{marginTop:8,paddingTop:6,borderTop:`1px solid ${RULE}`,fontSize:10,color:"#333",lineHeight:1.5}}>
+     {step.d}
+    </div>}
+   </div>
+  );
+ };
+ const WorkflowViewComponent=()=>{
+  const byPhase={acquire:W.filter(s=>s.p==="acquire"),deliver:W.filter(s=>s.p==="deliver"),retain:W.filter(s=>s.p==="retain"),operate:W.filter(s=>s.p==="operate")};
+  return(
+   <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+    {Object.entries(byPhase).map(([phase,steps])=>(
+     <div key={phase}>
+      <div style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,color:"#fff",background:WORKFLOW_PHASE_COLORS[phase],padding:"6px 8px",marginBottom:8,borderRadius:2,textTransform:"uppercase",letterSpacing:0.5}}>{PHASE_META[phase].name}</div>
+      <div style={{fontSize:9,color:MUT,marginBottom:8}}>Steps {PHASE_META[phase].range} ({PHASE_META[phase].count} total)</div>
+      {steps.map((step,idx)=><WorkflowStepComponent key={idx} step={step} phaseColor={WORKFLOW_PHASE_COLORS[phase]} idx={idx}/>)}
+     </div>
+    ))}
+   </div>
+  );
+ };
+ const IntegratedViewSelector=()=>(
+  <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:12,paddingBottom:8,borderBottom:`1px solid ${RULE}`}}>
+   {["network","workflow","scenarios","execution","deepdive"].map(v=>(
+    <button key={v} onClick={()=>setIntegratedView(v)} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:v===integratedView?700:400,padding:"5px 10px",cursor:"pointer",border:`1px solid ${v===integratedView?INK:RULE}`,background:v===integratedView?INK:"#fff",color:v===integratedView?"#fff":INK,textTransform:"capitalize",borderRadius:2}}>
+     {v}
+    </button>
+   ))}
+  </div>
+ );
+
  return(
  <div className="cn-wrap" style={{fontFamily:"Helvetica",color:INK,background:BG,maxWidth:960,margin:"0 auto",padding:"24px 18px",WebkitFontSmoothing:"antialiased",MozOsxFontSmoothing:"grayscale",textRendering:"optimizeLegibility"}}>
   <style>{`
@@ -5619,6 +5672,60 @@ function EngineInner({initialTab}){
 
 
   {tab==="quantum"&&<EngineErrorBoundary><QuantumPMView opt={opt} approveScenario={approveScenario} overrideTabScenario={overrideTabScenario} logL={logL} centers={centers} states={states} railData={railData} ledger={ledger} jumpTo={(t)=>setTab(t)} leads={LEADS} abTests={abTests} executionTracking={executionTracking} alerts={alerts} /></EngineErrorBoundary>}
+  {tab==="integrated"&&(()=>{
+   return(<div>
+    <div style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:MUT,borderBottom:`1px solid ${RULE}`,paddingBottom:3,marginBottom:12}}>Mission Control — Unified Governance Interface</div>
+    <div style={{fontSize:11,color:"#555",lineHeight:1.6,marginBottom:14}}>Five integrated views across a single spatial context: network clusters, operational workflows, scenario forecasting, live execution tracking, and deep-dive center details. All views share selection state — click a center or step, and all other views update instantly. No tab switching; pure cross-linked navigation.</div>
+    <IntegratedViewSelector/>
+    {integratedView==="workflow"&&<>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>69-Step Operational Workflow</div>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Four phases (ACQUIRE, DELIVER, RETAIN, OPERATE) orchestrate the entire franchise operation. Click any step to see its description, role, gate conditions, and live alert count. Gates (highlighted with 🔒) are human approval points where franchisee consent is required before proceeding.</div>
+     <WorkflowViewComponent/>
+     {workflowStepSel&&<div style={{marginTop:16,border:`1px solid ${VIO}`,borderLeft:`3px solid ${VIO}`,background:"#faf9ff",padding:"12px 14px"}}>
+      <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,marginBottom:8,color:VIO}}>Step {workflowStepSel} Details</div>
+      <div style={{fontSize:10,color:"#333",lineHeight:1.6}}>
+       {(() => {const step=W.find(s=>s.n===workflowStepSel);if(!step)return null;const affectedRecs=(railData.recommendations||[]).filter(r=>r.targetIds&&r.targetIds.some(t=>step.s.toLowerCase().includes(t.toLowerCase()||t.toLowerCase().includes(step.s.toLowerCase()))));return(<>
+        <div><b>Phase:</b> {PHASE_META[step.p].name} · {step.p.toUpperCase()}</div>
+        <div><b>Owner:</b> {step.o}</div>
+        <div><b>System:</b> {step.sys}</div>
+        {step.gate&&<div style={{color:AC}}><b>Gate Type:</b> {step.gr}</div>}
+        <div style={{marginTop:8,paddingTop:8,borderTop:`1px solid ${RULE}`}}><b>Description:</b> {step.d}</div>
+        {step.t&&<div style={{marginTop:6}}><b>Estimated Time:</b> {step.t}</div>}
+        {affectedRecs.length>0&&<div style={{marginTop:8,paddingTop:8,borderTop:`1px solid ${RULE}`}}><b>Active Recommendations:</b> {affectedRecs.length} proposal{affectedRecs.length!==1?"s":""} at this step</div>}
+       </>);})()}
+      </div>
+     </div>}
+    </>}
+    {integratedView==="network"&&<>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Network Overview — All 348 Centers</div>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Territory map showing network health, center condition (thriving/watch/at-risk), active proposals, and conflict zones. Click a state to drill into that region's center details. Hover over a center dot to see its current posture impact.</div>
+     <div style={{border:`1px solid ${RULE}`,padding:14,background:"#f9f8f6",textAlign:"center",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <span style={{color:MUT}}>3D Network Map — Click "table" tab for full interactive map with zoom, scenario impact, and center detail drill-down.</span>
+     </div>
+    </>}
+    {integratedView==="scenarios"&&<>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Scenario Planning — Optimistic / Realistic / Pessimistic</div>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Approve a network posture and watch the entire system recompute: center health ripples, resource needs shift, execution risks surface. Compare scenarios side-by-side to forecast network state under different strategic assumptions. All three scenarios always available; only one can be live at a time.</div>
+     <div style={{border:`1px solid ${RULE}`,padding:14,background:"#f9f8f6",textAlign:"center",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <span style={{color:MUT}}>Scenario Simulator — Click "quantum" tab to approve postures and see live network recomputation with A/B test impact.</span>
+     </div>
+    </>}
+    {integratedView==="execution"&&<>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Execution Tracking — Live A/B Tests & Feedback Loop</div>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Every approved proposal becomes a live test. Watch p-values and effect sizes update as data arrives. When tests resolve, weights on similar recommendations adjust automatically (Bayesian learning). The feedback loop closes: execution results inform strategy.</div>
+     <div style={{border:`1px solid ${RULE}`,padding:14,background:"#f9f8f6",textAlign:"center",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <span style={{color:MUT}}>Execution Dashboard — Click "quantum" tab to see live A/B tests, p-values, and Bayesian weight adjustments.</span>
+     </div>
+    </>}
+    {integratedView==="deepdive"&&<>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Deep-Dive Analytics — Single Center or Workflow Step</div>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>View all 69 workflow steps for a single center (showing actual progress, next actions, at-risk stages). Or zoom into a single workflow step to see all 348 centers currently in that phase, grouped by health tier and alert status.</div>
+     <div style={{border:`1px solid ${RULE}`,padding:14,background:"#f9f8f6",textAlign:"center",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <span style={{color:MUT}}>Deep-Dive View — Select a center or step above to begin drilling. Click "team" tab for individual center detail.</span>
+     </div>
+    </>}
+   </div>);
+  })()}
 {tab==="exec"&&<EngineErrorBoundary>{(()=>{
    // Executive Summary — five numbers, three sentences, no scrolling required.
    // Every figure here is read from the same computations Overview/Audit/
