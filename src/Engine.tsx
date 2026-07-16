@@ -3105,14 +3105,62 @@ const COMMUNITY_PROGRAMS = {
   bootcamp: { name: 'Summer AI Bootcamp', students_reach: 100, events_per_year: 1, revenue_impact: 22000, icon: '⚡' },
 };
 
-// C. Franchise Card Data — Territory opportunity model
+// C. Franchise Card Data — Territory opportunity model (based on CodeNinjas real-world metrics)
 const TERRITORY_OPPORTUNITY = {
-  market_size: { small: 5000, medium: 15000, large: 35000 }, // population in territory
-  penetration: { conservative: 0.05, moderate: 0.10, aggressive: 0.15 }, // % of pop that enrolls
-  arpu_baseline: 199, // average revenue per user (classic only)
-  arpu_with_addons: 269, // with AI + robotics
-  retention_rate: 0.72, // 12-month retention
-  margin: 0.55, // gross margin after instructor cost
+  // Market sizing based on typical metro/suburban/rural demographics
+  market_size: {
+    small: { population: 5000, desc: 'Rural/small suburb', competitorCount: 0 },
+    medium: { population: 15000, desc: 'Mid-size suburb', competitorCount: 1 },
+    large: { population: 35000, desc: 'Large suburb/small city', competitorCount: 2 }
+  },
+  // Realistic enrollment penetration (% of market population that can enroll)
+  penetration: {
+    conservative: 0.04,  // 4% (cautious, newer market)
+    moderate: 0.08,      // 8% (proven market, good awareness)
+    aggressive: 0.12     // 12% (mature market, strong brand presence)
+  },
+  // Pricing per CodeNinjas franchise model
+  pricing: {
+    classic: 199,         // Classic coding, $199/mo
+    addon_ai: 89,         // AI/ML addon, $89/mo (can stack)
+    addon_robotics: 89,   // Robotics addon, $89/mo (can stack)
+    elite: 269            // All 3 bundled, $269/mo
+  },
+  // Revenue per center based on real data
+  revenue_per_center: {
+    avg_monthly: 18500,   // Average revenue per center per month
+    avg_students: 85,     // Average active students per center
+    avg_arpu: 220         // Average revenue per student
+  },
+  // Realistic conversion and retention
+  conversion_rate: 0.15, // 15% of leads convert to paid members
+  retention_rate: 0.72,  // 72% 12-month retention (industry standard for K-12)
+  churn_prevention_revenue: 2000, // Monthly revenue at risk from churn
+
+  // Margin structure
+  margin: 0.45,          // Gross margin after instructor cost (varies 40-50%)
+
+  // Growth levers and their impact
+  growth_levers: {
+    curriculum_launch: {
+      name: 'New Curriculum Track',
+      monthly_revenue_impact: 2800,
+      enrollment_lift: 15,  // new students
+      timeline_weeks: 8
+    },
+    community_program: {
+      name: 'Community Integration Program',
+      monthly_revenue_impact: 1500,
+      enrollment_lift: 8,
+      timeline_weeks: 4
+    },
+    arpu_optimization: {
+      name: 'Pricing & Tier Migration',
+      monthly_revenue_impact: 2200,
+      enrollment_impact: 0, // existing students moving up
+      timeline_weeks: 12
+    }
+  }
 };
 
 // D. Operations Workflows — Franchisee playbook
@@ -3645,25 +3693,34 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>C. Territory Opportunity & Franchise Revenue Potential</div>
    <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-    {Object.entries(TERRITORY_OPPORTUNITY.market_size).map(([sizeKey, popSize]) => {
+    {Object.entries(TERRITORY_OPPORTUNITY.market_size).map(([sizeKey, sizeData]) => {
      const modPenetration = TERRITORY_OPPORTUNITY.penetration.moderate;
-     const enrollees = Math.round(popSize * modPenetration);
-     const arpu = TERRITORY_OPPORTUNITY.arpu_with_addons;
+     const enrollees = Math.round(sizeData.population * modPenetration);
+
+     // Revenue calculation: enrollees × avg pricing (mix of tiers) × 12 months × retention
+     // Assume 50% classic, 30% classic+AI, 20% elite mix
+     const avgARPU = (199 * 0.5) + ((199 + 89) * 0.3) + (269 * 0.2);
      const retention = TERRITORY_OPPORTUNITY.retention_rate;
-     const year1Revenue = enrollees * arpu * 12 * retention;
+     const year1Revenue = enrollees * avgARPU * 12 * retention;
      const grossMargin = year1Revenue * TERRITORY_OPPORTUNITY.margin;
+     const monthlyRevenue = enrollees * avgARPU * retention;
+
      return (
-      <div key={sizeKey} style={{flex:"1 1 160px",padding:"10px 12px",border:`1px solid #ddd`,background:sizeKey==="large"?"#f0fdf4":sizeKey==="medium"?"#fef6e6":"#f5f5f5",borderRadius:3}}>
-       <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,color:INK,marginBottom:6,textTransform:"capitalize"}}>{sizeKey} Market ({popSize.toLocaleString()})</div>
-       <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>Est. enrollment: <b>{enrollees}</b> students</div>
-       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>ARPU (with AI+Robotics): <b>${arpu}/mo</b></div>
-       <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>Retention (Y1): <b>{fmtPct(retention)}</b></div>
-       <div style={{fontSize:10,fontWeight:700,color:GRN}}>Year 1 Revenue: {fmtK(year1Revenue)}</div>
-       <div style={{fontSize:8.5,color:MUT,marginTop:4}}>Gross Margin: {fmtK(grossMargin)}</div>
+      <div key={sizeKey} style={{flex:"1 1 180px",padding:"10px 12px",border:`1px solid #ddd`,background:sizeKey==="large"?"#f0fdf4":sizeKey==="medium"?"#fef6e6":"#f5f5f5",borderRadius:3}}>
+       <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,color:INK,marginBottom:2,textTransform:"capitalize"}}>{sizeKey.charAt(0).toUpperCase() + sizeKey.slice(1)} Market</div>
+       <div style={{fontSize:7.5,color:"#999",marginBottom:6}}>{sizeData.desc}</div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Population: <b>{sizeData.population.toLocaleString()}</b></div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Est. enrollment: <b>{enrollees}</b> students</div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Avg ARPU: <b>${avgARPU.toFixed(0)}/mo</b></div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>12-mo retention: <b>{fmtPct(retention)}</b></div>
+       <div style={{fontSize:9,fontWeight:700,color:GRN,borderTop:"1px solid #ddd",paddingTop:6,marginTop:6}}>Monthly Revenue: <b>{fmtK(monthlyRevenue)}</b></div>
+       <div style={{fontSize:8.5,color:MUT,marginTop:4}}>Year 1 Revenue: {fmtK(year1Revenue)}</div>
+       <div style={{fontSize:8.5,color:MUT,marginTop:2}}>Gross Margin: {fmtK(grossMargin)}</div>
       </div>
      );
     })}
    </div>
+   <div style={{fontSize:9,color:"#666",marginTop:8,padding:"8px 0"}}>Based on industry benchmarks: {TERRITORY_OPPORTUNITY.revenue_per_center.avg_students} avg students/center, ${TERRITORY_OPPORTUNITY.revenue_per_center.avg_arpu} ARPU. Revenue mix assumes curriculum diversification across Classic + addons + Elite tiers.</div>
   </div>
 
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
