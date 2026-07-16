@@ -981,7 +981,7 @@ function buildLeads(){
 const QSTATES=["thriving","watch","at-risk"];
 // The 20 tabs that carry the whole 5-minute walkthrough — everything else stays reachable,
 // just hidden from the sub-tab row when "essentials only" is toggled on. Nothing is deleted.
-const ESSENTIAL_TABS=["quantum","exec","franchise","rail","board","alignment","compliance","blockers","table","whitespace","leads","deals","workload","team","lenses","network","portfolio","financials","growthfin","onboarding","audit","agenda","risk","fdd"];
+const ESSENTIAL_TABS=["quantum","integrated","exec","franchise","rail","board","alignment","compliance","blockers","table","whitespace","leads","deals","workload","team","lenses","network","portfolio","financials","growthfin","onboarding","audit","agenda","risk","fdd"];
 // note: "reports" and "success" are intentionally left out of ESSENTIAL_TABS —
 // they're reviewer/governance depth, not part of the 20-tab walkthrough set.
 const QCOL=["#5cb87c","#d9a62e","#d96a6a"];
@@ -1211,6 +1211,27 @@ function checkContract(actionType,c,daysSinceMeasure){
 // Default freshness model: mirrors the app's own staleness heuristic (staleBase)
 // so agent tests reflect the same data-age distribution the UI already assumes.
 function defaultDaysSinceMeasure(c){return hash(c.name)%38;}
+
+// Real-centers-compatible substitutes for the fbTau()/fbInflection()/
+// fbCoherence() family (defined later, near FB_BOUNDARY): those require
+// vals/mom/tau0/Tc/lastMeasured fields that only FB_BOUNDARY's 4-center
+// proof-of-concept array carries, not the real 348-center dataset's shape
+// (health/eb/chem/conv/ret) -- calling them on real centers throws. Several
+// tabs (Sensitivity, Compare, Risk Register, Cohort Analysis) did exactly
+// that. These proxies use fields the real dataset does carry, consistent in
+// direction with the FB model's intent: worse health/staler data/steeper
+// decline means a longer recovery estimate.
+function centerRecoveryWeeks(c){return c.health<55?4.5:c.health<70?2.5:1.2;}
+function centerFreshness(c){return qCoherence(defaultDaysSinceMeasure(c));}
+function centerInflectionWeeks(c){
+ // FB_BOUNDARY tracks explicit per-dimension momentum; the real dataset
+ // doesn't, so retention already below the network floor is the closest
+ // real analogue to "heading toward an inflection" worth surfacing. Anchored
+ // to the same week-7 baseline fbInflection() used, so callers comparing
+ // this against a current week number keep working unchanged.
+ if(c.ret>=0.75)return null;
+ return 7+Math.round((0.75-c.ret)*60);
+}
 
 function confidenceBandOf(dataConfidence){return dataConfidence>=0.6?"high":dataConfidence>=0.35?"medium":"low";}
 function riskBandOf(structureScore,patternStabilityIndex){
@@ -3870,7 +3891,6 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
  const scenarios=["optimistic","realistic","pessimistic"];
  const [selectedStateDetail, setSelectedStateDetail]=useState(null); // H. Drill-down detail
  const [comparisonMode, setComparisonMode]=useState(false); // G. Comparison mode
- const [mapImpactAnimation, setMapImpactAnimation]=useState(null); // D. Impact animation trigger
  const [forecastWeek, setForecastWeek]=useState(0); // J. Forecast slider (weeks 0-12)
  const [marketContext, setMarketContext]=useState("medium"); // A-E. Market type selector (small/medium/large)
  const selectedStateCenters = selectedStateDetail && states && states[selectedStateDetail] ?
@@ -4119,7 +4139,7 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
      <div style={{fontSize:11,color:"#444",marginBottom:2}}>Senseis <b style={{float:"right",color:INK}}>{d.staffing.senseis}</b></div>
      <div style={{fontSize:11,color:"#444",marginBottom:2}}>Retention <b style={{float:"right",color:INK}}>{fmtPct(d.retention_rate)}</b></div>
      <div style={{fontSize:11,color:"#444",marginBottom:10}}>New territories <b style={{float:"right",color:INK}}>{d.expansion.new_territories}</b></div>
-     <button onClick={()=>{approveScenario(s);triggerImpactAnimation([]);}} style={{width:"100%",fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",padding:"7px 0",cursor:"pointer",border:`1px solid ${isApproved?GRN:INK}`,background:isApproved?GRN:INK,color:"#fff"}}>{isApproved?"✓ Approved":"Approve"}</button>
+     <button onClick={()=>approveScenario(s)} style={{width:"100%",fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",padding:"7px 0",cursor:"pointer",border:`1px solid ${isApproved?GRN:INK}`,background:isApproved?GRN:INK,color:"#fff"}}>{isApproved?"✓ Approved":"Approve"}</button>
     </div>);
    })}
    </div>
@@ -4794,7 +4814,7 @@ function EngineInner({initialTab}){
  const staleN=centers.filter(staleBase).length;
  const red=centers.filter(c=>c.eb<0);
  const blocker=useMemo(()=>{let best=null,bs=-1;PATH.forEach((b,i)=>{const s=COHORT[b[0]][1]*(PATH.length-1-i);if(s>bs){bs=s;best=b;}});return best;},[]);
- const GROUPS={OVERVIEW:["quantum","exec","franchise","integrated","rail","board","alignment","compliance","workload","queue","blockers","warning","signals"],GROWTH:["leads","deals","expansion","growth","whitespace"],CENTERS:["team","lenses","engagement","mastery","table","batch","compare"],NETWORK:["network","optimizer","transfers","fivebasis","cohort"],WORKFLOW:["acquire","deliver","retain","operate","plan","metrics","failure","onboarding"],PROGRAMS:["portfolio","pain","calendar","financials","growthfin"],METHOD:["agenda","dynamics","audit","success","reports","playback","risk","fdd","review","sensitivity","glossary"],ADAPTIVE:["twin","lifecycle","labor","ltv","velocity","auction","scheduler","sentinel","precedent","constitution"],LIVE:["dojo","season","simulator","monitor","apisview","immune","dagify","ledgerview","brief","negotiate","joy"]};
+ const GROUPS={OVERVIEW:["quantum","integrated","exec","franchise","rail","board","alignment","compliance","workload","queue","blockers","warning","signals"],GROWTH:["leads","deals","expansion","growth","whitespace"],CENTERS:["team","lenses","engagement","mastery","table","batch","compare"],NETWORK:["network","optimizer","transfers","fivebasis","cohort"],WORKFLOW:["acquire","deliver","retain","operate","plan","metrics","failure","onboarding"],PROGRAMS:["portfolio","pain","calendar","financials","growthfin"],METHOD:["agenda","dynamics","audit","success","reports","playback","risk","fdd","review","sensitivity","glossary"],ADAPTIVE:["twin","lifecycle","labor","ltv","velocity","auction","scheduler","sentinel","precedent","constitution"],LIVE:["dojo","season","simulator","monitor","apisview","immune","dagify","ledgerview","brief","negotiate","joy"]};
  const TABL={quantum:"quantum pm",integrated:"mission control",alignment:"system alignment",dynamics:"operations dynamics",board:"operations board",lenses:"six lenses",rail:"threads & queue",network:"network health",table:"network map",team:"center detail",mastery:"belts",transfers:"transfers",optimizer:"operations",pain:"franchisee support",portfolio:"programs",engagement:"engagement",franchise:"overview",agenda:"methodology",growth:"growth",calendar:"calendar",acquire:"acquire",deliver:"deliver",retain:"retain",operate:"operate",plan:"first 90",metrics:"metrics",failure:"failure",warning:"early warning",leads:"lead pipeline",expansion:"expansion engine",fivebasis:"unified views",signals:"network signals",compliance:"compliance & safety",workload:"approver workload",whitespace:"territory white space",financials:"financial roll-up",audit:"audit trail",blockers:"growth blockers",deals:"deals",onboarding:"opening project plan",growthfin:"financial growth",success:"success rate",reports:"reports & exports",batch:"batch operations",playback:"historical playback",exec:"executive summary",glossary:"glossary",risk:"risk register",fdd:"fdd item 20",review:"week in review",compare:"center comparison",queue:"approval queue",cohort:"cohort analysis",sensitivity:"sensitivity analysis",twin:"network twin",lifecycle:"lifecycle engine",labor:"sensei supply chain",ltv:"family forward value",velocity:"curriculum velocity",auction:"territory portfolio",scheduler:"interaction scheduler",sentinel:"compliance sentinel",precedent:"precedent & calibration",constitution:"governance constitution",dojo:"the dojo floor",season:"the season",simulator:"year simulator",monitor:"state monitor",apisview:"agent systems",immune:"signal integrity",dagify:"dependency graphs",ledgerview:"decision ledger",brief:"weekly brief",negotiate:"negotiation prep",joy:"joy ledger"};
  const groupOf=t=>Object.keys(GROUPS).find(g=>GROUPS[g].includes(t));
  // Keyboard nav: Left/Right cycles through the visible tabs in the current
@@ -4811,6 +4831,11 @@ function EngineInner({initialTab}){
  };
  const GROUP_LABEL={OVERVIEW:"Overview",GROWTH:"Growth Pipeline",CENTERS:"Centers",NETWORK:"Network",WORKFLOW:"Workflow",PROGRAMS:"Programs",METHOD:"Methodology",ADAPTIVE:"Adaptive Systems",LIVE:"Live Systems"};
  const railData=useMemo(()=>runAllAgents(centers,states,LEADS),[centers,states,LEADS]);
+ // Same buildMapNodes()/buildPropagationEdges() every map-bearing tab calls —
+ // computed once here so Mission Control's network sub-view can embed the
+ // real map instead of pointing away to the "table" tab for it.
+ const missionMapNodes=useMemo(()=>buildMapNodes(states,railData||{recommendations:[],conflicts:[]},LEADS),[states,railData,LEADS]);
+ const missionMapEdges=useMemo(()=>buildPropagationEdges(missionMapNodes),[missionMapNodes]);
  // Operations Board's local override (Quantum PM governed-tabs grid). Must be
  // a top-level useMemo, not computed inline in the JSX return, since that
  // return mixes many {tab==="x"&&...} branches and can't hold a `const`
@@ -5037,6 +5062,8 @@ function EngineInner({initialTab}){
 
  // ===== UNIFIED GOVERNANCE CENTER — INTEGRATED UI SYSTEM =====
  const [integratedView,setIntegratedView]=useState("network");
+ const [missionSelState,setMissionSelState]=useState(null);
+ const [missionDeepCenter,setMissionDeepCenter]=useState(null);
  const [workflowStepSel,setWorkflowStepSel]=useState(null);
  const WORKFLOW_PHASE_COLORS={acquire:"#2196F3",deliver:"#4CAF50",retain:"#9C27B0",operate:"#FF9800"};
  const WorkflowStepComponent=({step,phaseColor,idx})=>{
@@ -5546,9 +5573,15 @@ function EngineInner({initialTab}){
 
   {tab==="quantum"&&<EngineErrorBoundary><QuantumPMView opt={opt} approveScenario={approveScenario} overrideTabScenario={overrideTabScenario} logL={logL} centers={centers} states={states} railData={railData} ledger={ledger} jumpTo={(t)=>setTab(t)} leads={LEADS} abTests={abTests} executionTracking={executionTracking} alerts={alerts} /></EngineErrorBoundary>}
   {tab==="integrated"&&(()=>{
+   const missionSc=missionMapNodes.find(c=>c.id===missionSelState);
+   const missionScProposals=missionSc?(railData.recommendations||[]).filter(r=>r.targetIds.some(t=>missionSc.centerNames.has(t))):[];
+   const SLABEL2={optimistic:"Optimistic",realistic:"Realistic",pessimistic:"Pessimistic"};
+   const SCOLOR2={optimistic:GRN,realistic:AC,pessimistic:AMB};
+   const approvedPosture=opt.quantum.approved;
+   const deepC=missionDeepCenter?centers.find(c=>c.name===missionDeepCenter):null;
    return(<div>
     <div style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:MUT,borderBottom:`1px solid ${RULE}`,paddingBottom:3,marginBottom:12}}>Mission Control — Unified Governance Interface</div>
-    <div style={{fontSize:11,color:"#555",lineHeight:1.6,marginBottom:14}}>Five integrated views across a single spatial context: network clusters, operational workflows, scenario forecasting, live execution tracking, and deep-dive center details. All views share selection state — click a center or step, and all other views update instantly. No tab switching; pure cross-linked navigation.</div>
+    <div style={{fontSize:11,color:"#555",lineHeight:1.6,marginBottom:14}}>Five integrated views across a single spatial context: network clusters, operational workflows, scenario forecasting, live execution tracking, and deep-dive center details. Every view below embeds the real component and the same canonical state every other tab reads — nothing here is a pointer to go look elsewhere.</div>
     <IntegratedViewSelector/>
     {integratedView==="workflow"&&<>
      <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>69-Step Operational Workflow</div>
@@ -5570,32 +5603,86 @@ function EngineInner({initialTab}){
      </div>}
     </>}
     {integratedView==="network"&&<>
-     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Network Overview — All 348 Centers</div>
-     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Territory map showing network health, center condition (thriving/watch/at-risk), active proposals, and conflict zones. Click a state to drill into that region's center details. Hover over a center dot to see its current posture impact.</div>
-     <div style={{border:`1px solid ${RULE}`,padding:14,background:"#f9f8f6",textAlign:"center",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <span style={{color:MUT}}>3D Network Map — Click "table" tab for full interactive map with zoom, scenario impact, and center detail drill-down.</span>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Network Map — {missionMapNodes.length} Territories, {centers.length} Centers</div>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Real US state geometry, colored by health tier. Click a state for its detail card — condition, open proposals, and one-click jumps into Six Lenses, Network, or Growth for that state.</div>
+     <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+      <div style={{flex:"1 1 420px"}}><USNetworkMap mapNodes={missionMapNodes} mEdges={missionMapEdges} selectedState={missionSelState} onStateClick={id=>setMissionSelState(missionSelState===id?null:id)} height={340}/></div>
+      {missionSc&&<div style={{flex:"1 1 220px",border:`1px solid ${RULE}`,padding:12,fontFamily:"Helvetica"}}>
+       <div style={{display:"flex",justifyContent:"space-between"}}><b style={{fontSize:12}}>{missionSc.label} — {missionSc.state}</b><button onClick={()=>setMissionSelState(null)} aria-label="Close state detail" style={{cursor:"pointer",color:MUT,background:"none",border:"none",padding:0}}>✕</button></div>
+       <div style={{fontSize:9,color:MUT,margin:"3px 0 7px"}}>{missionSc.n} unit{missionSc.n>1?"s":""} ({missionSc.verifiedN} verified){missionSc.conflicted?" · open cross-agent conflict":""}{missionSc.leadCount>0?" · "+missionSc.leadCount+" candidate(s) in pipeline":""}</div>
+       {missionScProposals.length>0?<div>
+        <div style={{fontSize:8,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",color:MUT,marginBottom:3}}>{missionScProposals.length} open proposal{missionScProposals.length>1?"s":""}</div>
+        {missionScProposals.slice(0,4).map(r=>(<div key={r.id} style={{fontSize:8.5,color:"#444",marginBottom:2}}>• {r.agent}: {r.governance.allowed?"cleared":"held"}</div>))}
+       </div>:<div style={{fontSize:9,color:MUT}}>No open proposals in this state right now.</div>}
+       <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+        {missionSc.repCenter&&<button onClick={()=>setTab("lenses")} style={{fontFamily:"Helvetica",fontSize:9,color:AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>view {missionSc.repCenter.name} in Six Lenses →</button>}
+        <button onClick={()=>setTab("table")} style={{fontFamily:"Helvetica",fontSize:9,color:AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>open full Network Map →</button>
+       </div>
+      </div>}
      </div>
     </>}
     {integratedView==="scenarios"&&<>
      <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Scenario Planning — Optimistic / Realistic / Pessimistic</div>
-     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Approve a network posture and watch the entire system recompute: center health ripples, resource needs shift, execution risks surface. Compare scenarios side-by-side to forecast network state under different strategic assumptions. All three scenarios always available; only one can be live at a time.</div>
-     <div style={{border:`1px solid ${RULE}`,padding:14,background:"#f9f8f6",textAlign:"center",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <span style={{color:MUT}}>Scenario Simulator — Click "quantum" tab to approve postures and see live network recomputation with A/B test impact.</span>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Approve a network posture and the entire system recomputes — center health, gate outcomes, proposal viability, the map above. All three scenarios' real modeled figures shown below; only one can be live at a time.</div>
+     <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+      {["optimistic","realistic","pessimistic"].map(s=>{
+       const r=opt.quantum.scenarios[s];const isApproved=approvedPosture===s;
+       return(<div key={s} style={{flex:"1 1 200px",border:`1px solid ${isApproved?SCOLOR2[s]:RULE}`,borderTop:`3px solid ${SCOLOR2[s]}`,padding:"10px 12px"}}>
+        <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:SCOLOR2[s]}}>{SLABEL2[s]}</div>
+        <div style={{fontSize:9,color:MUT,margin:"6px 0"}}>Revenue <b style={{color:INK}}>${(r.financials.revenue_monthly/1e6).toFixed(2)}M</b>/mo</div>
+        <div style={{fontSize:9,color:MUT,margin:"4px 0"}}>Royalty <b style={{color:INK}}>${(r.financials.royalty_revenue/1000).toFixed(0)}k</b>/mo</div>
+        <div style={{fontSize:9,color:MUT,margin:"4px 0"}}>Margin <b style={{color:INK}}>{(r.financials.margin*100).toFixed(0)}%</b></div>
+        <div style={{fontSize:9,color:MUT,margin:"4px 0"}}>Retention <b style={{color:INK}}>{(r.retention_rate*100).toFixed(1)}%</b></div>
+        <div style={{fontSize:9,color:MUT,margin:"4px 0 8px"}}>New territories <b style={{color:INK}}>{r.expansion.new_territories}</b></div>
+        <button onClick={()=>approveScenario(s)} style={{width:"100%",fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.5,textTransform:"uppercase",padding:"6px 0",cursor:"pointer",border:`1px solid ${isApproved?GRN:INK}`,background:isApproved?GRN:INK,color:"#fff"}}>{isApproved?"✓ Approved":"Approve"}</button>
+       </div>);
+      })}
      </div>
+     {!approvedPosture&&<div style={{fontSize:9,color:MUT,marginTop:8}}>No posture approved yet — the network is running under Realistic (zero-delta baseline) figures across every tab until one is.</div>}
     </>}
     {integratedView==="execution"&&<>
-     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Execution Tracking — Live A/B Tests & Feedback Loop</div>
-     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Every approved proposal becomes a live test. Watch p-values and effect sizes update as data arrives. When tests resolve, weights on similar recommendations adjust automatically (Bayesian learning). The feedback loop closes: execution results inform strategy.</div>
-     <div style={{border:`1px solid ${RULE}`,padding:14,background:"#f9f8f6",textAlign:"center",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <span style={{color:MUT}}>Execution Dashboard — Click "quantum" tab to see live A/B tests, p-values, and Bayesian weight adjustments.</span>
-     </div>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Execution Tracking — Live A/B Tests</div>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>{abTests.length} test{abTests.length===1?"":"s"} currently seeded against the live network — real hypotheses, real target-center counts, computed from the actual center list. Each test resolves against its control group at the end of its duration window, and results feed back into recommendation weighting.</div>
+     {abTests.length===0?<div style={{border:`1px solid ${RULE}`,padding:14,color:MUT,fontSize:10}}>No active tests yet — tests seed once the network has enough centers loaded (they will appear here automatically).</div>:
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+       {abTests.map(t=>(<div key={t.test_id} style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${AC}`,padding:"9px 12px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+         <b style={{fontFamily:"Helvetica",fontSize:10.5,color:INK}}>{t.test_id}</b>
+         <span style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,textTransform:"uppercase",color:t.status==="active"?GRN:MUT}}>{t.status}</span>
+        </div>
+        <div style={{fontSize:9.5,color:"#444",margin:"4px 0"}}>{t.hypothesis}</div>
+        <div style={{fontSize:8.5,color:MUT}}>{t.centers.length} test center{t.centers.length===1?"":"s"} · {t.control_centers.length} control · {t.duration_weeks}-week window · metric: {t.metric}</div>
+       </div>))}
+      </div>}
     </>}
     {integratedView==="deepdive"&&<>
-     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Deep-Dive Analytics — Single Center or Workflow Step</div>
-     <div style={{fontSize:9,color:"#666",marginBottom:12}}>View all 69 workflow steps for a single center (showing actual progress, next actions, at-risk stages). Or zoom into a single workflow step to see all 348 centers currently in that phase, grouped by health tier and alert status.</div>
-     <div style={{border:`1px solid ${RULE}`,padding:14,background:"#f9f8f6",textAlign:"center",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <span style={{color:MUT}}>Deep-Dive View — Select a center or step above to begin drilling. Click "team" tab for individual center detail.</span>
-     </div>
+     <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:8}}>Deep-Dive — Single Center</div>
+     <div style={{fontSize:9,color:"#666",marginBottom:12}}>Pick any of the {centers.length} centers for its real current figures — health, margin, chemistry, conversion, retention — pulled from the same canonical center list every tab reads.</div>
+     <select value={missionDeepCenter||""} onChange={e=>setMissionDeepCenter(e.target.value||null)} aria-label="Choose a center to inspect" style={{fontFamily:"Helvetica",fontSize:10,padding:"5px 8px",border:`1px solid ${RULE}`,marginBottom:10,minWidth:220}}>
+      <option value="">Select a center…</option>
+      {[...centers].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>(<option key={c.name} value={c.name}>{c.name} ({c.st})</option>))}
+     </select>
+     {deepC&&(()=>{const cond=conditionOf(deepC);return(
+      <div style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${cond.color}`,padding:"12px 14px"}}>
+       <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+        <b style={{fontFamily:"Helvetica",fontSize:13,color:INK}}>{deepC.name}</b>
+        <span style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,textTransform:"uppercase",color:cond.color}}>{cond.label}</span>
+       </div>
+       <div style={{fontSize:9,color:MUT,margin:"3px 0 10px"}}>{deepC.st} · {deepC.students} students · {deepC.verified?"verified":"modeled"}</div>
+       <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+        {[["Health",deepC.health,100],["Margin ($k EBITDA)",deepC.eb,20],["Chemistry",deepC.chem,1],["Conversion",deepC.conv,1],["Retention",deepC.ret,1]].map(([label,v,max])=>(
+         <div key={label} style={{minWidth:100}}>
+          <div style={{fontSize:8.5,color:MUT,textTransform:"uppercase",letterSpacing:0.5}}>{label}</div>
+          <div style={{fontSize:14,fontWeight:700,color:INK}}>{typeof v==="number"?v.toFixed(v<=1?2:0):v}</div>
+         </div>
+        ))}
+       </div>
+       <div style={{display:"flex",gap:8,marginTop:10}}>
+        <button onClick={()=>{setSel(deepC.name);setTab("team");}} style={{fontFamily:"Helvetica",fontSize:9,color:AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>open full Center Detail →</button>
+        <button onClick={()=>{setSel(deepC.name);setTab("lenses");}} style={{fontFamily:"Helvetica",fontSize:9,color:AC,cursor:"pointer",background:"none",border:"none",padding:0,textDecoration:"underline"}}>open Six Lenses →</button>
+       </div>
+      </div>
+     );})()}
     </>}
    </div>);
   })()}
@@ -6708,11 +6795,11 @@ function EngineInner({initialTab}){
       
       {/* Recovery Time */}
       <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,padding:"8px 10px",background:"#fafafa",borderRight:`1px solid ${RULE}`,letterSpacing:0.3,color:MUT}}>Recovery (w)</div>
-      {toCompare.map((c,i)=>{const rec=fbTau(c,w);return (<div key={c.name+"-rec"} style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,padding:"8px 10px",borderRight:i<toCompare.length-1?`1px solid ${RULE}`:"none",textAlign:"center",color:rec>=3?AC:rec>=2?AMB:GRN}}>{rec.toFixed(1)}</div>);})}
+      {toCompare.map((c,i)=>{const rec=centerRecoveryWeeks(c);return (<div key={c.name+"-rec"} style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,padding:"8px 10px",borderRight:i<toCompare.length-1?`1px solid ${RULE}`:"none",textAlign:"center",color:rec>=3?AC:rec>=2?AMB:GRN}}>{rec.toFixed(1)}</div>);})}
       
       {/* Retention Inflection */}
       <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,padding:"8px 10px",background:"#fafafa",borderRight:`1px solid ${RULE}`,letterSpacing:0.3,color:MUT}}>Ret. Inflection</div>
-      {toCompare.map((c,i)=>{const infl=fbInflection(c);return (<div key={c.name+"-infl"} style={{fontFamily:"Helvetica",fontSize:9.5,padding:"8px 10px",borderRight:i<toCompare.length-1?`1px solid ${RULE}`:"none",textAlign:"center",color:infl&&infl<=w+3?AC:GRN}}>{infl===null?"stable":infl<=w?"passed":"W"+Math.round(infl)}</div>);})}
+      {toCompare.map((c,i)=>{const infl=centerInflectionWeeks(c);return (<div key={c.name+"-infl"} style={{fontFamily:"Helvetica",fontSize:9.5,padding:"8px 10px",borderRight:i<toCompare.length-1?`1px solid ${RULE}`:"none",textAlign:"center",color:infl&&infl<=w+3?AC:GRN}}>{infl===null?"stable":infl<=w?"passed":"W"+Math.round(infl)}</div>);})}
       
       {/* Engagement */}
       <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,padding:"8px 10px",background:"#fafafa",borderRight:`1px solid ${RULE}`,letterSpacing:0.3,color:MUT}}>Engagement</div>
@@ -6724,7 +6811,7 @@ function EngineInner({initialTab}){
       
       {/* Data Freshness */}
       <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,padding:"8px 10px",background:"#fafafa",borderRight:`1px solid ${RULE}`,letterSpacing:0.3,color:MUT}}>Freshness</div>
-      {toCompare.map((c,i)=>{const fresh=fbCoherence(c,w);return (<div key={c.name+"-fresh"} style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,padding:"8px 10px",borderRight:i<toCompare.length-1?`1px solid ${RULE}`:"none",textAlign:"center",color:fresh>=0.75?GRN:fresh>=0.5?AMB:AC}}>{(fresh*100).toFixed(0)}%</div>);})}
+      {toCompare.map((c,i)=>{const fresh=centerFreshness(c);return (<div key={c.name+"-fresh"} style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,padding:"8px 10px",borderRight:i<toCompare.length-1?`1px solid ${RULE}`:"none",textAlign:"center",color:fresh>=0.75?GRN:fresh>=0.5?AMB:AC}}>{(fresh*100).toFixed(0)}%</div>);})}
       
       {/* State */}
       <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,padding:"8px 10px",background:"#fafafa",borderRight:`1px solid ${RULE}`,letterSpacing:0.3,color:MUT}}>State</div>
@@ -6807,7 +6894,7 @@ function EngineInner({initialTab}){
     if(members.length===0)return {...c,members:[],avgHealth:0,avgEB:0,avgRecovery:0,avgEngage:0,count:0};
     const avgHealth=Math.round(members.reduce((a,x)=>a+x.health,0)/members.length);
     const avgEB=Math.round(members.reduce((a,x)=>a+x.eb,0)/members.length);
-    const avgRecovery=(members.reduce((a,x)=>a+fbTau(x,cap.week),0)/members.length).toFixed(1);
+    const avgRecovery=(members.reduce((a,x)=>a+centerRecoveryWeeks(x),0)/members.length).toFixed(1);
     const avgEngage=(members.reduce((a,x)=>a+engageOf(x),0)/members.length*100).toFixed(0);
     return {...c,members,avgHealth,avgEB,avgRecovery,avgEngage,count:members.length};
    });
@@ -6842,24 +6929,24 @@ function EngineInner({initialTab}){
    // Adjust tuition (+%), capacity ceiling (-%), and support cost (+%).
    // Recompute health, royalty, and recovery times live.
    const adj={tuition:sensitivityParams.tuition/100,capacity:sensitivityParams.capacity/100,support:sensitivityParams.support/100};
+   // centerRecoveryWeeks() gives the baseline; scaled here by the two real
+   // sliders in the direction the UI already promises: more support cost
+   // shrinks recovery time, less support capacity stretches it.
+   const sensRecoveryWeeks=c=>centerRecoveryWeeks(c)*(1-adj.support*0.5)*(1+Math.abs(Math.min(0,adj.capacity)));
    const scenarioMetrics=(()=>{
-    let totalRoyalty=0,totalHealth=0,avgRecovery=0,healthUnder60=0;
+    let baseRoyalty=0,adjRoyalty=0,totalHealth=0,avgRecovery=0,healthUnder60=0;
     centers.forEach(c=>{
-     // Tuition delta shifts EBITDA
-     const ebAdjusted=c.eb*(1+adj.tuition);
-     // Support cost delta shifts recovery time (more support = faster recovery)
-     const recAdjusted=fbTau(c,cap.week)*(1-adj.support*0.5);
-     // Capacity delta affects whether interventions can be deployed
      totalHealth+=c.health;
      if(c.health<60)healthUnder60++;
-     totalRoyalty+=royaltyOf(c)*(1+adj.tuition)*centers.length/centers.length;
-     avgRecovery+=recAdjusted;
+     baseRoyalty+=royaltyOf(c).royalty;
+     adjRoyalty+=royaltyOf(c).royalty*(1+adj.tuition);
+     avgRecovery+=sensRecoveryWeeks(c);
     });
     return {
      avgHealth:Math.round(totalHealth/centers.length),
      avgRecovery:(avgRecovery/centers.length).toFixed(1),
      healthUnder60,
-     royaltyImpact:((totalRoyalty/centers.length-royaltyOf({eb:centers[0].eb}))/royaltyOf({eb:centers[0].eb})*100).toFixed(1)
+     royaltyImpact:(((adjRoyalty-baseRoyalty)/baseRoyalty)*100).toFixed(1)
     };
    })();
    const SLIDERS=[
@@ -6897,7 +6984,7 @@ function EngineInner({initialTab}){
       <div>
        <div style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT}}>Avg Recovery</div>
        <div style={{fontFamily:"Helvetica",fontSize:18,fontWeight:800,color:scenarioMetrics.avgRecovery>=3?AC:scenarioMetrics.avgRecovery>=2?AMB:GRN,marginTop:4}}>{scenarioMetrics.avgRecovery}w</div>
-       <div style={{fontFamily:"Helvetica",fontSize:8.5,color:"#666",marginTop:2}}>baseline: {(centers.reduce((a,c)=>a+fbTau(c,cap.week),0)/centers.length).toFixed(1)}w</div>
+       <div style={{fontFamily:"Helvetica",fontSize:8.5,color:"#666",marginTop:2}}>baseline: {(centers.reduce((a,c)=>a+centerRecoveryWeeks(c),0)/centers.length).toFixed(1)}w</div>
       </div>
       <div>
        <div style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT}}>Units Under 60</div>
@@ -7141,7 +7228,7 @@ function EngineInner({initialTab}){
    const riskRanked=(()=>{
     const risks=[];
     riskCenters.filter(c=>riskRed.includes(c.name)).forEach(c=>{
-     const rec=fbTau(c,cap.week);const fresh=fbCoherence(c,cap.week);const infl=fbInflection(c);
+     const rec=centerRecoveryWeeks(c);const fresh=centerFreshness(c);const infl=centerInflectionWeeks(c);
      const factors=[];
      if(rec>=3)factors.push("recovery time "+rec.toFixed(1)+"w");
      if(fresh<0.5)factors.push("stale measurement ("+Math.round(fresh*100)+"%)");
