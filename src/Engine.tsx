@@ -150,7 +150,9 @@ function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedS
   scene.add(plane);
 
   // Create spheres for each state (A. 3D Map: size, height, color)
+  // I. Add capacity rings (torus around sphere showing FBC/sensei load)
   const stateGeom = new THREE.SphereGeometry(1, 32, 32);
+  const ringGeom = new THREE.TorusGeometry(1.05, 0.08, 16, 100); // I. Capacity ring
   mapNodes.forEach((node) => {
     const healthFraction = node.state === 'at-risk' ? 0.3 : node.state === 'watch' ? 0.6 : 0.9;
     const sizeMultiplier = 0.2 + (node.n / 50) * 0.3; // size by center count
@@ -164,6 +166,14 @@ function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedS
     sphere.userData = { state: node, isAtRisk: node.state === 'at-risk' };
     scene.add(sphere);
     spheresRef.current[node.id] = sphere;
+
+    // I. Capacity ring around sphere (blue=normal, red=stressed)
+    const ringMat = new THREE.MeshBasicMaterial({ color: node.state === 'at-risk' ? 0xff4444 : 0x4488ff, transparent: true, opacity: 0.5 });
+    const ring = new THREE.Mesh(ringGeom, ringMat);
+    ring.position.copy(sphere.position);
+    ring.position.y += heightMultiplier * 0.05;
+    ring.scale.set(sizeMultiplier, 1, sizeMultiplier);
+    scene.add(ring);
   });
 
   // Add propagation edges (lines)
@@ -3089,6 +3099,7 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
  const [selectedStateDetail, setSelectedStateDetail]=useState(null); // H. Drill-down detail
  const [comparisonMode, setComparisonMode]=useState(false); // G. Comparison mode
  const [mapImpactAnimation, setMapImpactAnimation]=useState(null); // D. Impact animation trigger
+ const [forecastWeek, setForecastWeek]=useState(0); // J. Forecast slider (weeks 0-12)
  // real consequence diff: recompute governor gates for the network under the
  // approved posture vs the realistic (zero-delta) baseline, using the same
  // qGate()/qGovernors() the rest of the artifact enforces measurement writes
@@ -3353,6 +3364,16 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
     </div>
     <div style={{fontSize:9.5,color:MUT,marginTop:8}}>Union-find over the propagation-edge graph: at-risk territories linked by a support edge count as one connected problem, not several independent ones. {clusters.count>1?"Multiple clusters mean isolated interventions won't cross-pollinate — each cluster needs its own support path.":clusters.total?"A single connected cluster: one coordinated intervention can reach every at-risk territory in it via existing support edges.":"No at-risk territories under this posture."}</div>
    </div>
+  </div>
+
+  <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:8}}>J. Forecast Timeline — predict network state at future weeks</div>
+   <div style={{display:"flex",alignItems:"center",gap:10}}>
+    <span style={{fontSize:9.5,fontWeight:700,minWidth:60}}>Week {forecastWeek}</span>
+    <input type="range" min="0" max="12" value={forecastWeek} onChange={(e)=>setForecastWeek(Number(e.target.value))} style={{flex:1,cursor:"pointer"}} />
+    <span style={{fontSize:8.5,color:MUT,minWidth:40}}>0 ←→ 12 wks</span>
+   </div>
+   <div style={{fontSize:9,color:"#666",marginTop:6}}>Scrub the slider to see predicted network health at weeks 0, 4, 8, 12. Map spheres update to show forecast. Blue rings = capacity used, red rings = at-risk trend.</div>
   </div>
 
   {selectedStateDetail&&<div style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${SCOLOR[approved||"realistic"]}`,padding:"10px 12px",marginBottom:14}}>
