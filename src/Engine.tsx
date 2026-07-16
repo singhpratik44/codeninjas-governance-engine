@@ -188,6 +188,38 @@ function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedS
     scene.add(line);
   });
 
+  // C. Flow Visualization - animated arrows showing resource allocation
+  const atRiskStates = mapNodes.filter(n => n.state === 'at-risk').slice(0, 5); // top 5 at-risk for clarity
+  let arrowTime = 0;
+  atRiskStates.forEach((atRiskNode) => {
+    const healthiestNode = [...mapNodes].sort((a, b) => {
+      const aHealth = a.state === 'at-risk' ? 0 : a.state === 'watch' ? 0.5 : 1;
+      const bHealth = b.state === 'at-risk' ? 0 : b.state === 'watch' ? 0.5 : 1;
+      return bHealth - aHealth;
+    })[0];
+
+    if (!healthiestNode) return;
+
+    // Create animated flow arrow from healthy → at-risk
+    const startPos = new THREE.Vector3(healthiestNode.pos[0], 0.2, healthiestNode.pos[1]);
+    const endPos = new THREE.Vector3(atRiskNode.pos[0], 0.2, atRiskNode.pos[1]);
+    const midPos = startPos.clone().lerp(endPos, 0.5);
+
+    // Flow particle (animated dot moving along path)
+    const particleGeom = new THREE.SphereGeometry(0.08, 8, 8);
+    const particleMat = new THREE.MeshBasicMaterial({ color: 0x4488ff, transparent: true });
+    const particle = new THREE.Mesh(particleGeom, particleMat);
+    particle.userData = { startPos, endPos, speed: 0.003 + Math.random() * 0.002, t: Math.random() };
+    scene.add(particle);
+
+    // Arrow line from healthy to at-risk
+    const arrowGeom = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
+    const arrowMat = new THREE.LineBasicMaterial({ color: 0x4488ff, transparent: true, opacity: 0.4, linewidth: 2 });
+    const arrowLine = new THREE.Line(arrowGeom, arrowMat);
+    scene.add(arrowLine);
+  });
+
+
   // Mouse interaction for drill-down (H. Drill-Down)
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
@@ -207,6 +239,19 @@ function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedS
   // Animation loop
   const animate = () => {
     requestAnimationFrame(animate);
+
+    // C. Flow visualization: animate flow particles
+    scene.children.forEach(child => {
+      if (child.userData && child.userData.t !== undefined) {
+        child.userData.t += child.userData.speed;
+        if (child.userData.t > 1) child.userData.t -= 1;
+        const lerpPos = child.userData.startPos.clone().lerp(child.userData.endPos, child.userData.t);
+        child.position.copy(lerpPos);
+        if (child.material.opacity !== undefined) {
+          child.material.opacity = Math.sin(child.userData.t * Math.PI) * 0.8;
+        }
+      }
+    });
 
     // E. Cluster highlighting: glow at-risk clusters
     // F. Conflict zone highlighting: glow orange for territories with conflicts
