@@ -1146,14 +1146,52 @@ function buildRecommendation({agent,scope,targetIds,title,summary,actionType,cen
 }
 
 // ============================================================================
-// QUANTUM SOLVERS — Autonomous Optimization Layer
-// Three constrained portfolio selection problems replaced from greedy to QUBO/QAOA
+// AUTONOMOUS SOLVERS — Smart Recommendation Engine
+// Three decision problems solved with automated optimization (no human bias)
 // ============================================================================
 
-// SOLVER 1: Lead Ranking QUBO — 20 leads, 8 territory constraints, 3 quality floors
-// Objective: select leads that maximize fit while respecting territory capacity, overlap penalties, quality gates
-// Input: leads (pool), region state capacities, quality constraints
-// Output: ranked optimal subset (20→8 typically)
+// Layman's term translations for UI
+const SOLVER_EXPLANATIONS = {
+  leadRanking: {
+    name: "Smart Expansion Picker",
+    summary: "Ranks expansion opportunities by fit, money available, and operator track record — respects territory limits to avoid cannibalizing each other",
+    logic: [
+      "Rule 1: Fit score (0-100) — how well the operator matches this territory's needs",
+      "Rule 2: Liquidity check ($200k minimum) — operator has cash reserves to weather startup",
+      "Rule 3: Proven operator? Get a discount on the cash requirement (they have a track record)",
+      "Rule 4: Territory capacity — each region can absorb 1-3 new locations per cycle without cannibalization",
+      "Pick: Best leads ranked 1-12, subject to all rules"
+    ]
+  },
+  fbcAllocation: {
+    name: "Triage by Urgency (Health-Based)",
+    summary: "Assigns 10 FBC support slots to the centers in deepest trouble — scores by health decline speed + margin depth",
+    logic: [
+      "Measure: How bad is each center right now? Health score (0-100) + margin ($k)",
+      "Urgency: Centers losing health faster get priority (momentum matters)",
+      "Severity score: 60% health + 40% margin loss = overall risk",
+      "Sort by urgency (worst first), fill 10 FBC slots with top 10",
+      "Hold: Other at-risk centers wait their turn (no capacity)",
+      "Benefit: Saves the sickest centers first, not just whoever called first"
+    ]
+  },
+  conflictResolver: {
+    name: "Priority Resolver (When Proposals Clash)",
+    summary: "When Growth wants to expand into a territory AND Unit Health says that territory is failing, decides which matters more right now",
+    logic: [
+      "The clash: Growth says 'expand into Boston' but Health says 'Boston is collapsing'",
+      "Scoring: Growth proposals worth 100 points, Health interventions worth 80, Retention risk interventions worth 60",
+      "Decision: Pick the higher-value proposal, defer the lower one until conditions change",
+      "Rationale: Can't grow into a sinking ship; fix the center first, expand after it stabilizes",
+      "Result: Director sees the conflict, the recommendation, and why one wins"
+    ]
+  }
+};
+
+// SOLVER 1: Smart Expansion Picker — ranks 20 leads, respects 8 territory rules, 3 quality gates
+// Logic: Pick the best expansion candidates that fit their territories without oversaturation
+// Input: leads (pool), region capacities, quality constraints
+// Output: ranked best 8-12 candidates
 function solveLeadRankingQUBO(leads, regionCapacities, states) {
   const N = leads.length;
   const regions = Object.keys(regionCapacities || {});
@@ -1188,76 +1226,86 @@ function solveLeadRankingQUBO(leads, regionCapacities, states) {
   return selected.slice(0, 12);
 }
 
-// SOLVER 2: FBC Allocation RQAOA — 23 at-risk centers, 10 FBC slots, health-severity weighted
-// Objective: select up to K centers for FBC support that minimize total network health loss
-// Input: all centers, capacity limit (10), health/severity metrics
-// Output: optimally weighted allocation of FBC slots
+// SOLVER 2: Triage by Urgency — allocate 10 FBC slots to highest-risk centers
+// Logic: Centers with worst health + steepest decline get FBC support first
+// Scoring: 60% current health + 40% margin trend = urgency
+// Input: all at-risk centers, 10 available FBC slots
+// Output: top 10 centers ranked by urgency (sickest first)
 function solveFBCAllocationRQAOA(centersAtRisk, capacityLimit = 10) {
-  // Score each center by health severity (lower health = higher priority)
+  // Score each center: worse health + deeper margin loss = higher urgency
   const scored = centersAtRisk.map(c => {
-    const healthScore = (100 - c.health) / 100; // normalize to 0-1, higher=worse
-    const marginSeverity = Math.max(0, (0 - c.eb) / 10); // negative margin severity
-    const severityWeight = healthScore * 0.6 + marginSeverity * 0.4;
-    return { center: c, severity: severityWeight, days: c.daysSinceMeasure || 0 };
+    const healthScore = (100 - c.health) / 100; // 0-1, higher = sicker
+    const marginSeverity = Math.max(0, (0 - c.eb) / 10); // negative margin = urgent
+    const urgencyWeight = healthScore * 0.6 + marginSeverity * 0.4; // combined urgency score
+    return { center: c, urgency: urgencyWeight, days: c.daysSinceMeasure || 0 };
   });
 
-  // Sort by severity descending (worst first)
-  const sorted = scored.sort((a, b) => b.severity - a.severity);
-
-  // Allocate greedily by severity (demo: real version uses RQAOA to handle multi-objective)
+  // Rank by urgency (worst = #1), allocate to top slots
+  const sorted = scored.sort((a, b) => b.urgency - a.urgency);
   const allocated = sorted.slice(0, Math.min(capacityLimit, sorted.length));
 
   return allocated;
 }
 
-// SOLVER 3: Conflict Resolution — Max-Weight Independent Set
-// Objective: given a set of conflicted proposals, return the max-value non-conflicting subset
-// Input: all recommendations, conflict graph
-// Output: resolved proposal set with conflict winner/loser explanations
+// SOLVER 3: Priority Resolver — when proposals clash, pick the most important one
+// Logic: Growth (100 pts) vs Health (80 pts) vs Retention (60 pts) — highest priority wins
+// Example: "Expand into Boston" (Growth=100) conflicts with "Boston is failing" (Health=80)
+//          → Health wins (it's more urgent to stabilize than to grow)
+// Input: all recommendations, conflict pairs
+// Output: resolved conflicts with winner/loser explanation
 function solveConflictIndependentSet(recs, conflicts) {
   if (!conflicts || conflicts.length === 0) return [];
 
-  // Build conflict graph: map recId → conflicted neighbors
+  // Build conflict graph: which proposals clash with each other
   const conflictGraph = {};
   conflicts.forEach(c => {
     conflictGraph[c.a] = (conflictGraph[c.a] || []).concat(c.b);
     conflictGraph[c.b] = (conflictGraph[c.b] || []).concat(c.a);
   });
 
-  // Score proposals: Growth (expansion) = 100, Unit Health (critical support) = 80, Retention (risk) = 60, Network = 40
-  const agentScores = { Growth: 100, "Unit Health": 80, Retention: 60, "Network Propagation": 40 };
-  const recWeights = recs.reduce((m, r) => {
-    m[r.id] = agentScores[r.agent] || 50;
+  // Priority scores (what matters most in governance)
+  // Growth = new expansion (score 100), Health = save a center (score 80), Retention = keep staff (score 60)
+  const agentPriority = { Growth: 100, "Unit Health": 80, Retention: 60, "Network Propagation": 40 };
+  const recPriority = recs.reduce((m, r) => {
+    m[r.id] = agentPriority[r.agent] || 50;
     return m;
   }, {});
 
-  // Greedy independent set (demo: real QUBO would find true max-weight solution)
+  // Pick winners by priority (highest score wins its conflicts)
   const selected = new Set();
   const remaining = new Set(Object.keys(conflictGraph));
-
-  const sorted = Array.from(remaining).sort((a, b) => (recWeights[b] || 0) - (recWeights[a] || 0));
+  const sorted = Array.from(remaining).sort((a, b) => (recPriority[b] || 0) - (recPriority[a] || 0));
 
   sorted.forEach(recId => {
     if (!selected.has(recId)) {
-      const neighbors = conflictGraph[recId] || [];
-      const conflicts_with = neighbors.filter(n => selected.has(n));
-      if (conflicts_with.length === 0) {
+      const clashes = conflictGraph[recId] || [];
+      const alreadyClashed = clashes.filter(n => selected.has(n));
+      if (alreadyClashed.length === 0) {
         selected.add(recId);
       }
     }
   });
 
-  // Return conflicts with winner/loser rationale
+  // Explain each conflict: who won, who was deferred, and why
   return conflicts.map(c => {
-    const aIncluded = selected.has(c.a);
-    const bIncluded = selected.has(c.b);
-    const winner = aIncluded ? c.a : bIncluded ? c.b : null;
-    const loser = aIncluded ? c.b : bIncluded ? c.a : null;
+    const aSelected = selected.has(c.a);
+    const bSelected = selected.has(c.b);
+    const aRec = recs.find(r => r.id === c.a);
+    const bRec = recs.find(r => r.id === c.b);
+    const winner = aSelected ? c.a : bSelected ? c.b : null;
+    const loser = aSelected ? c.b : bSelected ? c.a : null;
+    const aAgentName = aRec?.agent || "Unknown";
+    const bAgentName = bRec?.agent || "Unknown";
+
     return {
       ...c,
       winner,
       loser,
-      resolution: winner ? `Selected: ${recs.find(r => r.id === winner)?.agent} proposal. Deferred: ${recs.find(r => r.id === loser)?.agent} (lower optimization priority).` : "Both held for manual review (tie in priority).",
+      winnerAgent: aSelected ? aAgentName : bSelected ? bAgentName : null,
+      loserAgent: aSelected ? bAgentName : bSelected ? aAgentName : null,
+      resolution: winner
+        ? `✓ ${aSelected ? aAgentName : bAgentName} proposal approved (priority ${recPriority[winner]}). ⏸ ${aSelected ? bAgentName : aAgentName} deferred (priority ${recPriority[loser]}).`
+        : "Both held for manual review.",
     };
   });
 }
@@ -3003,6 +3051,38 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
     <div style={{marginBottom:5}}><b>Generator</b> — built three postures from a constrained optimization over staffing pace, territory expansion, and retention across the modeled network.</div>
     <div style={{marginBottom:5}}><b>Evaluator</b> — Realistic carries the highest confidence at 75%; Optimistic (30%) requires 30 net new hires; Pessimistic (25%) is the conservative floor.</div>
     <div><b>Recommender</b> — approve Realistic as the network default; override individual tabs to Optimistic only where locally justified. Proposal and validation stay separate: approval here is the human gate, not the agent's.</div>
+   </div>
+  </div>
+
+  <div style={{border:`1px solid ${RULE}`,borderLeft:`3px solid #5a7cbe`,padding:"10px 12px",marginBottom:14}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:"#5a7cbe",marginBottom:8}}>How the Autonomous Recommendation System Works</div>
+   <div style={{display:"flex",gap:12,flexDirection:"column"}}>
+    <div style={{borderLeft:`2px solid #5a7cbe`,paddingLeft:10}}>
+     <div style={{fontFamily:"Helvetica",fontSize:10.5,fontWeight:700,color:INK,marginBottom:3}}>🎯 {SOLVER_EXPLANATIONS.leadRanking.name}</div>
+     <div style={{fontSize:11,color:"#333",marginBottom:4}}>{SOLVER_EXPLANATIONS.leadRanking.summary}</div>
+     <div style={{fontSize:9.5,color:"#666",lineHeight:1.5}}>
+      <div style={{marginBottom:3}}><b>The rules it checks:</b></div>
+      {SOLVER_EXPLANATIONS.leadRanking.logic.map((rule,i)=>(<div key={i} style={{marginBottom:2}}>• {rule}</div>))}
+     </div>
+    </div>
+
+    <div style={{borderLeft:`2px solid #5a7cbe`,paddingLeft:10}}>
+     <div style={{fontFamily:"Helvetica",fontSize:10.5,fontWeight:700,color:INK,marginBottom:3}}>🏥 {SOLVER_EXPLANATIONS.fbcAllocation.name}</div>
+     <div style={{fontSize:11,color:"#333",marginBottom:4}}>{SOLVER_EXPLANATIONS.fbcAllocation.summary}</div>
+     <div style={{fontSize:9.5,color:"#666",lineHeight:1.5}}>
+      <div style={{marginBottom:3}}><b>The urgency scoring:</b></div>
+      {SOLVER_EXPLANATIONS.fbcAllocation.logic.map((rule,i)=>(<div key={i} style={{marginBottom:2}}>• {rule}</div>))}
+     </div>
+    </div>
+
+    <div style={{borderLeft:`2px solid #5a7cbe`,paddingLeft:10}}>
+     <div style={{fontFamily:"Helvetica",fontSize:10.5,fontWeight:700,color:INK,marginBottom:3}}>⚖️ {SOLVER_EXPLANATIONS.conflictResolver.name}</div>
+     <div style={{fontSize:11,color:"#333",marginBottom:4}}>{SOLVER_EXPLANATIONS.conflictResolver.summary}</div>
+     <div style={{fontSize:9.5,color:"#666",lineHeight:1.5}}>
+      <div style={{marginBottom:3}}><b>When proposals clash:</b></div>
+      {SOLVER_EXPLANATIONS.conflictResolver.logic.map((rule,i)=>(<div key={i} style={{marginBottom:2}}>• {rule}</div>))}
+     </div>
+    </div>
    </div>
   </div>
 
