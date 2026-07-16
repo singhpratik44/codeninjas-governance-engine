@@ -3088,30 +3088,101 @@ class EngineErrorBoundary extends React.Component{
 // FRANCHISE GROWTH ENGINE — Curriculum, Community, Revenue Model
 // ============================================================================
 
-// A. Curriculum Module — Pricing tiers + revenue impact
+// A. Curriculum Module — Market-aware pricing + franchisee readiness
 const CURRICULUM_PATHS = {
-  classic: { name: 'CodeNinjas Classic', price: 199, tracks: ['Python', 'Java', 'Web'], months: 12, color: '#2fbf5f' },
-  ai: { name: 'AI & Machine Learning', price: 89, tracks: ['TensorFlow', 'NLP', 'Computer Vision'], months: 12, addon: true, color: '#5a7cbe' },
-  robotics: { name: 'Robotics & Hardware', price: 89, tracks: ['Arduino', 'Drones', 'IoT'], months: 12, addon: true, color: '#d9a520' },
-  elite: { name: 'Elite Track (All 3)', price: 269, tracks: ['Python', 'TensorFlow', 'Arduino', 'Web', 'NLP', 'Drones'], months: 24, color: '#e03535' },
+  classic: {
+    name: 'CodeNinjas Classic',
+    tracks: ['Python', 'Web Development'], // Note: Not including Java per user feedback
+    months: 12,
+    color: '#2fbf5f',
+    required: true, // All franchisees must offer this
+    pricing_by_market: { small: 199, medium: 199, large: 189 }, // Price optimization by market
+  },
+  robotics: {
+    name: 'Robotics & Hardware',
+    tracks: ['Arduino', 'Drones', 'Robotics', 'IoT'],
+    months: 12,
+    color: '#d9a520',
+    addon: true,
+    required: false, // Optional for franchisees
+    pricing_by_market: { small: 89, medium: 89, large: 79 },
+    adoption_rate: 0.40, // ~40% of franchisees offer this
+    setup_barrier: 'medium', // Requires equipment investment (~$3-5k)
+    instructor_readiness: 'retrainable', // Can retrain existing staff vs. hire specialized
+  },
+  ai: {
+    name: 'AI & Machine Learning for Teens',
+    tracks: ['Python ML', 'Data Analysis', 'Intro AI'],
+    months: 12,
+    color: '#5a7cbe',
+    addon: true,
+    required: false, // Optional for franchisees
+    pricing_by_market: { small: 79, medium: 89, large: 99 }, // Higher price in larger markets due to demand
+    adoption_rate: 0.25, // ~25% of franchisees offer (newer, less tested)
+    setup_barrier: 'high', // Requires specialized instructor
+    instructor_readiness: 'hire_only', // Must hire new talent
+    note: 'Check franchisee stance on AI timing (when do they want it?)',
+  },
 };
 
-// B. Community & Events — Integration touchpoints
+// B. Community & Events — Market-aware integration touchpoints with variance
 const COMMUNITY_PROGRAMS = {
-  library: { name: 'Library Partnership', students_reach: 150, events_per_year: 8, revenue_impact: 12000, icon: '📚' },
-  stemnight: { name: 'STEM Night Events', students_reach: 200, events_per_year: 12, revenue_impact: 18000, icon: '🌟' },
-  comiccon: { name: 'Comic Con Sponsorship', students_reach: 500, events_per_year: 2, revenue_impact: 25000, icon: '🎪' },
-  sports: { name: 'Sports Team Partnerships', students_reach: 80, events_per_year: 6, revenue_impact: 9000, icon: '🏆' },
-  bootcamp: { name: 'Summer AI Bootcamp', students_reach: 100, events_per_year: 1, revenue_impact: 22000, icon: '⚡' },
+  library: {
+    name: 'Library Partnership',
+    icon: '📚',
+    reach_by_market: { small: 40, medium: 120, large: 200 }, // Varies by market size
+    events_per_year: 8,
+    revenue_impact_by_market: { small: 3000, medium: 8000, large: 12000 },
+    adoption_rate: 0.75, // 75% of centers run this (accessible, low barrier)
+    effort: 'low',
+  },
+  stemnight: {
+    name: 'STEM Night Events (Schools)',
+    icon: '🌟',
+    reach_by_market: { small: 60, medium: 150, large: 280 },
+    events_per_year: 12,
+    revenue_impact_by_market: { small: 5000, medium: 12000, large: 18000 },
+    adoption_rate: 0.65, // 65% of centers
+    effort: 'medium', // Requires school coordination
+  },
+  comiccon: {
+    name: 'Comic Con / Event Sponsorship',
+    icon: '🎪',
+    reach_by_market: { small: 100, medium: 300, large: 600 }, // Large events only viable in bigger markets
+    events_per_year: 2,
+    revenue_impact_by_market: { small: 5000, medium: 15000, large: 28000 },
+    adoption_rate: 0.40, // 40% of centers (cost/ROI tradeoff)
+    effort: 'high',
+    note: 'Larger impact in metro/large suburban areas',
+  },
+  sports: {
+    name: 'Sports Team Partnerships',
+    icon: '🏆',
+    reach_by_market: { small: 30, medium: 70, large: 140 },
+    events_per_year: 6,
+    revenue_impact_by_market: { small: 3000, medium: 7000, large: 12000 },
+    adoption_rate: 0.50, // 50% of centers
+    effort: 'medium',
+  },
+  bootcamp: {
+    name: 'Summer AI Bootcamp (Multi-center)',
+    icon: '⚡',
+    reach_by_market: { small: 0, medium: 50, large: 150 }, // Only viable in medium+ markets
+    events_per_year: 1,
+    revenue_impact_by_market: { small: 0, medium: 12000, large: 25000 },
+    adoption_rate: 0.20, // 20% of centers (requires coordination, scale)
+    effort: 'high',
+    note: 'Requires multi-center coordination; not viable in small rural markets',
+  },
 };
 
-// C. Franchise Card Data — Territory opportunity model (based on CodeNinjas real-world metrics)
+// C. Franchise Card Data — Territory opportunity model (market-specific, variance-aware)
 const TERRITORY_OPPORTUNITY = {
   // Market sizing based on typical metro/suburban/rural demographics
   market_size: {
-    small: { population: 5000, desc: 'Rural/small suburb', competitorCount: 0 },
-    medium: { population: 15000, desc: 'Mid-size suburb', competitorCount: 1 },
-    large: { population: 35000, desc: 'Large suburb/small city', competitorCount: 2 }
+    small: { population: 5000, desc: 'Rural/small suburb', competitorCount: 0, urbanType: 'rural' },
+    medium: { population: 15000, desc: 'Mid-size suburb', competitorCount: 1, urbanType: 'suburban' },
+    large: { population: 35000, desc: 'Large suburb/small city', competitorCount: 2, urbanType: 'urban' }
   },
   // Realistic enrollment penetration (% of market population that can enroll)
   penetration: {
@@ -3119,12 +3190,28 @@ const TERRITORY_OPPORTUNITY = {
     moderate: 0.08,      // 8% (proven market, good awareness)
     aggressive: 0.12     // 12% (mature market, strong brand presence)
   },
-  // Pricing per CodeNinjas franchise model
-  pricing: {
-    classic: 199,         // Classic coding, $199/mo
-    addon_ai: 89,         // AI/ML addon, $89/mo (can stack)
-    addon_robotics: 89,   // Robotics addon, $89/mo (can stack)
-    elite: 269            // All 3 bundled, $269/mo
+  // Pricing tiers by market size (not one-size-fits-all)
+  // Small markets: price lower to build volume ($199)
+  // Medium markets: optimized pricing ($229)
+  // Large markets: premium pricing possible ($269, $329 elite)
+  pricing_by_market: {
+    small: {
+      classic: 199,
+      classic_with_addon: 269, // classic + 1 addon
+      elite: 269
+    },
+    medium: {
+      classic: 199,
+      classic_with_ai: 279,     // classic + AI
+      classic_with_robotics: 279,
+      elite: 299                // all-in premium
+    },
+    large: {
+      classic: 189,             // Price competition in large markets
+      classic_with_ai: 279,
+      classic_with_robotics: 289,
+      elite: 329                // Premium positioning in affluent areas
+    }
   },
   // Revenue per center based on real data
   revenue_per_center: {
@@ -3368,6 +3455,7 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
  const [comparisonMode, setComparisonMode]=useState(false); // G. Comparison mode
  const [mapImpactAnimation, setMapImpactAnimation]=useState(null); // D. Impact animation trigger
  const [forecastWeek, setForecastWeek]=useState(0); // J. Forecast slider (weeks 0-12)
+ const [marketContext, setMarketContext]=useState("medium"); // A-E. Market type selector (small/medium/large)
  // real consequence diff: recompute governor gates for the network under the
  // approved posture vs the realistic (zero-delta) baseline, using the same
  // qGate()/qGovernors() the rest of the artifact enforces measurement writes
@@ -3723,46 +3811,86 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
   </div>
 
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
-   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>A. Franchise Growth Strategy — Curriculum Expansion + Revenue Model</div>
-   <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-    {Object.entries(CURRICULUM_PATHS).map(([key, curr]) => (
-     <div key={key} style={{flex:"1 1 180px",padding:"10px 12px",border:`1px solid #ddd`,borderTop:`3px solid ${curr.color}`,borderRadius:3,background:"#fafafa"}}>
-      <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:6}}>{curr.name}</div>
-      <div style={{fontSize:11,color:"#333",marginBottom:2}}><b>${curr.price}</b><span style={{color:MUT,fontSize:9}}>/mo</span></div>
-      <div style={{fontSize:9,color:"#666",marginBottom:2}}>{curr.tracks.join(" · ")}</div>
-      <div style={{fontSize:8.5,color:MUT,marginTop:4}}>Duration: {curr.months}mo{curr.addon?" (add-on)":""}</div>
-     </div>
-    ))}
+   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT}}>A. Franchise Growth Strategy — Curriculum Expansion (Market-Aware Pricing)</div>
+    <div style={{display:"flex",gap:6}}>
+     {["small","medium","large"].map(m => (
+      <button key={m} onClick={()=>setMarketContext(m)} style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,padding:"3px 8px",cursor:"pointer",border:`1px solid #ddd`,background:marketContext===m?"#5a7cbe":"#fff",color:marketContext===m?"#fff":"#333",borderRadius:2}}>
+       {m.charAt(0).toUpperCase() + m.slice(1)}
+      </button>
+     ))}
+    </div>
    </div>
-   <div style={{fontSize:9.5,color:"#666",marginTop:8,padding:"8px 0"}}>Elite Track ($269/mo) bundles all three paths over 24 months. Addon tracks (AI + Robotics) can be sold separately ($89 each) to existing Classic students, boosting ARPU from $199 → $269 (+35% per student).</div>
+   <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+    {Object.entries(CURRICULUM_PATHS).map(([key, curr]) => {
+     const price = curr.pricing_by_market ? curr.pricing_by_market[marketContext] : 199;
+     const isRequired = curr.required ? " (Required)" : "";
+     const adoption = curr.adoption_rate ? ` • ${Math.round(curr.adoption_rate*100)}% adoption` : "";
+     return (
+      <div key={key} style={{flex:"1 1 180px",padding:"10px 12px",border:`1px solid ${curr.required?"#2fbf5f":"#ddd"}`,borderTop:`3px solid ${curr.color}`,borderRadius:3,background:curr.required?"#f0fdf4":"#fafafa",opacity:curr.adoption_rate&&curr.adoption_rate<0.5?0.85:1}}>
+       <div style={{fontFamily:"Helvetica",fontSize:10,fontWeight:700,color:INK,marginBottom:4}}>{curr.name}{isRequired}</div>
+       <div style={{fontSize:11,color:"#333",marginBottom:2}}><b>${price}</b><span style={{color:MUT,fontSize:9}}>/mo</span></div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>{curr.tracks.join(", ")}</div>
+       {curr.setup_barrier && <div style={{fontSize:8,color:AC,marginBottom:2}}>Setup: {curr.setup_barrier}</div>}
+       {curr.instructor_readiness && <div style={{fontSize:8,color:MUT}}>Instructor: {curr.instructor_readiness}</div>}
+       {adoption && <div style={{fontSize:7.5,color:MUT,marginTop:4}}>{adoption}</div>}
+      </div>
+     );
+    })}
+   </div>
+   <div style={{fontSize:8.5,color:"#666",marginTop:8,padding:"8px 0"}}>⚠️ Pricing varies by market size. Adoption rates reflect current network. AI requires specialized instructor (hire, not retrain). Robotics ~40% adoption. Select your market above to see adjusted pricing.</div>
   </div>
 
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
-   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>B. Community Integration — 5 Revenue Streams, 1,000+ Student Reach</div>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>B. Community Integration — Market-Specific Reach &amp; Revenue Variance</div>
    <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-    {Object.entries(COMMUNITY_PROGRAMS).map(([key, prog]) => (
-     <div key={key} style={{flex:"1 1 160px",padding:"10px 12px",border:`1px solid #ddd`,background:"#f9f9f9",borderRadius:3}}>
-      <div style={{fontSize:18,marginBottom:4}}>{prog.icon}</div>
-      <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,color:INK,marginBottom:6}}>{prog.name}</div>
-      <div style={{fontSize:9,color:"#666",marginBottom:2}}>Reach: <b>{prog.students_reach}</b> students</div>
-      <div style={{fontSize:9,color:"#666",marginBottom:2}}>Events: <b>{prog.events_per_year}</b>/yr</div>
-      <div style={{fontSize:9.5,color:GRN,fontWeight:700}}>{fmtK(prog.revenue_impact)}</div>
-     </div>
-    ))}
+    {Object.entries(COMMUNITY_PROGRAMS).map(([key, prog]) => {
+     const reach = prog.reach_by_market[marketContext] || 0;
+     const revenue = prog.revenue_impact_by_market[marketContext] || 0;
+     const viable = reach > 0;
+     const note = prog.note ? ` (${prog.note})` : "";
+     return (
+      <div key={key} style={{flex:"1 1 160px",padding:"10px 12px",border:`1px solid ${viable?"#ddd":"#ddd"}`,background:viable?"#f9f9f9":"#f5f5f5",borderRadius:3,opacity:viable?1:0.6}}>
+       <div style={{fontSize:18,marginBottom:4}}>{prog.icon}</div>
+       <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,color:viable?INK:"#999",marginBottom:4}}>{prog.name}</div>
+       {viable ? (
+        <>
+         <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Reach: <b>{reach}</b> students</div>
+         <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Events: <b>{prog.events_per_year}</b>/yr</div>
+         <div style={{fontSize:9,color:GRN,fontWeight:700,marginBottom:2}}>{fmtK(revenue)}/yr</div>
+         <div style={{fontSize:7.5,color:MUT}}>Adoption: {Math.round(prog.adoption_rate*100)}%</div>
+        </>
+       ) : (
+        <div style={{fontSize:8,color:"#999"}}>Not viable in {marketContext} markets{note}</div>
+       )}
+      </div>
+     );
+    })}
    </div>
-   <div style={{fontSize:9.5,color:"#666",marginTop:8,padding:"8px 0"}}>Combined annual revenue from community programs: {fmtK(Object.values(COMMUNITY_PROGRAMS).reduce((sum, p) => sum + p.revenue_impact, 0))}. Each program is a low-cost, high-reach channel to acquire new students and build brand presence.</div>
+   {(() => {
+    const viablePrograms = Object.values(COMMUNITY_PROGRAMS).filter(p => (p.reach_by_market[marketContext] || 0) > 0);
+    const totalRevenue = viablePrograms.reduce((sum, p) => sum + (p.revenue_impact_by_market[marketContext] || 0), 0);
+    const totalReach = viablePrograms.reduce((sum, p) => sum + (p.reach_by_market[marketContext] || 0), 0);
+    return (
+     <div style={{fontSize:8.5,color:"#666",marginTop:8,padding:"8px 0"}}>
+      <b>{viablePrograms.length} programs viable</b> in {marketContext} markets: {totalReach} student reach, {fmtK(totalRevenue)}/yr combined. ⚠️ Comic Con/Bootcamp only work in medium+ markets. Rural centers focus on Library + STEM nights (low overhead, local partnerships).
+     </div>
+    );
+   })()}
   </div>
 
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
-   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>C. Territory Opportunity & Franchise Revenue Potential</div>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:MUT,marginBottom:10}}>C. Territory Opportunity & Franchise Revenue Potential (Market-Specific Pricing)</div>
    <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
     {Object.entries(TERRITORY_OPPORTUNITY.market_size).map(([sizeKey, sizeData]) => {
      const modPenetration = TERRITORY_OPPORTUNITY.penetration.moderate;
      const enrollees = Math.round(sizeData.population * modPenetration);
 
-     // Revenue calculation: enrollees × avg pricing (mix of tiers) × 12 months × retention
-     // Assume 50% classic, 30% classic+AI, 20% elite mix
-     const avgARPU = (199 * 0.5) + ((199 + 89) * 0.3) + (269 * 0.2);
+     // Use market-specific pricing tiers
+     const pricingByMarket = TERRITORY_OPPORTUNITY.pricing_by_market[sizeKey];
+     // Realistic mix: 40% classic, 35% classic+addon, 25% elite (varies by market maturity)
+     const avgARPU = (pricingByMarket.classic * 0.4) + (((pricingByMarket.classic_with_ai || pricingByMarket.classic_with_robotics) || (pricingByMarket.classic + 89)) * 0.35) + ((pricingByMarket.elite || 269) * 0.25);
+
      const retention = TERRITORY_OPPORTUNITY.retention_rate;
      const year1Revenue = enrollees * avgARPU * 12 * retention;
      const grossMargin = year1Revenue * TERRITORY_OPPORTUNITY.margin;
@@ -3774,16 +3902,16 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
        <div style={{fontSize:7.5,color:"#999",marginBottom:6}}>{sizeData.desc}</div>
        <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Population: <b>{sizeData.population.toLocaleString()}</b></div>
        <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Est. enrollment: <b>{enrollees}</b> students</div>
-       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Avg ARPU: <b>${avgARPU.toFixed(0)}/mo</b></div>
-       <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>12-mo retention: <b>{fmtPct(retention)}</b></div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:2}}>Blended ARPU: <b>${avgARPU.toFixed(0)}/mo</b></div>
+       <div style={{fontSize:8.5,color:"#666",marginBottom:4}}>Elite price: <b>${pricingByMarket.elite || 269}</b></div>
        <div style={{fontSize:9,fontWeight:700,color:GRN,borderTop:"1px solid #ddd",paddingTop:6,marginTop:6}}>Monthly Revenue: <b>{fmtK(monthlyRevenue)}</b></div>
        <div style={{fontSize:8.5,color:MUT,marginTop:4}}>Year 1 Revenue: {fmtK(year1Revenue)}</div>
-       <div style={{fontSize:8.5,color:MUT,marginTop:2}}>Gross Margin: {fmtK(grossMargin)}</div>
+       <div style={{fontSize:8.5,color:MUT,marginTop:2}}>Gross Margin ({(TERRITORY_OPPORTUNITY.margin*100).toFixed(0)}%): {fmtK(grossMargin)}</div>
       </div>
      );
     })}
    </div>
-   <div style={{fontSize:9,color:"#666",marginTop:8,padding:"8px 0"}}>Based on industry benchmarks: {TERRITORY_OPPORTUNITY.revenue_per_center.avg_students} avg students/center, ${TERRITORY_OPPORTUNITY.revenue_per_center.avg_arpu} ARPU. Revenue mix assumes curriculum diversification across Classic + addons + Elite tiers.</div>
+   <div style={{fontSize:8.5,color:"#666",marginTop:8,padding:"8px 0"}}>⚠️ Pricing varies significantly by market size &amp; competition. Small markets: $199 Classic (volume play). Medium markets: $229-299 (optimization). Large markets: $189-329 (premium tiers in affluent areas). Revenue calculated with realistic 40/35/25 mix across Classic/addon/Elite tiers.</div>
   </div>
 
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14}}>
