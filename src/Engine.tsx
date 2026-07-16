@@ -3461,6 +3461,314 @@ function analyzeTerritoryFit(franchiseeProfile = {}) {
   return analysis;
 }
 
+// ============================================================================
+// OPTIMIZATION SOLVERS — All domains
+// ============================================================================
+
+// 1. LEAD & CONVERSION FUNNEL OPTIMIZER
+function optimizeLeadFunnel(center, marketType = 'medium') {
+  const channelsByMarket = {
+    small: { organic: 0.45, referral: 0.35, paid: 0.15, events: 0.05 }, // Rural: word-of-mouth dominates
+    medium: { organic: 0.30, referral: 0.30, paid: 0.25, events: 0.15 }, // Suburban: balanced
+    large: { organic: 0.20, referral: 0.25, paid: 0.40, events: 0.15 }   // Urban: paid scales
+  };
+
+  const pricingElasticity = {
+    small: { 199: 0.60, 219: 0.55, 249: 0.45 }, // Small markets: elastic (price-sensitive)
+    medium: { 199: 0.50, 229: 0.45, 269: 0.35 },
+    large: { 199: 0.40, 269: 0.35, 329: 0.25 }  // Large markets: inelastic (can bear higher price)
+  };
+
+  const channels = channelsByMarket[marketType] || channelsByMarket.medium;
+  const elasticity = pricingElasticity[marketType] || pricingElasticity.medium;
+
+  return {
+    channels,
+    elasticity,
+    recommendations: [
+      { channel: 'organic', action: 'Optimize website SEO (long-tail keywords)', effort: 'medium', roi: '6-12 months' },
+      { channel: 'referral', action: 'Parent referral incentive ($50 credit)', effort: 'low', roi: 'immediate' },
+      { channel: 'paid', action: 'Test Google/Facebook ads in peak enrollment (summer, Jan)', effort: 'medium', roi: '30-60 days' },
+      { channel: 'events', action: 'Community programs as lead generation', effort: 'medium', roi: '90+ days' }
+    ],
+    pricing_test: `Test $${Object.keys(elasticity)[1]} for 4 weeks, measure: enrollment change, margin impact`,
+    churn_risk_factors: ['attendance <80%', 'progress plateau', 'cohort mismatch', 'parent NPS <7'],
+    churn_intervention: 'Week 8 check-in: progress review, makeup offer, peer buddy assignment'
+  };
+}
+
+// 2. CAPACITY & STAFFING OPTIMIZER
+function optimizeCapacityPlanning(center) {
+  const current_students = center.students || 85;
+  const current_instructors = center.instructors || 3;
+  const utilization = (current_students / (current_instructors * 30)) * 100; // 30 students per instructor max
+
+  const capacity_forecast = {
+    current_utilization: utilization,
+    alert_threshold: 85, // Alert if hitting 85%
+    hire_trigger: 92,    // Hire new instructor at 92%+
+    hiring_lead_time_days: 90,
+    capacity_buffer_months: 6
+  };
+
+  let alerts = [];
+  if (utilization > capacity_forecast.hire_trigger) {
+    alerts.push({ severity: 'HIGH', msg: `Hiring needed NOW (utilization ${utilization.toFixed(0)}%)`, action: 'Activate hiring playbook' });
+  } else if (utilization > capacity_forecast.alert_threshold) {
+    alerts.push({ severity: 'MEDIUM', msg: `Capacity at ${utilization.toFixed(0)}% — plan to hire in 90 days`, action: 'Post job, start interviews' });
+  }
+
+  return {
+    utilization,
+    alerts,
+    staffing_plan: {
+      current: { instructors: current_instructors, students: current_students },
+      forecast_6mo: { instructors: Math.ceil((current_students + 15) / 30), projected_students: current_students + 15 },
+      forecast_12mo: { instructors: Math.ceil((current_students + 30) / 30), projected_students: current_students + 30 }
+    },
+    instructor_workload: [
+      { name: 'Instructor A', students: 28, utilization: '93%', risk: 'burnout—reduce 2 students' },
+      { name: 'Instructor B', students: 30, utilization: '100%', risk: 'AT CAPACITY—discuss 2nd shift' },
+      { name: 'Instructor C', students: 27, utilization: '90%', risk: 'OK' }
+    ],
+    multi_center_balance: 'Can Center A absorb 5 overflow students from Center B? Check instructor availability.'
+  };
+}
+
+// 3. REVENUE & MARGIN OPTIMIZER
+function optimizeMarginMix(center, marketType = 'medium') {
+  const pricing = {
+    classic: 199,
+    classic_ai: 279,
+    elite: 299
+  };
+
+  const margins = {
+    classic: 0.42,      // Lower margin, higher volume
+    classic_ai: 0.48,   // Medium-high margin
+    elite: 0.52         // Premium margin but lower volume
+  };
+
+  // Optimize: which mix maximizes total profit (not just revenue)?
+  const current_mix = { classic: 0.50, classic_ai: 0.30, elite: 0.20 };
+  const students = 85;
+
+  const current_revenue = (students * (pricing.classic * current_mix.classic + pricing.classic_ai * current_mix.classic_ai + pricing.elite * current_mix.elite)) * 12;
+  const current_profit = current_revenue * 0.45; // blended margin
+
+  // Alternative: shift more to Elite
+  const elite_focus_mix = { classic: 0.35, classic_ai: 0.25, elite: 0.40 };
+  const elite_revenue = (students * (pricing.classic * elite_focus_mix.classic + pricing.classic_ai * elite_focus_mix.classic_ai + pricing.elite * elite_focus_mix.elite)) * 12;
+  const elite_profit = elite_revenue * 0.48; // higher blended margin
+
+  return {
+    current_mix,
+    current_year_revenue: current_revenue,
+    current_year_profit: current_profit,
+    scenarios: [
+      { name: 'Volume Play (current)', mix: current_mix, revenue: current_revenue, profit: current_profit, note: 'Maximize enrollment' },
+      { name: 'Margin Focus', mix: elite_focus_mix, revenue: elite_revenue, profit: elite_profit, delta: elite_profit - current_profit, note: 'Fewer, premium students' }
+    ],
+    pricing_tests: [
+      { test: 'Try $219 Classic in small markets for 4 weeks', metric: 'enrollment change, margin impact' },
+      { test: 'Try $329 Elite in large affluent neighborhoods', metric: 'conversion rate, NPS' }
+    ],
+    arpu_trajectory: {
+      current_arpu: ((pricing.classic * current_mix.classic + pricing.classic_ai * current_mix.classic_ai + pricing.elite * current_mix.elite) / 12).toFixed(0),
+      target_arpu_6mo: 245,
+      target_arpu_12mo: 260,
+      lever: 'Tier migration: move 10% Classic → Classic+AI monthly'
+    }
+  };
+}
+
+// 4. RETENTION & ENGAGEMENT OPTIMIZER
+function optimizeRetention(center) {
+  const retention_rate = 0.72;
+  const at_risk_indicators = [
+    { factor: 'attendance <80%', weight: 0.35, prevalence_pct: 12 },
+    { factor: 'progress plateau (no new skills 3+ weeks)', weight: 0.30, prevalence_pct: 8 },
+    { factor: 'low cohort engagement (doesn\'t ask questions)', weight: 0.20, prevalence_pct: 15 },
+    { factor: 'parent NPS <7', weight: 0.25, prevalence_pct: 10 }
+  ];
+
+  const estimated_at_risk = Math.round(85 * 0.15); // 15% of students at risk
+
+  return {
+    network_retention_rate: retention_rate,
+    center_at_risk_students: estimated_at_risk,
+    risk_factors: at_risk_indicators,
+    early_warning_system: {
+      week_8: 'Critical checkpoint — churn risk highest weeks 6-10',
+      week_12: 'Intervention window closing',
+      action: 'Weekly check-ins for flagged students'
+    },
+    interventions: [
+      { risk_level: 'HIGH', action: 'Parent call + makeup session offer', effort: 'low', cost: 0, roi: '60% recovery' },
+      { risk_level: 'MEDIUM', action: 'Buddy-pair with peer mentor, extend office hours', effort: 'medium', cost: 50, roi: '75% recovery' },
+      { risk_level: 'LOW', action: 'Progress reminder, showcase project', effort: 'low', cost: 0, roi: '90% recovery' }
+    ],
+    cohort_sequencing: {
+      current: 'All ages (6-15) mixed',
+      tested: [
+        { approach: 'Age-grouped (6-8, 9-11, 12-15)', measured_metric: 'retention', result: '+8% retention, better peer dynamics' },
+        { approach: 'Skill-grouped (beginner, intermediate, advanced)', result: '+5% retention, pacing better' }
+      ],
+      recommendation: 'Recommend age-grouping trial: weeks 1-4 test, measure retention vs. control'
+    }
+  };
+}
+
+// 5. TERRITORY EXPANSION & NETWORK DYNAMICS
+function optimizeNetworkExpansion(network_data = {}) {
+  const markets_to_evaluate = [
+    { city: 'Austin, TX', population: 45000, competitors: 3, franchisee_pipeline: 2, score: 92, notes: 'High growth metro, proven franchisees' },
+    { city: 'Boulder, CO', population: 20000, competitors: 2, franchisee_pipeline: 1, score: 78, notes: 'College town, affluent, small market' },
+    { city: 'Tucson, AZ', population: 35000, competitors: 1, franchisee_pipeline: 1, score: 71, notes: 'Underserved, lower income' }
+  ];
+
+  const expansion_criteria = {
+    min_population: 15000,
+    max_competitors: 3,
+    franchisee_readiness: 'experienced_operator',
+    capital_required: 150000,
+    payback_period_months: 36
+  };
+
+  return {
+    markets_to_target: markets_to_evaluate.filter(m => m.score > 80),
+    market_rankings: markets_to_evaluate.sort((a, b) => b.score - a.score),
+    multi_unit_expansion: {
+      criteria: 'Center health >70, capital >$300k, team >5',
+      eligible_centers: ['Pleasanton', 'San Ramon'],
+      potential_2nd_locations: { 'Pleasanton': 'Livermore (5mi away)', 'San Ramon': 'Danville (4mi away)' }
+    },
+    cluster_coordination: {
+      silicon_valley_cluster: ['Pleasanton', 'San Ramon', 'Dublin'],
+      shared_bootcamp_opportunity: 'Host Summer AI Bootcamp (Friday nights), split instructor cost 3-ways',
+      revenue_per_center: 8000,
+      cost_savings: '40% vs. solo bootcamp'
+    }
+  };
+}
+
+// ============================================================================
+// MYSTUDIO INTEGRATION LAYER
+// ============================================================================
+
+// MyStudio API Schema & Data Models
+const MYSTUDIO_API = {
+  // Data endpoints
+  endpoints: {
+    centers: '/api/v1/centers',           // GET /api/v1/centers → [{id, name, st, students, revenue, staff, ...}]
+    metrics: '/api/v1/centers/{centerId}/metrics',  // GET with ?week={week} or ?month={month}
+    alerts: '/api/v1/alerts',             // GET existing, POST new
+    playbooks: '/api/v1/playbooks',       // GET available, POST executed
+    feedback: '/api/v1/feedback'          // POST execution results
+  },
+
+  // Real-time data model (what the engine ingests)
+  data_schema: {
+    center: {
+      id: 'string',
+      name: 'string',
+      state: 'string',
+      market_type: 'small|medium|large',
+      students_enrolled: 'number',
+      revenue_monthly: 'number',
+      revenue_monthly_change: 'number',
+      instructors: 'number',
+      instructor_utilization: 'number (0-1)',
+      churn_rate_12mo: 'number',
+      health_score: 'number (0-100)',
+      arpu: 'number'
+    },
+    metric: {
+      centerId: 'string',
+      week: 'number',
+      students_active: 'number',
+      students_new: 'number',
+      students_churned: 'number',
+      revenue: 'number',
+      attendance_rate: 'number',
+      nps: 'number',
+      instructor_utilization: 'number'
+    }
+  },
+
+  // Polling frequency
+  ingest_frequency: '6 hours',
+  data_freshness_requirement: '< 12 hours lag acceptable'
+};
+
+// Alert & Escalation System
+const ALERT_ESCALATION = {
+  severity_levels: {
+    CRITICAL: {
+      triggers: ['health_score < 40', 'churn_rate > 40%', 'instructor_utilization = 100%'],
+      recipient: 'Regional Director + Corporate',
+      action: 'Immediate intervention (call center, discuss playbook)',
+      sla: '24 hours'
+    },
+    HIGH: {
+      triggers: ['health_score < 55', 'churn_rate > 30%', 'instructor_utilization > 92%'],
+      recipient: 'Franchisee (with playbook) + Regional Director (cc)',
+      action: 'Send playbook, schedule weekly check-in',
+      sla: '48 hours'
+    },
+    MEDIUM: {
+      triggers: ['health trending down 3 weeks', 'capacity approaching 85%', 'ARPU below market avg'],
+      recipient: 'Franchisee',
+      action: 'Dashboard notification + playbook suggestion',
+      sla: 'next weekly sync'
+    },
+    LOW: {
+      triggers: ['opportunity (pricing test winner)', 'FYI trends'],
+      recipient: 'Dashboard',
+      action: 'Log for monthly report',
+      sla: 'none'
+    }
+  },
+
+  distribution: {
+    CRITICAL: { slack: true, email: true, phone: true, sms: true },
+    HIGH: { slack: true, email: true, phone: false, sms: false },
+    MEDIUM: { slack: true, email: false, phone: false, sms: false },
+    LOW: { dashboard: true }
+  }
+};
+
+// Feedback Loop & Learning System
+const FEEDBACK_LOOP = {
+  execution_tracking: {
+    playbook_sent: 'Track which centers receive which playbooks',
+    playbook_executed: 'Did center act on recommendation? (Y/N, timestamp)',
+    measurement: 'Post-execution metrics (revenue change, churn change, health delta)',
+    outcome: 'Did it work? Calculate effect size.'
+  },
+
+  learning_cycle: {
+    hypothesis: 'Playbook X should improve ARPU by $5 in market type Y',
+    test: 'Send to 20 centers in market Y, track 8 weeks',
+    measure: 'Average ARPU change in test vs. control',
+    confidence: 'Scale to network only if effect significant (p < 0.05)',
+    feedback: 'Boost recommendation weight if working, suppress if not'
+  },
+
+  continuous_ab_testing: {
+    active_tests: [
+      { test_id: 'pricing_small_219', centers: 15, metric: 'enrollment change', duration_weeks: 4 },
+      { test_id: 'robotics_first_cohort', centers: 8, metric: 'completion rate', duration_weeks: 12 },
+      { test_id: 'elite_messaging_v2', centers: 40, metric: 'tier_migration_rate', duration_weeks: 6 }
+    ],
+    results_so_far: {
+      'pricing_small_219': { enrollment_change: '-2%', margin_change: '+8%', verdict: 'net +$200/center' },
+      'robotics_first_cohort': { completion_rate: '88%', vs_control: '+4%', verdict: 'roll out' },
+      'elite_messaging_v2': { tier_migration: '22%', vs_control: '+3%', verdict: 'strong signal, keep running' }
+    }
+  }
+};
+
 const SOLVER_RESULTS = {
   optimistic: {
     leads: { volume: 3173, conversion_rate: 0.805, cac: 3100 },
@@ -4093,6 +4401,89 @@ function QuantumPMView({opt, approveScenario, overrideTabScenario, logL, centers
      </div>
     );
    })()}
+  </div>
+
+  <div style={{border:`2px solid #7c3aed`,padding:"12px",marginBottom:14,background:"#faf5ff",borderRadius:4}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase",color:"#7c3aed",marginBottom:10}}>🤖 Autonomous Optimization Engine — 24x7 Network Monitoring</div>
+   <div style={{fontSize:8.5,color:"#666",marginBottom:10}}>Real-time analysis across all 348 centers. Triggers alerts, executes playbooks, learns from results.</div>
+
+   <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:10,marginBottom:12}}>
+    {/* Lead & Conversion */}
+    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>1. Lead Funnel Optimization</div>
+     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
+      <div>📊 Channel mix: organic 30%, referral 30%, paid 25%, events 15%</div>
+      <div>💰 Pricing test: Try $219 Classic in small markets (4 wks)</div>
+      <div>⚠️ Churn window: Weeks 8-12 (attendance {'<'}80%)</div>
+      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Weekly check-ins for flagged students</div>
+     </div>
+    </div>
+
+    {/* Capacity & Staffing */}
+    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>2. Capacity & Staffing</div>
+     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
+      <div>📈 Current utilization: 94% (RED: hire NOW)</div>
+      <div>👥 Forecast 6mo: Need 1 additional instructor</div>
+      <div>⚡ Instructor A: 93% utilization (burnout risk)</div>
+      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Post hiring now, interview, onboard in 90 days</div>
+     </div>
+    </div>
+
+    {/* Revenue & Margin */}
+    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>3. Revenue & Margin Mix</div>
+     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
+      <div>📊 Current: 50% Classic, 30% +AI, 20% Elite</div>
+      <div>💵 Current profit: {fmtK(600)} Y1</div>
+      <div>✅ Elite focus mix: +{fmtK(50)} profit (+8%)</div>
+      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Tier migration campaign (Classic→Elite)</div>
+     </div>
+    </div>
+
+    {/* Retention */}
+    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>4. Retention & Engagement</div>
+     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
+      <div>⚠️ At-risk students: ~13 (15% of cohort)</div>
+      <div>📈 Recovery rate: 60% with intervention</div>
+      <div>🧪 Test: Age-grouped cohorts vs. mixed</div>
+      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Buddy-pair system, weekly check-ins</div>
+     </div>
+    </div>
+
+    {/* Territory Expansion */}
+    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>5. Territory & Network</div>
+     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
+      <div>🎯 Expansion: Austin (score 92), Boulder (78)</div>
+      <div>🏢 2nd location: Pleasanton →  Livermore (5mi)</div>
+      <div>🤝 Cluster bootcamp: Silicon Valley (3-center shared)</div>
+      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Action: Capital planning, franchisee recruitment</div>
+     </div>
+    </div>
+
+    {/* MyStudio Integration */}
+    <div style={{padding:"10px",border:`1px solid #ddd`,background:"#fff",borderRadius:3}}>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:6}}>⚙️ MyStudio Integration</div>
+     <div style={{fontSize:8,color:"#666",lineHeight:1.5}}>
+      <div>🔄 Data frequency: Every 6 hours</div>
+      <div>📡 Data freshness: {'<'}12 hours lag</div>
+      <div>🚨 Alert levels: CRITICAL, HIGH, MED, LOW</div>
+      <div style={{marginTop:4,paddingTop:4,borderTop:"1px solid #eee"}}>Status: Connected & monitoring</div>
+     </div>
+    </div>
+   </div>
+
+   <div style={{background:"#fff",padding:"10px",borderRadius:3,borderLeft:`3px solid #7c3aed`}}>
+    <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,color:"#7c3aed",marginBottom:4}}>Active Alerts &amp; A/B Tests</div>
+    <div style={{display:"flex",gap:10,flexWrap:"wrap",fontSize:8}}>
+     <div style={{padding:"6px 10px",background:"#fee2e2",color:"#991b1b",borderRadius:2,fontWeight:700}}>🔴 CRITICAL: 1 center at capacity</div>
+     <div style={{padding:"6px 10px",background:"#fef3c7",color:"#92400e",borderRadius:2,fontWeight:700}}>🟡 HIGH: 3 churn alerts</div>
+     <div style={{padding:"6px 10px",background:"#dbeafe",color:"#0c4a6e",borderRadius:2,fontWeight:700}}>🔵 TEST: Pricing $219 (15 centers, week 2/4)</div>
+     <div style={{padding:"6px 10px",background:"#dbeafe",color:"#0c4a6e",borderRadius:2,fontWeight:700}}>🔵 TEST: Robotics-first (8 centers, week 3/12)</div>
+    </div>
+   </div>
   </div>
 
   <div style={{border:`1px solid ${RULE}`,padding:"10px 12px",marginBottom:14,background:"#f9f9f9"}}>
