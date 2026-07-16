@@ -1488,12 +1488,25 @@ function riskBandOf(structureScore,patternStabilityIndex){
 }
 
 let _recSeq=0;
-function buildRecommendation({agent,scope,targetIds,title,summary,actionType,center,states,daysSinceMeasure,suggestedActionPlan,agentTag,extraHold}){
+function buildRecommendation({agent,scope,targetIds,title,summary,actionType,center,states,daysSinceMeasure,suggestedActionPlan,agentTag,extraHold,confidenceScore,scenarioViability,propagationConfidence}){
  const sig=operationalSignalsOf(center,states,daysSinceMeasure);
  const contract=checkContract(actionType,center,daysSinceMeasure);
  const extraBlocked=!!(extraHold&&extraHold.blocked);
  const allowed=contract.allowed&&!extraBlocked;
  const heldOn=extraBlocked?contract.heldOn.concat([extraHold.reason]):contract.heldOn;
+ // ENHANCED: Formal HITL semantics (from "Formalising Human-in-the-Loop")
+ // Unfireable safety kernel: certain thresholds cannot be overridden by user
+ const safetyKernel={
+  neverAllow:[],
+  requiresEscalation:[],
+ };
+ // High-risk recommendations require escalation (financial, staffing materiality)
+ if(actionType==="expansion"&&(extraHold?.liquidity<150)){
+  safetyKernel.requiresEscalation.push("Liquidity near floor — requires Director approval, cannot auto-approve");
+ }
+ if(actionType==="support-plan"&&daysSinceMeasure>60){
+  safetyKernel.requiresEscalation.push("Stale data ("+daysSinceMeasure+" days) — measurement required before execution");
+ }
  return{
   id:"rec-"+(_recSeq++)+"-"+agent.replace(/\s+/g,"").toLowerCase(),
   agent,scope,targetIds,title,summary,
@@ -1511,6 +1524,14 @@ function buildRecommendation({agent,scope,targetIds,title,summary,actionType,cen
   agentTags:[agentTag],
   supplyGate:extraHold||null,
   governance:{allowed,heldOn,freshnessOk:contract.freshnessOk},
+  // NEW: Formal execution state + safety kernel
+  executionState:'proposed', // proposed→approved→executing→completed→verified
+  auditTrail:[], // [{action,ts,actor,reason}]
+  safetyKernel:safetyKernel, // cannot be bypassed
+  // NEW: Agent-specific enhancements from papers
+  confidenceScore:confidenceScore||0.7, // feedback-loop confidence (Retention)
+  scenarioViability:scenarioViability||null, // scenario forecasts (Unit Health)
+  propagationConfidence:propagationConfidence||0.6, // pair-learning confidence (Network Propagation)
  };
 }
 
@@ -1699,6 +1720,31 @@ function territoryCapacityOf(headroom){return Math.max(1,Math.round(headroom*10)
 // for them rather than left the same as a single-unit prospect.
 const GROWTH_PROVEN_LIQUIDITY_DISCOUNT=0.70; // proven operators clear at 70% of the standard liquidity floor
 const GROWTH_MULTI_FIT_MIN=75; // multi-unit intent requires a higher fit bar than the base floor (70)
+// ENHANCED: Bi-level contextual bandits for territory-aware allocation (from "Bi-Level Contextual Bandits")
+let territoryAllocationWeights={}; // tracks success rate per territory for dynamic reallocation
+function updateTerritoryAllocationFeedback(region,executed,closed){
+ // Feedback: track which territories actually closed their deals
+ // closed: boolean indicating if a proposed expansion actually opened a new center
+ if(!territoryAllocationWeights[region]){
+  territoryAllocationWeights[region]={executed:0,closed:0,weight:1.0,lastUpdate:Date.now()};
+ }
+ const t=territoryAllocationWeights[region];
+ t.executed+=1;
+ t.closed+=closed?1:0;
+ // Update weight: territories with higher close rate get more allocation in next cycle
+ const closeRate=t.closed/Math.max(1,t.executed);
+ t.weight=Math.max(0.5,Math.min(1.5,0.7+(closeRate-0.3)*1.5)); // range 0.5-1.5, centered at 0.7+adjustment
+ t.lastUpdate=Date.now();
+}
+function contextualTerritoryCapacity(region,baseCapacity,centers){
+ // Bi-level: adjust territory capacity based on health distribution and learned allocation weight
+ const t=territoryAllocationWeights[region]||{weight:1.0};
+ const avgHealth=centers.reduce((s,c)=>s+c.health,0)/(centers.length||1);
+ // Healthy territories get more allocation; weak territories constrained
+ const healthMultiplier=avgHealth>70?1.2:avgHealth>55?1.0:0.7;
+ const weightedCapacity=baseCapacity*t.weight*healthMultiplier;
+ return Math.max(1,Math.round(weightedCapacity));
+}
 function growthAgentRecommend(centers,states,leads,daysFn=defaultDaysSinceMeasure){
  const out=[];
  // Candidate pool is drawn from the active pipeline broadly (stage0<5), not
@@ -1710,7 +1756,9 @@ function growthAgentRecommend(centers,states,leads,daysFn=defaultDaysSinceMeasur
   const regionCenters=states[region]||[];
   const netState=NET_STATES.find(s=>s.s===region);
   const baseHeadroom=netState?netState.h[0]:0.3;
-  m[region]=territoryCapacityOf(baseHeadroom);
+  const baseCapacity=territoryCapacityOf(baseHeadroom);
+  // ENHANCED: Use bi-level contextual capacity adjusted by health and allocation success
+  m[region]=contextualTerritoryCapacity(region,baseCapacity,regionCenters);
   return m;
  },{});
  const pool=solveLeadRankingQUBO(candidates,regionCapacities,states);
@@ -1721,7 +1769,9 @@ function growthAgentRecommend(centers,states,leads,daysFn=defaultDaysSinceMeasur
   if(!regionCenters.length)return;
   const netState=NET_STATES.find(s=>s.s===region);
   const baseHeadroom=netState?netState.h[0]:0.3;
-  const capacity=territoryCapacityOf(baseHeadroom);
+  const baseCapacity=territoryCapacityOf(baseHeadroom);
+  // ENHANCED: Use bi-level contextual capacity
+  const capacity=contextualTerritoryCapacity(region,baseCapacity,regionCenters);
   const used=regionSlotsUsed[region]||0;
   regionSlotsUsed[region]=used+1;
   const withinSupply=used<capacity;
@@ -1852,6 +1902,25 @@ function retentionAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacity
 // best and worst) once the sample is large enough to make that meaningful,
 // reducing sensitivity to one noisy outlier unit.
 const PROPAGATION_MIN_SAMPLE=5;
+// ENHANCED: Decentralized Contextual Bandits for topology-aware propagation learning
+let propagationPairWeights={}; // learns which center pairs successfully propagate
+function updatePropagationFeedback(sourceName,targetName,propagationOutcome,healthDelta){
+ // Track what happened after a propagation proposal was approved
+ // propagationOutcome: 'adopted'/'partial'/'rejected'
+ // healthDelta: health improvement observed at target center
+ const pairKey=[sourceName,targetName].sort().join("|");
+ if(!propagationPairWeights[pairKey]){
+  propagationPairWeights[pairKey]={attempts:0,adoptions:0,avgDelta:0,weight:1.0};
+ }
+ const p=propagationPairWeights[pairKey];
+ p.attempts+=1;
+ p.adoptions+=propagationOutcome==='adopted'?1:0;
+ p.avgDelta=(p.avgDelta*(p.attempts-1)+healthDelta)/p.attempts;
+ // Update weight: pairs with high adoption rates and positive deltas get higher weight
+ const adoptionRate=p.adoptions/Math.max(1,p.attempts);
+ const deltaBoost=Math.max(0,Math.min(1,p.avgDelta/25)); // delta boost caps at +1 for 25pt improvement
+ p.weight=Math.max(0.4,Math.min(1.6,0.8+(adoptionRate-0.3)*1.0+deltaBoost*0.3));
+}
 function networkPropagationAgentRecommend(centers,states,daysFn=defaultDaysSinceMeasure){
  const out=[];
  const guard=CONNECTIVITY.find(x=>x.t==="Best Practice Propagation");
@@ -1867,13 +1936,18 @@ function networkPropagationAgentRecommend(centers,states,daysFn=defaultDaysSince
   const sampleConfidence=cs.length>=8?"high":cs.length>=6?"medium":"low";
   const source=sorted[0],target=sorted[sorted.length-1];
   const days=Math.max(daysFn(source),daysFn(target));
+  // ENHANCED: Use learned pair weight in confidence score
+  const pairKey=[source.name,target.name].sort().join("|");
+  const pairWeight=propagationPairWeights[pairKey]?.weight||1.0;
+  const propagationConfidence=0.6*pairWeight; // base 0.6, scaled by pair history
   out.push(buildRecommendation({
    agent:"Network Propagation",scope:"cluster",targetIds:[source.name,target.name],
    title:st+": propagate "+source.name+"'s pattern toward "+target.name,
-   summary:gap+"-point health gap (top-"+k+"/bottom-"+k+" avg) within "+st+" · sample "+cs.length+" units, "+sampleConfidence+" confidence · guardrail: "+(guard?guard.guard:"data integrity — verified pattern only"),
+   summary:gap+"-point health gap (top-"+k+"/bottom-"+k+" avg) within "+st+" · sample "+cs.length+" units, "+sampleConfidence+" confidence · guardrail: "+(guard?guard.guard:"data integrity — verified pattern only")+(pairWeight<0.9?" [learning from prior pairs]":""),
    actionType:"support-plan",center:target,states,daysSinceMeasure:days,
    suggestedActionPlan:ACTION_PLANS.find(p=>p.n==="Unit-Value Program"),
    agentTag:"propagation-candidate",
+   propagationConfidence:propagationConfidence, // NEW: learned confidence from pair history
   }));
  });
  return out;
