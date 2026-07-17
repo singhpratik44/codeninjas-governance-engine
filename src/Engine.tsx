@@ -981,7 +981,7 @@ function buildLeads(){
 const QSTATES=["thriving","watch","at-risk"];
 // The 20 tabs that carry the whole 5-minute walkthrough — everything else stays reachable,
 // just hidden from the sub-tab row when "essentials only" is toggled on. Nothing is deleted.
-const ESSENTIAL_TABS=["quantum","integrated","exec","franchise","rail","board","alignment","compliance","blockers","table","whitespace","leads","deals","workload","team","lenses","network","portfolio","financials","growthfin","onboarding","audit","agenda","risk","fdd"];
+const ESSENTIAL_TABS=["act","quantum","integrated","exec","franchise","rail","board","alignment","compliance","blockers","table","whitespace","leads","deals","workload","team","lenses","network","portfolio","financials","growthfin","onboarding","audit","agenda","risk","fdd"];
 // note: "reports" and "success" are intentionally left out of ESSENTIAL_TABS —
 // they're reviewer/governance depth, not part of the 20-tab walkthrough set.
 const QCOL=["#5cb87c","#d9a62e","#d96a6a"];
@@ -2720,6 +2720,170 @@ function OperationsBoardTab({railData,decisions,setDecisions,decisionHistory,rec
  </div>);
 }
 
+
+// ============================================================================
+// ACTION QUEUE — "It acts, you approve."
+// The front door. Every other tab in this artifact DIAGNOSES; this one drafts
+// the fix and waits for a tap. The four agents already compute exactly what
+// the right move is (that's what runAllAgents does); the 67 analysis tabs
+// just DISPLAY that reasoning. Here it's rendered as finished work: not
+// "Boston needs outreach" but "here's the outreach message, drafted, ready —
+// send?". Nothing is fabricated — every draft is composed from the same
+// recommendation object the Decision Rail renders; this view changes the
+// PRESENTATION (a decision with the work already done) not the LOGIC.
+//
+// Honesty boundary held deliberately: "Approve & queue to send" records the
+// decision to the session ledger exactly as the Decision Rail's Approve does
+// and marks the draft ready to dispatch — it does NOT itself hit MyStudio /
+// SendGrid, because there is no live backend wired in this artifact. That is
+// the same "a live deployment would sync via API" boundary the export button
+// already states, not a shortcut.
+// ============================================================================
+
+// Compose a ready-to-send artifact from a recommendation's real fields. The
+// shape of targetIds differs by agent (Growth:[leadId,region,anchor];
+// Center Performance/Team Vitality:[center]; Best Practices Hub:[source,target]),
+// so each action type reads the ids it actually carries.
+function draftActionFor(rec){
+ const t=rec.targetIds||[];
+ const detail=rec.summary||"";
+ if(rec.actionType==="outreach"){
+  const center=t[0]||"the center";
+  return{channel:"Owner outreach · Phone / Email",to:center+" — owner + lead Sensei",
+   subject:"Checking in on "+center,
+   body:"Hi — wanted to check in directly rather than wait for the next measurement cycle. Our read shows early silent-churn signal here ("+detail+"). Nothing alarming yet, which is exactly why now is the moment. Can we grab 15 minutes this week to talk through staffing chemistry and what support would help? Happy to flex the schedule or bring cluster coverage in if that takes pressure off.",
+   cta:"Approve & queue outreach"};
+ }
+ if(rec.actionType==="expansion"){
+  const region=t[1]||"the territory",anchor=t[2]||"the anchor unit";
+  return{channel:"Expansion authorization · Director underwriting",to:region+" — anchored on "+anchor,
+   subject:"Authorize underwriting: "+rec.title,
+   body:"Recommend advancing this candidate to underwriting. "+detail+". Territory headroom, fit, and liquidity floors are reflected in the guardrail checks below; cannibalization is treated as a hard constraint against other candidates proposed into "+region+" this cycle. Requesting authorization to open the underwriting file — no capital committed until the financial-materiality gate clears with a live posture.",
+   cta:"Approve & open underwriting"};
+ }
+ if(rec.agent===AGENT.hub){
+  const source=t[0]||"the strong unit",target=t[1]||"the lagging unit";
+  return{channel:"Best-practice rollout · Cluster",to:target+" (pattern from "+source+")",
+   subject:"Propagate "+source+"'s pattern → "+target,
+   body:"Recommend a guided rollout of "+source+"'s validated pattern to "+target+". "+detail+". Only a verified, reproducible pattern propagates — no anecdote promoted to standard. Draft rollout: pair the two directors for one cycle, transfer the specific play, and track adoption on the same 30-day window the Best Practice Library uses.",
+   cta:"Approve & queue rollout"};
+ }
+ // support-plan (Center Performance) and any remaining action types
+ const center=t[0]||"the center";
+ return{channel:"FBC support plan · Corporate",to:center,
+  subject:"Support plan for "+center,
+  body:"Recommend routing FBC support to "+center+" now. "+detail+". Draft plan: assign an FBC slot this cycle, run the "+(rec.suggestedActionPlan?rec.suggestedActionPlan.n:"Unit-Value Program")+" protocol, and set a measurement checkpoint at 30 days so we're acting on the decline, not a single-period dip.",
+  cta:"Approve & authorize support"};
+}
+
+function ActionQueueTab({railData,decisions,setDecisions,recordDecision,logL,opt,jumpTo}){
+ const postureApproved=!!(opt&&opt.quantum&&opt.quantum.approved);
+ // Same decision path as the Decision Rail — one canonical record, so an
+ // approval here shows as approved there and vice-versa. Territory-scope
+ // (expansion) is hard-gated behind a live posture, re-checked here too.
+ const onDecide=(rec,d)=>{
+  if(d==="approved"&&rec.scope==="territory"&&!postureApproved){
+   logL&&logL("act",rec.agent,rec.title+" — approval blocked: no network posture approved in Quantum PM");
+   return;
+  }
+  setDecisions(m=>({...m,[rec.id]:d}));
+  recordDecision&&recordDecision(rec.id,d);
+  logL&&logL("act",rec.agent,rec.title+" — "+(d==="approved"?"approved & queued to send by Director":"dismissed"));
+ };
+ const actionable=(railData.actionable||[]).filter(r=>{
+  const postureGate=r.scope==="territory"&&!postureApproved;
+  return !postureGate; // truly one-tap ready; posture-gated + guardrail-held drop to the strips below
+ });
+ const postureGated=(railData.actionable||[]).filter(r=>r.scope==="territory"&&!postureApproved);
+ const held=railData.held||[];
+ const conflicts=(railData.conflicts||[]).filter(c=>c.winner);
+ const pending=actionable.filter(r=>!decisions[r.id]);
+ const approvedCount=Object.values(decisions).filter(d=>d==="approved").length;
+ // Objective/constraint framing — the queue is a real constrained selection.
+ // priorityByAgent mirrors solveConflictIndependentSet's weights.
+ const priorityByAgent={[AGENT.growth]:100,[AGENT.health]:80,[AGENT.vitality]:60,[AGENT.hub]:40};
+ const [showMath,setShowMath]=useState(false);
+ const approveAllReady=()=>{pending.forEach(r=>onDecide(r,"approved"));};
+ return(<div>
+  <div style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:MUT,borderBottom:`1px solid ${RULE}`,paddingBottom:3,marginBottom:10}}>Action Queue — it acts, you approve</div>
+  <div style={{fontSize:11,color:"#555",lineHeight:1.6,marginBottom:12}}>The four agents already know the right move — the other tabs just show their reasoning. Here it's the finished work: each item is a decision with the draft written, waiting for a tap. <b style={{color:INK}}>{pending.length} ready to send</b>{approvedCount>0?", "+approvedCount+" approved this session":""}. Nothing dispatches without your approval; approving records to the session ledger and marks the draft ready to send (a live deployment would fire it via MyStudio / SendGrid).</div>
+
+  {/* Optimization framing — honest: classical solver, quantum lineage */}
+  <div style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${VIO}`,background:"#faf9ff",padding:"9px 12px",marginBottom:12}}>
+   <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",flexWrap:"wrap",gap:8}}>
+    <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:VIO}}>Why these, in this order — a constrained selection, not a list</div>
+    <button onClick={()=>setShowMath(s=>!s)} style={{fontFamily:"Helvetica",fontSize:8.5,color:VIO,cursor:"pointer",background:"none",border:"none",textDecoration:"underline",padding:0}}>{showMath?"hide":"show"} the objective</button>
+   </div>
+   <div style={{fontFamily:"Helvetica",fontSize:9.5,color:"#3d3470",marginTop:4,lineHeight:1.5}}>Queue = choose the drafted actions that maximize total <b>priority × confidence</b>, subject to three hard constraints: (1) no two agents act on the same unit — {conflicts.length} cross-agent conflict{conflicts.length===1?"":"s"} resolved by max-weight independent set; (2) each approver role stays within its cycle capacity; (3) all four governors clear. That's a weighted independent set / QUBO — the same problem class the cited hybrid quantum–classical schedulers target.</div>
+   {showMath&&<div style={{marginTop:7,paddingTop:7,borderTop:`1px solid ${RULE}`}}>
+    <div style={{fontFamily:"monospace",fontSize:9,color:"#3d3470",lineHeight:1.6,whiteSpace:"pre-wrap"}}>{"maximize   Σ  x_i · (priority_i · confidence_i)\nsubject to x_i + x_j ≤ 1   for every conflict edge (i,j)\n           Σ x_i ≤ cap_r    for every approver role r\n           x_i = 0          if any governor on i fails\n           x_i ∈ {0,1}"}</div>
+    <div style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT,marginTop:6,lineHeight:1.5}}>Agent priority weights: {AGENT.growth} 100 · {AGENT.health} 80 · {AGENT.vitality} 60 · {AGENT.hub} 40 (solveConflictIndependentSet). Solved here classically in priority order — a valid, fast heuristic for this size. Quantum / quantum-inspired methods (QAOA/QUBO on the same formulation; hybrid VQE for the assignment sub-problem) are the <i>design lineage</i>, not a runtime claim: this artifact runs no circuits. Lineage: CONQURE co-execution runtime (arXiv:2505.02241); QUBO/QAOA "Quantum Agent Manager" task schedulers; quantum-inspired QUBO for workflow mapping (arXiv:2605.25350).</div>
+   </div>}
+  </div>
+
+  {/* Approve-all */}
+  {pending.length>0&&<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:8}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:GRN}}>Ready to send — {pending.length}</div>
+   <button onClick={approveAllReady} style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,padding:"6px 14px",cursor:"pointer",border:`1px solid ${GRN}`,background:GRN,color:"#fff"}}>Approve all {pending.length} ready →</button>
+  </div>}
+  {pending.length===0&&<div style={{fontFamily:"Helvetica",fontSize:10,color:MUT,marginBottom:10,border:`1px solid ${RULE}`,padding:"10px 12px",background:"#f9fdf9"}}>Everything ready has been actioned this session. Held and gated items are below — they need fresher data, a cleared guardrail, or an approved posture before a draft is worth sending.</div>}
+
+  {/* The drafted actions */}
+  {actionable.map(rec=>{
+   const draft=draftActionFor(rec);
+   const decided=decisions[rec.id];
+   const primaryUnit=(rec.targetIds||[]).find(id=>id&&id.length>2&&id!==rec.scope)||null;
+   return(<div key={rec.id} style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${decided==="approved"?GRN:INK}`,background:"#fff",padding:"11px 13px",marginBottom:9}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,flexWrap:"wrap"}}>
+     <div style={{flex:1,minWidth:240}}>
+      <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:3,flexWrap:"wrap"}}>
+       <span style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:MUT,border:`1px solid ${RULE}`,padding:"1px 5px"}}>{rec.agent}</span>
+       <span style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT}}>{draft.channel}</span>
+      </div>
+      <div style={{fontFamily:"Helvetica",fontSize:11.5,fontWeight:700,color:INK}}>{rec.title}</div>
+     </div>
+     <div style={{textAlign:"right",minWidth:100}}>
+      <div style={{fontFamily:"Helvetica",fontSize:8,color:MUT,letterSpacing:0.4,textTransform:"uppercase"}}>you approve</div>
+      <div style={{fontFamily:"Helvetica",fontSize:10.5,fontWeight:700}}>{rec.approverRole}</div>
+     </div>
+    </div>
+    {/* The drafted artifact — the work already done */}
+    <div style={{marginTop:8,border:`1px solid ${RULE}`,background:"#fbfbfa",borderRadius:3,padding:"9px 11px"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT,marginBottom:3}}><b style={{color:INK}}>To:</b> {draft.to}</div>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT,marginBottom:6}}><b style={{color:INK}}>Re:</b> {draft.subject}</div>
+     <div style={{fontFamily:"Helvetica",fontSize:10,color:"#333",lineHeight:1.5,whiteSpace:"pre-wrap"}}>{draft.body}</div>
+    </div>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8,flexWrap:"wrap",gap:6}}>
+     <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+      {primaryUnit&&jumpTo&&<span onClick={()=>jumpTo("lenses",primaryUnit,"reviewing the drafted action for "+primaryUnit+" from the Action Queue")} style={{fontFamily:"Helvetica",fontSize:8.5,color:AC,cursor:"pointer",textDecoration:"underline"}}>see full analysis →</span>}
+      {jumpTo&&<span onClick={()=>jumpTo("rail")} style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT,cursor:"pointer",textDecoration:"underline"}}>open in Decision Rail →</span>}
+     </div>
+     <div style={{display:"flex",gap:6}}>
+      {decided?<span style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,color:decided==="approved"?GRN:MUT}}>{decided==="approved"?"✓ Approved — queued to send":"Dismissed"}</span>:<>
+       <button onClick={()=>onDecide(rec,"ignored")} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,padding:"5px 11px",cursor:"pointer",border:`1px solid ${RULE}`,background:"#fff",color:MUT}}>Not now</button>
+       <button onClick={()=>onDecide(rec,"approved")} aria-label={draft.cta+": "+rec.title} style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,padding:"5px 13px",cursor:"pointer",border:`1px solid ${GRN}`,background:GRN,color:"#fff"}}>{draft.cta}</button>
+      </>}
+     </div>
+    </div>
+   </div>);
+  })}
+
+  {/* Posture-gated: draft exists, but expansion needs a live posture first */}
+  {postureGated.length>0&&<div style={{border:`1px solid ${VIO}`,borderLeft:`3px solid ${VIO}`,background:"#faf9ff",padding:"9px 12px",marginTop:6,marginBottom:8}}>
+   <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:VIO,marginBottom:4}}>{postureGated.length} expansion draft{postureGated.length===1?"":"s"} waiting on a posture</div>
+   <div style={{fontFamily:"Helvetica",fontSize:9.5,color:"#3d3470",lineHeight:1.5}}>These are governance-clear and drafted, but a capital commitment can't be sent until a network posture is approved. {jumpTo&&<span onClick={()=>jumpTo("quantum")} style={{color:VIO,cursor:"pointer",textDecoration:"underline"}}>Approve a posture in Quantum PM →</span>}</div>
+  </div>}
+
+  {/* Held: not ready to draft, honest about why */}
+  {held.length>0&&<div style={{border:`1px solid ${AMB}`,borderLeft:`3px solid ${AMB}`,background:"#fdf8ec",padding:"9px 12px",marginTop:6}}>
+   <div style={{fontFamily:"Helvetica",fontSize:8.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#8a6d1a",marginBottom:4}}>{held.length} held — no draft sent on stale data or an open guardrail</div>
+   {held.slice(0,4).map(r=>(<div key={r.id} style={{fontFamily:"Helvetica",fontSize:9,color:"#5a4520",marginBottom:2}}>• <b>{r.agent}</b> — {r.title} <span style={{color:MUT}}>({plainVerdictSummary(r).text.toLowerCase()})</span></div>))}
+   {held.length>4&&<div style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT,marginTop:2}}>+{held.length-4} more — {jumpTo&&<span onClick={()=>jumpTo("rail")} style={{color:AC,cursor:"pointer",textDecoration:"underline"}}>review in Decision Rail →</span>}</div>}
+  </div>}
+
+  <div style={{fontFamily:"Helvetica",fontSize:9,color:MUT,marginTop:12,borderTop:`1px solid ${RULE}`,paddingTop:6}}>Every draft is composed from the same recommendation the Decision Rail scores — this view changes the presentation (a decision with the work done), never the underlying data, agents, or governance. Approvals here and in the Decision Rail are the same record.</div>
+ </div>);
+}
 
 function DecisionRailTab({railData,logL,decisions,setDecisions,decisionHistory,recordDecision,jumpTo,opt}){
  const result=railData; // single computation in Engine — recomputing here would mint different rec ids (_recSeq) and break cross-view decision sync
@@ -4720,7 +4884,7 @@ export default function Engine(props){
 }
 
 function EngineInner({initialTab}){
- const [tab,setTab]=useState(initialTab||"quantum"); const q=false; // corporate register only
+ const [tab,setTab]=useState(initialTab||"act"); const q=false; // corporate register only
  // Deep-linking: keep the URL hash in sync with whichever tab is active, so
  // any navigation (sidebar click, jumpTo, group button) produces a real,
  // shareable link — one hook here catches every path, rather than touching
@@ -4825,8 +4989,8 @@ function EngineInner({initialTab}){
  const staleN=centers.filter(staleBase).length;
  const red=centers.filter(c=>c.eb<0);
  const blocker=useMemo(()=>{let best=null,bs=-1;PATH.forEach((b,i)=>{const s=COHORT[b[0]][1]*(PATH.length-1-i);if(s>bs){bs=s;best=b;}});return best;},[]);
- const GROUPS={OVERVIEW:["quantum","integrated","exec","franchise","rail","board","alignment","compliance","workload","queue","blockers","warning","signals"],GROWTH:["leads","deals","expansion","growth","whitespace"],CENTERS:["team","lenses","engagement","mastery","table","batch","compare"],NETWORK:["network","optimizer","transfers","fivebasis","cohort"],WORKFLOW:["acquire","deliver","retain","operate","plan","metrics","failure","onboarding"],PROGRAMS:["portfolio","pain","calendar","financials","growthfin"],METHOD:["agenda","dynamics","audit","success","reports","playback","risk","fdd","review","sensitivity","glossary"],ADAPTIVE:["twin","lifecycle","labor","ltv","velocity","auction","scheduler","sentinel","precedent","constitution"],LIVE:["dojo","season","simulator","monitor","apisview","immune","dagify","ledgerview","brief","negotiate","joy"]};
- const TABL={quantum:"quantum pm",integrated:"mission control",alignment:"system alignment",dynamics:"operations dynamics",board:"operations board",lenses:"six lenses",rail:"threads & queue",network:"network health",table:"network map",team:"center detail",mastery:"belts",transfers:"transfers",optimizer:"operations",pain:"franchisee support",portfolio:"programs",engagement:"engagement",franchise:"overview",agenda:"methodology",growth:"growth",calendar:"calendar",acquire:"acquire",deliver:"deliver",retain:"retain",operate:"operate",plan:"first 90",metrics:"metrics",failure:"failure",warning:"early warning",leads:"lead pipeline",expansion:"expansion engine",fivebasis:"unified views",signals:"network signals",compliance:"compliance & safety",workload:"approver workload",whitespace:"territory white space",financials:"financial roll-up",audit:"audit trail",blockers:"growth blockers",deals:"deals",onboarding:"opening project plan",growthfin:"financial growth",success:"success rate",reports:"reports & exports",batch:"batch operations",playback:"historical playback",exec:"executive summary",glossary:"glossary",risk:"risk register",fdd:"fdd item 20",review:"week in review",compare:"center comparison",queue:"approval queue",cohort:"cohort analysis",sensitivity:"sensitivity analysis",twin:"network twin",lifecycle:"lifecycle engine",labor:"sensei supply chain",ltv:"family forward value",velocity:"curriculum velocity",auction:"territory portfolio",scheduler:"interaction scheduler",sentinel:"compliance sentinel",precedent:"precedent & calibration",constitution:"governance constitution",dojo:"the dojo floor",season:"the season",simulator:"year simulator",monitor:"state monitor",apisview:"agent systems",immune:"signal integrity",dagify:"dependency graphs",ledgerview:"decision ledger",brief:"weekly brief",negotiate:"negotiation prep",joy:"joy ledger"};
+ const GROUPS={OVERVIEW:["act","quantum","integrated","exec","franchise","rail","board","alignment","compliance","workload","queue","blockers","warning","signals"],GROWTH:["leads","deals","expansion","growth","whitespace"],CENTERS:["team","lenses","engagement","mastery","table","batch","compare"],NETWORK:["network","optimizer","transfers","fivebasis","cohort"],WORKFLOW:["acquire","deliver","retain","operate","plan","metrics","failure","onboarding"],PROGRAMS:["portfolio","pain","calendar","financials","growthfin"],METHOD:["agenda","dynamics","audit","success","reports","playback","risk","fdd","review","sensitivity","glossary"],ADAPTIVE:["twin","lifecycle","labor","ltv","velocity","auction","scheduler","sentinel","precedent","constitution"],LIVE:["dojo","season","simulator","monitor","apisview","immune","dagify","ledgerview","brief","negotiate","joy"]};
+ const TABL={act:"action queue",quantum:"quantum pm",integrated:"mission control",alignment:"system alignment",dynamics:"operations dynamics",board:"operations board",lenses:"six lenses",rail:"threads & queue",network:"network health",table:"network map",team:"center detail",mastery:"belts",transfers:"transfers",optimizer:"operations",pain:"franchisee support",portfolio:"programs",engagement:"engagement",franchise:"overview",agenda:"methodology",growth:"growth",calendar:"calendar",acquire:"acquire",deliver:"deliver",retain:"retain",operate:"operate",plan:"first 90",metrics:"metrics",failure:"failure",warning:"early warning",leads:"lead pipeline",expansion:"expansion engine",fivebasis:"unified views",signals:"network signals",compliance:"compliance & safety",workload:"approver workload",whitespace:"territory white space",financials:"financial roll-up",audit:"audit trail",blockers:"growth blockers",deals:"deals",onboarding:"opening project plan",growthfin:"financial growth",success:"success rate",reports:"reports & exports",batch:"batch operations",playback:"historical playback",exec:"executive summary",glossary:"glossary",risk:"risk register",fdd:"fdd item 20",review:"week in review",compare:"center comparison",queue:"approval queue",cohort:"cohort analysis",sensitivity:"sensitivity analysis",twin:"network twin",lifecycle:"lifecycle engine",labor:"sensei supply chain",ltv:"family forward value",velocity:"curriculum velocity",auction:"territory portfolio",scheduler:"interaction scheduler",sentinel:"compliance sentinel",precedent:"precedent & calibration",constitution:"governance constitution",dojo:"the dojo floor",season:"the season",simulator:"year simulator",monitor:"state monitor",apisview:"agent systems",immune:"signal integrity",dagify:"dependency graphs",ledgerview:"decision ledger",brief:"weekly brief",negotiate:"negotiation prep",joy:"joy ledger"};
  const groupOf=t=>Object.keys(GROUPS).find(g=>GROUPS[g].includes(t));
  // Keyboard nav: Left/Right cycles through the visible tabs in the current
  // group, matching what a mouse click on adjacent tab buttons would do —
@@ -6400,6 +6564,7 @@ function EngineInner({initialTab}){
     <div style={{fontFamily:"Helvetica",fontSize:8,color:MUT}}>reads the live lead pipeline · broker/cohort actions write the shared record ledger · candidate submission — proposes, does not enact</div>
    </div>);})()}
   {tab==="lenses"&&<EngineErrorBoundary><SixLensTab centers={centers} states={states} leads={LEADS} railData={railData} opt={opt} setOpt={setOpt} logL={logL} focusCenter={focusCenter} jumpReason={jumpReason} clearJumpReason={()=>setJumpReason(null)}/></EngineErrorBoundary>}
+  {tab==="act"&&<EngineErrorBoundary><ActionQueueTab railData={railData} decisions={decisions} setDecisions={setDecisions} recordDecision={recordDecision} logL={logL} opt={opt} jumpTo={jumpTo}/></EngineErrorBoundary>}
   {tab==="rail"&&<DecisionRailTab railData={railData} logL={logL} decisions={decisions} setDecisions={setDecisions} decisionHistory={decisionHistory} recordDecision={recordDecision} jumpTo={jumpTo} opt={opt}/>}
   {tab==="board"&&<EngineErrorBoundary>{boardOverrideActive&&<div style={{border:`1px solid ${VIO}`,borderLeft:`3px solid ${VIO}`,background:"#faf9ff",padding:"6px 10px",marginBottom:10,fontFamily:"Helvetica",fontSize:9.5,color:"#3d3470"}}>This tab is locally overridden to <b>{boardOverride}</b> — network-wide posture is <b>{boardGlobalPosture}</b>. Proposals below reflect the override. Set from Quantum PM.</div>}<OperationsBoardTab railData={boardRailData} decisions={decisions} setDecisions={setDecisions} decisionHistory={decisionHistory} recordDecision={recordDecision} logL={logL} opt={opt} dyn={dyn} jumpTo={jumpTo}/></EngineErrorBoundary>}
   {tab==="alignment"&&<SystemAlignmentTab centers={centers} states={states} railData={railData} decisions={decisions} dyn={dyn} opt={opt} ledger={ledger} jumpTo={jumpTo}/>}
