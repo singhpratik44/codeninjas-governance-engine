@@ -1239,6 +1239,17 @@ function riskBandOf(structureScore,patternStabilityIndex){
  return avg>=0.75?"low":avg>=0.45?"medium":"high";
 }
 
+// Single source of truth for the four proposing agents' display names. The
+// July rename (Growth→Franchise Growth, Unit Health→Center Performance,
+// Retention→Team Vitality, Network Propagation→Best Practices Hub) updated the
+// emit sites and the conflict-priority map but silently missed every CONSUMER
+// that filters by agent name — detectConflicts, the Decision Rail agent
+// filter, System Alignment, and Growth Blockers all quietly matched nothing.
+// Routing both emitters and consumers through this one map makes that drift
+// impossible: rename here once and every site moves together.
+const AGENT={growth:"Franchise Growth",health:"Center Performance",vitality:"Team Vitality",hub:"Best Practices Hub"};
+const AGENT_LIST=[AGENT.growth,AGENT.health,AGENT.vitality,AGENT.hub];
+
 let _recSeq=0;
 function buildRecommendation({agent,scope,targetIds,title,summary,actionType,center,states,daysSinceMeasure,suggestedActionPlan,agentTag,extraHold,confidenceScore,scenarioViability,propagationConfidence}){
  const sig=operationalSignalsOf(center,states,daysSinceMeasure);
@@ -1407,7 +1418,7 @@ function solveConflictIndependentSet(recs, conflicts) {
 
   // Priority scores (what matters most in governance)
   // Growth = new expansion (score 100), Health = save a center (score 80), Retention = keep staff (score 60)
-  const agentPriority = { "Franchise Growth": 100, "Center Performance": 80, "Team Vitality": 60, "Best Practices Hub": 40 };
+  const agentPriority = { [AGENT.growth]: 100, [AGENT.health]: 80, [AGENT.vitality]: 60, [AGENT.hub]: 40 };
   const recPriority = recs.reduce((m, r) => {
     m[r.id] = agentPriority[r.agent] || 50;
     return m;
@@ -1539,7 +1550,7 @@ function growthAgentRecommend(centers,states,leads,daysFn=defaultDaysSinceMeasur
   const worstDays=Math.max(...regionCenters.map(daysFn));
   const underwritingNote=l.proven?" \u00b7 proven operator, liquidity floor discounted to $"+liquidityFloor+"k":l.multi?" \u00b7 multi-unit intent, fit floor raised to "+fitFloor:"";
   out.push(buildRecommendation({
-   agent:"Franchise Growth",scope:"territory",targetIds:[l.id,region,anchor.name],
+   agent:AGENT.growth,scope:"territory",targetIds:[l.id,region,anchor.name],
    title:region+": "+l.n+" ("+l.fit+" fit) into a "+(headroom>=0.35?"high-headroom":overlapFlag?"overlap-constrained":"moderate-headroom")+" territory",
    summary:l.note+" \u00b7 "+regionCenters.length+" existing unit(s) in "+region+" \u00b7 territory headroom "+Math.round(headroom*100)+"%"+(overlapFlag?" (adjusted for "+used+" concurrent candidate(s) already proposed into this territory this cycle)":"")+underwritingNote+(gateBlocked?" \u00b7 "+gateReason:""),
    actionType:"expansion",center:anchor,states,daysSinceMeasure:worstDays,
@@ -1588,7 +1599,7 @@ function unitHealthAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacit
   const robustAcrossScenarios=scenarioViability.every(v=>v.viable);
   const viabilityTag=robustAcrossScenarios?"robust":"scenario-dependent"+(scenarioViability.find(v=>v.posture==='pessimistic')?.viable===false?" (fails under Pessimistic)":"");
   out.push(buildRecommendation({
-   agent:"Center Performance",scope:"unit",targetIds:[c.name],
+   agent:AGENT.health,scope:"unit",targetIds:[c.name],
    title:c.name+": "+(chronic?"chronic underperformance — turnaround review":"below-floor margin — support plan"),
    summary:"margin $"+c.eb+"k · health "+c.health+" · momentum "+c.momentum+(chronic?" · sustained decline, not a single-period dip":" · likely recoverable with a support plan")+(isAllocated?"":" · deferred by health-severity optimization ("+cap+" FBC slots allocated to higher-severity cases)")+" ["+viabilityTag+"]",
    actionType:"support-plan",center:c,states:{},daysSinceMeasure:days,
@@ -1634,7 +1645,7 @@ function retentionAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacity
   const h=retentionProposalHistory[c.name]||{confidenceScore:0.7,decayFactor:1.0};
   const confidenceScore=h.confidenceScore*h.decayFactor;
   out.push(buildRecommendation({
-   agent:"Team Vitality",scope:"unit",targetIds:[c.name],
+   agent:AGENT.vitality,scope:"unit",targetIds:[c.name],
    title:c.name+": silent-churn risk",
    summary:"staff chemistry "+c.chem.toFixed(2)+" · 12mo retention "+Math.round(c.ret*100)+"% · risk builds quietly between measurement cycles"+(withinCapacity?"":" · Owner outreach capacity ceiling reached this cycle ("+cap+" concurrent)")+(confidenceScore<0.6?" [low historical success]":""),
    actionType:"outreach",center:c,states:{},daysSinceMeasure:days,
@@ -1693,7 +1704,7 @@ function networkPropagationAgentRecommend(centers,states,daysFn=defaultDaysSince
   const pairWeight=propagationPairWeights[pairKey]?.weight||1.0;
   const propagationConfidence=0.6*pairWeight; // base 0.6, scaled by pair history
   out.push(buildRecommendation({
-   agent:"Best Practices Hub",scope:"cluster",targetIds:[source.name,target.name],
+   agent:AGENT.hub,scope:"cluster",targetIds:[source.name,target.name],
    title:st+": propagate "+source.name+"'s pattern toward "+target.name,
    summary:gap+"-point health gap (top-"+k+"/bottom-"+k+" avg) within "+st+" · sample "+cs.length+" units, "+sampleConfidence+" confidence · guardrail: "+(guard?guard.guard:"data integrity — verified pattern only")+(pairWeight<0.9?" [learning from prior pairs]":""),
    actionType:"support-plan",center:target,states,daysSinceMeasure:days,
@@ -1721,9 +1732,9 @@ function applyGovernance(recommendations){
 // Detect conflicts between proposals, then resolve via max-weight independent set solver
 function detectConflicts(recs){
  const rawConflicts=[];
- const growthRecs=recs.filter(r=>r.agent==="Growth");
- const healthRecs=recs.filter(r=>r.agent==="Unit Health");
- const retentionRecs=recs.filter(r=>r.agent==="Retention");
+ const growthRecs=recs.filter(r=>r.agent===AGENT.growth);
+ const healthRecs=recs.filter(r=>r.agent===AGENT.health);
+ const retentionRecs=recs.filter(r=>r.agent===AGENT.vitality);
  growthRecs.forEach(g=>{
   const anchorName=g.targetIds[2]; // [lead id, region, anchor unit name]
   if(!anchorName)return;
@@ -2385,7 +2396,7 @@ function OperationsDynamicsTab({centers,states,opt,setOpt,logL,dyn,setDyn,focusC
 // views — with a Network Integrity Monitor computing measurement confidence,
 // uncertainty, and decision integrity over the same canonical state.
 // ============================================================================
-const ALIGN_AGENTS=["Growth","Unit Health","Retention","Network Propagation"];
+const ALIGN_AGENTS=AGENT_LIST;
 const ALIGN_VIEWS=[
  ["franchise","Overview","today's one governed action"],
  ["rail","Decision Rail","proposals under review"],
@@ -2713,7 +2724,7 @@ function OperationsBoardTab({railData,decisions,setDecisions,decisionHistory,rec
 function DecisionRailTab({railData,logL,decisions,setDecisions,decisionHistory,recordDecision,jumpTo,opt}){
  const result=railData; // single computation in Engine — recomputing here would mint different rec ids (_recSeq) and break cross-view decision sync
  const[agentFilter,setAgentFilter]=useState("all");
- const agents=["all","Growth","Unit Health","Retention","Network Propagation"];
+ const agents=["all",...AGENT_LIST];
  const postureApproved=!!(opt&&opt.quantum&&opt.quantum.approved);
  const onDecide=(rec,d)=>{
   // defense in depth: the Approve button is already disabled in the UI when
@@ -7322,9 +7333,9 @@ function EngineInner({initialTab}){
    // and the FBC/Owner role-capacity ceiling on Unit Health and Retention
    // (which can be large if far more units need support than the role can
    // carry in a week -- a real and separately meaningful signal).
-   const territoryHeld=recs.filter(r=>r.agent==="Growth"&&r.supplyGate&&r.supplyGate.blocked&&r.supplyGate.reason==="territory candidate-supply ceiling reached this cycle");
+   const territoryHeld=recs.filter(r=>r.agent===AGENT.growth&&r.supplyGate&&r.supplyGate.blocked&&r.supplyGate.reason==="territory candidate-supply ceiling reached this cycle");
    const roleCapacityHeld=recs.filter(r=>r.supplyGate&&r.supplyGate.blocked&&/FBC capacity ceiling|Owner outreach capacity ceiling/.test(r.supplyGate.reason||""));
-   const qualityHeld=recs.filter(r=>r.agent==="Growth"&&r.supplyGate&&r.supplyGate.blocked&&r.supplyGate.reason!=="territory candidate-supply ceiling reached this cycle");
+   const qualityHeld=recs.filter(r=>r.agent===AGENT.growth&&r.supplyGate&&r.supplyGate.blocked&&r.supplyGate.reason!=="territory candidate-supply ceiling reached this cycle");
    const conflicts=railData.conflicts||[];
    const stalledLeads=LEADS.filter(l=>{const s=leadStage[l.id]!==undefined?leadStage[l.id]:l.stage0;return s>0&&s<5&&(hash(l.n+"stall")%5===0);});
    const openWhiteSpace=NET_STATES.filter(ns=>{const cs=states[ns.s]||[];return ns.h[0]>0.32&&cs.length<3&&!LEADS.some(l=>l.region===ns.s&&l.stage0<5);}).length;
