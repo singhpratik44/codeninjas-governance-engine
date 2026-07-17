@@ -6,6 +6,19 @@ Context for Claude Code sessions working on this repo. Read this before editing 
 
 A single-file React governance dashboard for a CodeNinjas franchise network (348 modeled centers), built as a submission artifact for a Director of Franchise Development application. Deadline: July 26, 2026. The centerpiece is a "Quantum PM" scenario-governance system: approving a network posture (Optimistic/Realistic/Pessimistic) actually recomputes the network — health scores, gate outcomes, proposal viability, a live map, graph-theoretic clustering — not just labels.
 
+## Active work claims — check before editing `src/Engine.tsx`
+
+Multiple Claude Code sessions sometimes work on this repo concurrently and independently, with no direct channel to message each other. This file is the one thing every session reads at start, so it's also the coordination surface. Before starting work:
+
+1. Check open PRs and active branches (list PRs against `main`, `git ls-remote --heads origin`) for work already claimed — don't duplicate or collide with it.
+2. Add a line below naming your branch and what you're touching before you start editing, so the next session doesn't collide with you either.
+3. Keep PRs small and merge to `main` (or rebase onto it) frequently. This is a single ~6,500-line file — long-lived branches drift into unresolvable conflicts fast. Prefer opening a PR over pushing straight to `main`.
+4. Remove your line once merged (or abandoned) so this list reflects reality, not history.
+
+**Currently claimed** (as of 2026-07-17 — verify against actual PR/branch state, this goes stale):
+- `claude/new-session-7sihmx` (PR #1, open) — local scenario override for the `team` tab.
+- `claude/autonomous-quantum-development-5blmms` (no PR yet) — Map3D drill-down fixes.
+
 ## Architecture
 
 - `src/Engine.tsx` — the entire application. One file, ~6,500 lines. `export default function Engine(props)` wraps `EngineInner`, which holds essentially all state.
