@@ -1724,6 +1724,239 @@ function applyGovernance(recommendations){
  return{actionable,held,summary:actionable.length+" ready for review, "+held.length+" held pending fresher data or a cleared guardrail"};
 }
 
+// ============================================================================
+// PROPOSAL CONFLICT GRAPH ENGINE
+// ============================================================================
+// Models proposals as nodes in a graph with typed edges: conflicts (mutual exclusion),
+// dependencies (ordering), and soft constraints (compatibility scores).
+// Provides query methods: canCoexist(), topologicalSort(), findIndependentSet().
+// Extensible for QUBO solver optimization (hook provided, not yet implemented).
+class ProposalConflictGraph {
+ constructor(proposals) {
+  this.proposals = proposals || [];
+  this.proposalMap = new Map(proposals.map(p => [p.id, p]));
+  this.edges = new Map(); // id1 -> [{to: id2, type, metadata}]
+  this.conflicts = []; // all conflicts detected
+  this.dependencies = []; // ordering constraints
+ }
+
+ // Detect all conflict types and build edge lists
+ analyzeProposals() {
+  const conflictPairs = new Set();
+  const deps = [];
+
+  // Cross-check agents for conflicts
+  for (let i = 0; i < this.proposals.length; i++) {
+   for (let j = i + 1; j < this.proposals.length; j++) {
+    const a = this.proposals[i], b = this.proposals[j];
+    const conflict = this._detectConflictBetween(a, b);
+    if (conflict) {
+     const key = [a.id, b.id].sort().join("|");
+     if (!conflictPairs.has(key)) {
+      conflictPairs.add(key);
+      this.conflicts.push({ a: a.id, b: b.id, ...conflict });
+      this._addEdge(a.id, b.id, "conflict", conflict);
+      this._addEdge(b.id, a.id, "conflict", conflict);
+     }
+    }
+   }
+  }
+
+  // Detect dependencies (ordering constraints)
+  this.proposals.forEach(p => {
+   const deps = this._detectDependencies(p);
+   deps.forEach(dep => {
+    this.dependencies.push({ from: p.id, to: dep.id, reason: dep.reason });
+    this._addEdge(p.id, dep.id, "dependency", { reason: dep.reason });
+   });
+  });
+
+  return { conflicts: this.conflicts, dependencies: this.dependencies };
+ }
+
+ // Check if two proposals directly conflict
+ _detectConflictBetween(a, b) {
+  // Growth vs Health: expanding anchored on a flagged unit
+  if (a.agent === AGENT.growth && b.agent === AGENT.health) {
+   const anchorName = a.targetIds[2];
+   if (anchorName && b.targetIds.includes(anchorName)) {
+    return {
+     reason: `Growth proposes ${a.targetIds[1]} anchored on ${anchorName}, which Health flagged`,
+     severity: b.title.includes("chronic") ? "high" : "medium",
+     type: "incompatible-anchor"
+    };
+   }
+  }
+  if (a.agent === AGENT.health && b.agent === AGENT.growth) {
+   return this._detectConflictBetween(b, a); // symmetric
+  }
+
+  // Growth vs Retention: expanding anchored on a churn-risk unit
+  if (a.agent === AGENT.growth && b.agent === AGENT.vitality) {
+   const anchorName = a.targetIds[2];
+   if (anchorName && b.targetIds.includes(anchorName)) {
+    return {
+     reason: `Growth proposes ${a.targetIds[1]} anchored on ${anchorName}, which Retention flagged for churn risk`,
+     severity: "medium",
+     type: "incompatible-anchor"
+    };
+   }
+  }
+  if (a.agent === AGENT.vitality && b.agent === AGENT.growth) {
+   return this._detectConflictBetween(b, a);
+  }
+
+  // Health vs Health: multiple support plans on same unit (only one can execute)
+  if (a.agent === AGENT.health && b.agent === AGENT.health && a.scope === "unit" && b.scope === "unit") {
+   const aCenter = a.targetIds[0], bCenter = b.targetIds[0];
+   if (aCenter === bCenter) {
+    return {
+     reason: `Two concurrent support plans on ${aCenter} (Health proposed both separately)`,
+     severity: "high",
+     type: "duplicate-intervention"
+    };
+   }
+  }
+
+  // Propagation vs Propagation: overlapping source/target
+  if (a.agent === AGENT.hub && b.agent === AGENT.hub && a.scope === "cluster" && b.scope === "cluster") {
+   const aTargetIds = new Set(a.targetIds), bTargetIds = new Set(b.targetIds);
+   const overlap = [...aTargetIds].filter(id => bTargetIds.has(id));
+   if (overlap.length > 0) {
+    return {
+     reason: `Two propagation proposals share ${overlap.length} center(s); sequence first`,
+     severity: "low",
+     type: "sequencing-constraint"
+    };
+   }
+  }
+
+  return null;
+ }
+
+ // Detect dependencies (proposal A should execute before/without B)
+ _detectDependencies(proposal) {
+  const deps = [];
+  // Health interventions should precede propagation on the same target
+  if (proposal.agent === AGENT.hub && proposal.scope === "cluster") {
+   const target = proposal.targetIds[1]; // second item is the target center
+   const healthPrereqs = this.proposals.filter(p =>
+    p.agent === AGENT.health && p.targetIds.includes(target) && p.id !== proposal.id
+   );
+   healthPrereqs.forEach(h => {
+    deps.push({ id: h.id, reason: `Health intervention on ${target} should stabilize before propagation` });
+   });
+  }
+  return deps;
+ }
+
+ _addEdge(from, to, type, metadata) {
+  if (!this.edges.has(from)) {
+   this.edges.set(from, []);
+  }
+  this.edges.get(from).push({ to, type, metadata });
+ }
+
+ // Query: can two proposals coexist?
+ canCoexist(idA, idB) {
+  const edgesA = this.edges.get(idA) || [];
+  const conflictToB = edgesA.find(e => e.to === idB && e.type === "conflict");
+  return !conflictToB;
+ }
+
+ // Query: which proposals conflict with a given proposal?
+ getConflictingProposals(id) {
+  const edges = this.edges.get(id) || [];
+  return edges.filter(e => e.type === "conflict").map(e => this.proposalMap.get(e.to));
+ }
+
+ // Query: topological sort respecting dependencies (proposals should execute in this order)
+ topologicalSort() {
+  const visited = new Set();
+  const sorted = [];
+  const visiting = new Set();
+
+  const visit = (id) => {
+   if (visited.has(id)) return;
+   if (visiting.has(id)) return; // cycle, skip to break it
+   visiting.add(id);
+
+   const deps = this.dependencies.filter(d => d.to === id);
+   deps.forEach(d => visit(d.from));
+
+   visiting.delete(id);
+   visited.add(id);
+   const p = this.proposalMap.get(id);
+   if (p) sorted.push(p);
+  };
+
+  this.proposals.forEach(p => visit(p.id));
+  return sorted;
+ }
+
+ // Query: find maximum independent set (proposals that don't conflict with each other)
+ findIndependentSet(useQuboSolver = false) {
+  if (useQuboSolver) {
+   return this._findIndependentSetQUBO();
+  }
+  return this._findIndependentSetGreedy();
+ }
+
+ _findIndependentSetGreedy() {
+  const selected = new Set();
+  const sortedByPriority = [...this.proposals].sort((a, b) => {
+   const priorityScore = { [AGENT.growth]: 100, [AGENT.health]: 80, [AGENT.vitality]: 60, [AGENT.hub]: 40 };
+   return (priorityScore[b.agent] || 50) - (priorityScore[a.agent] || 50);
+  });
+
+  sortedByPriority.forEach(p => {
+   const conflicts = this.getConflictingProposals(p.id);
+   const conflictsSelected = conflicts.filter(c => selected.has(c.id));
+   if (conflictsSelected.length === 0) {
+    selected.add(p.id);
+   }
+  });
+
+  return Array.from(selected).map(id => this.proposalMap.get(id));
+ }
+
+ // Hook for QUBO solver (stub for future optimization)
+ _findIndependentSetQUBO() {
+  console.warn("QUBO solver not yet implemented; falling back to greedy");
+  return this._findIndependentSetGreedy();
+ }
+
+ // Comprehensive compatibility analysis
+ analyzeCompatibility(subsetIds = null) {
+  const toAnalyze = subsetIds ? subsetIds.map(id => this.proposalMap.get(id)).filter(Boolean) : this.proposals;
+  const result = {
+   total: toAnalyze.length,
+   independentSetSize: 0,
+   conflicts: [],
+   dependencies: [],
+   pairs: {}
+  };
+
+  // Analyze all pairs
+  for (let i = 0; i < toAnalyze.length; i++) {
+   for (let j = i + 1; j < toAnalyze.length; j++) {
+    const a = toAnalyze[i], b = toAnalyze[j];
+    result.pairs[[a.id, b.id].sort().join("|")] = {
+     canCoexist: this.canCoexist(a.id, b.id),
+     reason: this.conflicts.find(c => (c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id))?.reason || "compatible"
+    };
+   }
+  }
+
+  // Find independent set size
+  const independent = this.findIndependentSet(false);
+  result.independentSetSize = independent.filter(p => toAnalyze.find(a => a.id === p.id)).length;
+  result.independentSet = independent.map(p => p.id);
+
+  return result;
+ }
+}
+
 // ---- Cross-agent conflict detector ----
 // Nothing previously checked whether two agents were proposing contradictory
 // actions on the same unit -- e.g. Growth proposing expansion anchored on a
@@ -1731,32 +1964,10 @@ function applyGovernance(recommendations){
 // proposal set for that specific pattern and surfaces it before it reaches
 // Detect conflicts between proposals, then resolve via max-weight independent set solver
 function detectConflicts(recs){
- const rawConflicts=[];
- const growthRecs=recs.filter(r=>r.agent===AGENT.growth);
- const healthRecs=recs.filter(r=>r.agent===AGENT.health);
- const retentionRecs=recs.filter(r=>r.agent===AGENT.vitality);
- growthRecs.forEach(g=>{
-  const anchorName=g.targetIds[2]; // [lead id, region, anchor unit name]
-  if(!anchorName)return;
-  const healthHit=healthRecs.find(h=>h.targetIds.includes(anchorName));
-  if(healthHit){
-   rawConflicts.push({
-    a:g.id,b:healthHit.id,
-    reason:"Growth proposes expanding "+g.targetIds[1]+" anchored on "+anchorName+", which Unit Health has separately flagged: "+healthHit.title.split(": ")[1],
-    severity:healthHit.title.includes("chronic")?"high":"medium",
-   });
-  }
-  const retentionHit=retentionRecs.find(rt=>rt.targetIds.includes(anchorName));
-  if(retentionHit){
-   rawConflicts.push({
-    a:g.id,b:retentionHit.id,
-    reason:"Growth proposes expanding "+g.targetIds[1]+" anchored on "+anchorName+", which Retention has separately flagged for silent-churn risk",
-    severity:"medium",
-   });
-  }
- });
- // Apply quantum conflict resolution: max-weight independent set
- return solveConflictIndependentSet(recs,rawConflicts);
+ const graph=new ProposalConflictGraph(recs);
+ graph.analyzeProposals();
+ // Resolve using priority-based independent set (greedy; QUBO available if needed)
+ return solveConflictIndependentSet(recs,graph.conflicts);
 }
 
 // ---- Orchestrator entry point: run all four proposing agents, then governance ----
@@ -3226,7 +3437,7 @@ const NetworkHealthDashboard = ({centers, alerts, red, staleN}) => {
 
 
 export const _layer1={operationalSignalsOf,checkContract,ACTION_CONTRACTS,dataConfidenceOf,uncertaintyBandOf,peerConnectionStrengthOf,patternStabilityIndexOf,networkSupportIndexOf,structureScoreOf,buildCenters,buildLeads,forecast,engageOf,alertsOf,qGate,qGovernors};
-export const _layer2={growthAgentRecommend,unitHealthAgentRecommend,retentionAgentRecommend,networkPropagationAgentRecommend,applyGovernance,runAllAgents,buildRecommendation,confidenceBandOf,riskBandOf};
+export const _layer2={growthAgentRecommend,unitHealthAgentRecommend,retentionAgentRecommend,networkPropagationAgentRecommend,applyGovernance,runAllAgents,buildRecommendation,confidenceBandOf,riskBandOf,ProposalConflictGraph,detectConflicts};
 class EngineErrorBoundary extends React.Component{
  constructor(props){super(props);this.state={error:null};}
  static getDerivedStateFromError(error){return{error};}
