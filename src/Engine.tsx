@@ -6,7 +6,6 @@
 // FDD Item 20 = 244 authoritative units. Engine proposes; it does not enact.
 // ============================================================================
 import React, { useState, useEffect, useMemo, useRef, Fragment } from "react";
-import * as THREE from "three";
 
 // ---- Network Command Table (compact, embedded) ----
 // Approximate US + adjacent-province layout (cartogram, not a precise
@@ -68,247 +67,13 @@ function mtHealth(c){return MAP_DIMS.reduce((s,d)=>s+mtVal(c,d),0)/MAP_DIMS.leng
 // ============================================================================
 
 // 3D Map Component (A-J: All map features)
+// Map3D replaced with USNetworkMap SVG choropleth — Three.js removed.
+// This stub is kept to avoid breaking any call sites; actual map rendering
+// is done by USNetworkMap (see below) which the QuantumPMView and table tab use.
 function Map3D({mapNodes, mEdges, clusters, approvedPosture, railData, selectedState, onStateClick, scenario, centers, states}) {
- const containerRef=useRef(null);
- const sceneRef=useRef(null);
- const rendererRef=useRef(null);
- const spheresRef=useRef({});
- const [highlightedState, setHighlightedState]=useState(null);
- const [hoveredState, setHoveredState]=useState(null);
- const [impactAnimation, setImpactAnimation]=useState(null); // D. Proposal impact animation
- const [conflictZones, setConflictZones]=useState(new Set()); // F. Conflict zones
-
- // D. Proposal impact: detect affected states when decision approved
- const triggerImpactAnimation = (affectedStateIds) => {
-  setMapImpactAnimation({ affectedStates: new Set(affectedStateIds), startTime: Date.now() });
-  setTimeout(() => setMapImpactAnimation(null), 2500);
- };
-
- // H. Get centers for drill-down detail
- const selectedStateCenters = selectedState && states[selectedState] ?
-  states[selectedState].map(c => ({
-   ...c,
-   condition: c.health < 55 || c.eb < QFLOORS.margin_ebitda_k ? 'at-risk' : c.health < 70 ? 'watch' : 'thriving',
-   margin: c.eb,
-   health: c.health,
-  })) : [];
-
- // F. Detect conflict zones from railData
- useEffect(() => {
-  if (!railData || !railData.conflicts) return;
-  const zones = new Set();
-  railData.conflicts.forEach(c => {
-    const aRec = railData.recommendations?.find(r => r.id === c.a);
-    const bRec = railData.recommendations?.find(r => r.id === c.b);
-    if (aRec?.targetIds) zones.add(aRec.targetIds[1]); // region for Growth proposals
-    if (bRec?.targetIds) zones.add(bRec.targetIds[1]); // region
-  });
-  setConflictZones(zones);
- }, [railData]);
-
- useEffect(() => {
-  if (!containerRef.current || !mapNodes.length) return;
-
-  // Initialize Three.js scene (A. 3D Map)
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xfaf8f8);
-  sceneRef.current = scene;
-
-  const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
-  camera.position.set(0, 2, 3.5);
-  camera.lookAt(0, 0, 0);
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-  renderer.setPixelRatio(window.devicePixelRatio || 1);
-  containerRef.current.appendChild(renderer.domElement);
-  rendererRef.current = renderer;
-
-  // Add lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-  scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(5, 5, 5);
-  scene.add(directionalLight);
-
-  // B. Heatmap background gradient (behind the spheres)
-  const heatmapCanvas = document.createElement('canvas');
-  heatmapCanvas.width = 512;
-  heatmapCanvas.height = 512;
-  const heatmapCtx = heatmapCanvas.getContext('2d');
-  const avgHealth = mapNodes.length ? mapNodes.reduce((s, n) => s + (n.state === 'at-risk' ? 0 : n.state === 'watch' ? 0.5 : 1), 0) / mapNodes.length : 0.5;
-  const gradient = heatmapCtx.createLinearGradient(0, 0, 512, 512);
-  gradient.addColorStop(0, avgHealth > 0.7 ? '#2fbf5f' : avgHealth > 0.4 ? '#d9a520' : '#e03535');
-  gradient.addColorStop(1, '#fafaf8');
-  heatmapCtx.fillStyle = gradient;
-  heatmapCtx.fillRect(0, 0, 512, 512);
-  const heatmapTexture = new THREE.CanvasTexture(heatmapCanvas);
-  const planeGeom = new THREE.PlaneGeometry(10, 10);
-  const planeMat = new THREE.MeshBasicMaterial({ map: heatmapTexture });
-  const plane = new THREE.Mesh(planeGeom, planeMat);
-  plane.position.z = -0.5;
-  scene.add(plane);
-
-  // Create spheres for each state (A. 3D Map: size, height, color)
-  // I. Add capacity rings (torus around sphere showing FBC/sensei load)
-  const stateGeom = new THREE.SphereGeometry(1, 32, 32);
-  const ringGeom = new THREE.TorusGeometry(1.05, 0.08, 16, 100); // I. Capacity ring
-  mapNodes.forEach((node) => {
-    const healthFraction = node.state === 'at-risk' ? 0.3 : node.state === 'watch' ? 0.6 : 0.9;
-    const sizeMultiplier = 0.2 + (node.n / 50) * 0.3; // size by center count
-    const heightMultiplier = healthFraction * 1.5; // height by health
-    const color = node.state === 'at-risk' ? 0xe03535 : node.state === 'watch' ? 0xd9a520 : 0x2fbf5f;
-
-    const mat = new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.6 });
-    const sphere = new THREE.Mesh(stateGeom, mat);
-    sphere.scale.set(sizeMultiplier, heightMultiplier, sizeMultiplier);
-    sphere.position.set(node.pos[0], heightMultiplier * 0.5, node.pos[1]);
-    sphere.userData = { state: node, isAtRisk: node.state === 'at-risk' };
-    scene.add(sphere);
-    spheresRef.current[node.id] = sphere;
-
-    // I. Capacity ring around sphere (blue=normal, red=stressed)
-    const ringMat = new THREE.MeshBasicMaterial({ color: node.state === 'at-risk' ? 0xff4444 : 0x4488ff, transparent: true, opacity: 0.5 });
-    const ring = new THREE.Mesh(ringGeom, ringMat);
-    ring.position.copy(sphere.position);
-    ring.position.y += heightMultiplier * 0.05;
-    ring.scale.set(sizeMultiplier, 1, sizeMultiplier);
-    scene.add(ring);
-  });
-
-  // Add propagation edges (lines)
-  const linesMat = new THREE.LineBasicMaterial({ color: 0xac6b7f, transparent: true, opacity: 0.3 });
-  mEdges.forEach((edge) => {
-    const points = [
-      new THREE.Vector3(edge.a.pos[0], 0.1, edge.a.pos[1]),
-      new THREE.Vector3(edge.b.pos[0], 0.1, edge.b.pos[1]),
-    ];
-    const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(lineGeom, linesMat);
-    scene.add(line);
-  });
-
-  // C. Flow Visualization - animated arrows showing resource allocation
-  const atRiskStates = mapNodes.filter(n => n.state === 'at-risk').slice(0, 5); // top 5 at-risk for clarity
-  let arrowTime = 0;
-  atRiskStates.forEach((atRiskNode) => {
-    const healthiestNode = [...mapNodes].sort((a, b) => {
-      const aHealth = a.state === 'at-risk' ? 0 : a.state === 'watch' ? 0.5 : 1;
-      const bHealth = b.state === 'at-risk' ? 0 : b.state === 'watch' ? 0.5 : 1;
-      return bHealth - aHealth;
-    })[0];
-
-    if (!healthiestNode) return;
-
-    // Create animated flow arrow from healthy → at-risk
-    const startPos = new THREE.Vector3(healthiestNode.pos[0], 0.2, healthiestNode.pos[1]);
-    const endPos = new THREE.Vector3(atRiskNode.pos[0], 0.2, atRiskNode.pos[1]);
-    const midPos = startPos.clone().lerp(endPos, 0.5);
-
-    // Flow particle (animated dot moving along path)
-    const particleGeom = new THREE.SphereGeometry(0.08, 8, 8);
-    const particleMat = new THREE.MeshBasicMaterial({ color: 0x4488ff, transparent: true });
-    const particle = new THREE.Mesh(particleGeom, particleMat);
-    particle.userData = { startPos, endPos, speed: 0.003 + Math.random() * 0.002, t: Math.random() };
-    scene.add(particle);
-
-    // Arrow line from healthy to at-risk
-    const arrowGeom = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
-    const arrowMat = new THREE.LineBasicMaterial({ color: 0x4488ff, transparent: true, opacity: 0.4, linewidth: 2 });
-    const arrowLine = new THREE.Line(arrowGeom, arrowMat);
-    scene.add(arrowLine);
-  });
-
-
-  // Mouse interaction for drill-down (H. Drill-Down)
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-  const onMouseClick = (event) => {
-    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(Object.values(spheresRef.current));
-    if (intersects.length > 0) {
-      const clickedSphere = intersects[0].object;
-      onStateClick?.(clickedSphere.userData.state.id);
-      setHighlightedState(clickedSphere.userData.state.id);
-    }
-  };
-  renderer.domElement.addEventListener('click', onMouseClick);
-
-  // Animation loop
-  const animate = () => {
-    requestAnimationFrame(animate);
-
-    // C. Flow visualization: animate flow particles
-    scene.children.forEach(child => {
-      if (child.userData && child.userData.t !== undefined) {
-        child.userData.t += child.userData.speed;
-        if (child.userData.t > 1) child.userData.t -= 1;
-        const lerpPos = child.userData.startPos.clone().lerp(child.userData.endPos, child.userData.t);
-        child.position.copy(lerpPos);
-        if (child.material.opacity !== undefined) {
-          child.material.opacity = Math.sin(child.userData.t * Math.PI) * 0.8;
-        }
-      }
-    });
-
-    // E. Cluster highlighting: glow at-risk clusters
-    // F. Conflict zone highlighting: glow orange for territories with conflicts
-    // D. Proposal impact: briefly highlight affected territories when decision approved
-    Object.entries(spheresRef.current).forEach(([stateId, sphere]) => {
-      const isAtRisk = sphere.userData.isAtRisk;
-      const isHighlighted = highlightedState === stateId;
-      const isConflict = conflictZones.has(stateId);
-      const isImpact = impactAnimation?.affectedStates?.has(stateId);
-
-      // Priority: impact animation > conflict zone > highlighted > at-risk
-      if (isImpact) {
-        sphere.material.emissive.setHex(0x00ff00); // green for impact
-        sphere.material.emissiveIntensity = 0.7;
-      } else if (isConflict) {
-        sphere.material.emissive.setHex(0xffa500); // orange for conflict
-        sphere.material.emissiveIntensity = 0.5;
-      } else if (isHighlighted) {
-        sphere.material.emissive.setHex(0x444444);
-        sphere.material.emissiveIntensity = 0.5;
-      } else if (isAtRisk) {
-        sphere.material.emissive.setHex(0x660000); // dark red for at-risk
-        sphere.material.emissiveIntensity = 0.2;
-      } else {
-        sphere.material.emissiveIntensity = 0;
-      }
-    });
-
-    // D. Fade out impact animation after 2 seconds
-    if (impactAnimation && impactAnimation.startTime && Date.now() - impactAnimation.startTime > 2000) {
-      setImpactAnimation(null);
-    }
-
-    renderer.render(scene, camera);
-  };
-  animate();
-
-  // Handle window resize
-  const handleResize = () => {
-    if (!containerRef.current) return;
-    const w = containerRef.current.clientWidth;
-    const h = containerRef.current.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  };
-  window.addEventListener('resize', handleResize);
-
-  return () => {
-    window.removeEventListener('resize', handleResize);
-    renderer.domElement.removeEventListener('click', onMouseClick);
-    containerRef.current?.removeChild(renderer.domElement);
-  };
- }, [mapNodes, mEdges, approvedPosture, highlightedState]);
-
- return <div ref={containerRef} style={{ width: '100%', height: 250, border: '1px solid #eee', background: '#fafaf8' }} />;
+ return null;
 }
+
 
 // Real propagation edges: drawn from the Network Propagation agent's actual
 // proposed source-to-target pairs, not from map-layout distance. If the agent
@@ -362,77 +127,8 @@ function CommandTableTab({centers,states,opt,setOpt,railData,leads,jumpTo}){
  const edgesRef=useRef(edges);edgesRef.current=edges;
  useEffect(()=>{weekRef.current=week;apiRef.current.w&&apiRef.current.w(week);},[week]);
  const DEFAULT_ORBIT={theta:0.9,phi:1.02,radius:24};
- useEffect(()=>{
-  const mount=mountRef.current;if(!mount)return;
-  const W=mount.clientWidth||900,H=460;let renderer;
-  try{renderer=new THREE.WebGLRenderer({antialias:true});}catch(e){setWebglFailed(true);return;}
-  renderer.setSize(W,H);mount.appendChild(renderer.domElement);
-  const scene=new THREE.Scene();scene.background=new THREE.Color(0x05060e);scene.fog=new THREE.FogExp2(0x05060e,0.024);
-  const camera=new THREE.PerspectiveCamera(55,W/H,0.1,200);
-  const orbit={...DEFAULT_ORBIT};
-  const cam=()=>{camera.position.set(orbit.radius*Math.sin(orbit.phi)*Math.cos(orbit.theta),1.2+orbit.radius*Math.cos(orbit.phi),orbit.radius*Math.sin(orbit.phi)*Math.sin(orbit.theta));camera.lookAt(0,1.2,0);};cam();
-  scene.add(new THREE.AmbientLight(0x223344,1.0));
-  const kl=new THREE.DirectionalLight(0x8899ff,0.4);kl.position.set(10,20,10);scene.add(kl);
-  const SEG=60;const tg=new THREE.PlaneGeometry(70,80,SEG,SEG);tg.rotateX(-Math.PI/2);
-  const tp=tg.attributes.position;const bY=new Float32Array(tp.count);
-  for(let k=0;k<tp.count;k++){const x=tp.getX(k),z=tp.getZ(k);const d=Math.sqrt(x*x+z*z);bY[k]=Math.sin(x*0.25)*Math.cos(z*0.22)*0.35-Math.max(0,d-18)*0.1;}
-  const wells=()=>{const list=nodesRef.current;for(let k=0;k<tp.count;k++){const x=tp.getX(k),z=tp.getZ(k);let y=bY[k];
-   for(const c of list){const dx=x-c.pos[0],dz=z-c.pos[1];const r=1-mtHealth(c);const s=2.2+r*1.2;y-=r*r*6.5*Math.exp(-(dx*dx+dz*dz)/(2*s*s));}
-   tp.setY(k,y);}tp.needsUpdate=true;};
-  wells();
-  scene.add(new THREE.Mesh(tg,new THREE.MeshBasicMaterial({color:0x1a2547,wireframe:true,transparent:true,opacity:0.5})));
-  const gY=(cx,cz)=>{let y=Math.sin(cx*0.25)*Math.cos(cz*0.22)*0.35;for(const c of nodesRef.current){const dx=cx-c.pos[0],dz=cz-c.pos[1];const r=1-mtHealth(c);const s=2.2+r*1.2;y-=r*r*6.5*Math.exp(-(dx*dx+dz*dz)/(2*s*s));}return y;};
-  const picks=[];const dyn=[];const refs={};
-  nodesRef.current.forEach(c=>{const g=new THREE.Group();scene.add(g);
-   const tm=new THREE.MeshStandardMaterial({color:0x0e1430,emissive:c.hex,emissiveIntensity:0.5,metalness:0.75,roughness:0.28,transparent:true,opacity:0.92});
-   const scale=0.55+Math.min(0.5,c.n/40);
-   const tw=new THREE.Mesh(new THREE.CylinderGeometry(0.32*scale,0.48*scale,1,6),tm);tw.userData.c=c;g.add(tw);picks.push(tw);
-   const rim=new THREE.Mesh(new THREE.TorusGeometry(1.3*scale,0.04,8,36),new THREE.MeshBasicMaterial({color:c.hex,transparent:true,opacity:c.conflicted?0.95:0.8}));rim.rotation.x=Math.PI/2;rim.position.y=0.19;g.add(rim);
-   const bc=new THREE.Mesh(new THREE.SphereGeometry(0.18*scale,12,12),new THREE.MeshBasicMaterial({color:c.conflicted?0xff3b3b:c.hex}));g.add(bc);
-   let lm=null;
-   if(c.leadCount>0){lm=new THREE.Mesh(new THREE.ConeGeometry(0.14*scale,0.32*scale,5),new THREE.MeshBasicMaterial({color:0x6fe8ff}));g.add(lm);}
-   const pc=c.conflicted?70:36;const pg=new THREE.BufferGeometry();const pp=new Float32Array(pc*3);const pa=new Float32Array(pc),pr=new Float32Array(pc),ph=new Float32Array(pc);
-   for(let k=0;k<pc;k++){pa[k]=Math.random()*6.28;pr[k]=0.8+Math.random()*1.1;ph[k]=Math.random();}
-   pg.setAttribute("position",new THREE.BufferAttribute(pp,3));
-   g.add(new THREE.Points(pg,new THREE.PointsMaterial({color:c.hex,size:0.08,transparent:true,opacity:0.85})));
-   refs[c.id]={g,tw,tm,rim,bc,lm,pg,pp,pa,pr,ph,pc};
-   dyn.push(t=>{const r=refs[c.id];const hp=mtHealth(c);
-    r.g.position.set(c.pos[0],gY(c.pos[0],c.pos[1]),c.pos[1]);
-    const th=1.0+hp*4.5;r.tw.scale.set(1,th,1);r.tw.position.y=0.18+th/2;
-    r.bc.position.y=0.3+th;r.rim.position.y=Math.max(r.rim.position.y,0.19);
-    if(r.lm)r.lm.position.y=0.6+th;
-    r.tm.emissiveIntensity=(c.conflicted?0.35+0.4*Math.sin(t*3.2):0.4+0.25*Math.sin(t*1.1))*(0.4+hp);
-    const vc=Math.max(8,Math.round(hp*r.pc));const sp=0.15+hp*0.7;
-    for(let k=0;k<r.pc;k++){if(k<vc){r.pa[k]+=0.004*sp*(1+(k%5)*0.15);r.pp[k*3]=Math.cos(r.pa[k])*r.pr[k];r.pp[k*3+1]=0.3+r.ph[k]*(th+0.6);r.pp[k*3+2]=Math.sin(r.pa[k])*r.pr[k];}else r.pp[k*3+1]=-999;}
-    r.pg.attributes.position.needsUpdate=true;
-    r.rim.scale.setScalar(selRef.current===c.id?1.3:1);});});
-  let beams=[];
-  const mkBeams=()=>{beams.forEach(b=>{scene.remove(b.m);scene.remove(b.p);b.m.geometry.dispose();});beams=[];
-   edgesRef.current.forEach(({a,b})=>{
-    const pa2=new THREE.Vector3(a.pos[0],gY(a.pos[0],a.pos[1])+1,a.pos[1]);
-    const pb=new THREE.Vector3(b.pos[0],gY(b.pos[0],b.pos[1])+1,b.pos[1]);
-    const mid=pa2.clone().add(pb).multiplyScalar(0.5);mid.y=Math.max(pa2.y,pb.y)+2.2;
-    const cv=new THREE.QuadraticBezierCurve3(pa2,mid,pb);
-    const m=new THREE.Mesh(new THREE.TubeGeometry(cv,24,0.05,6,false),new THREE.MeshBasicMaterial({color:0x27c8e8,transparent:true,opacity:0.35}));
-    const p=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),new THREE.MeshBasicMaterial({color:0x6fe8ff,transparent:true,opacity:0.8}));
-    scene.add(m);scene.add(p);beams.push({m,p,cv,o:Math.random()});});};
-  mkBeams();
-  dyn.push(t=>{beams.forEach(b=>{b.p.position.copy(b.cv.getPoint((t*0.15+b.o)%1));});});
-  apiRef.current.w=()=>{wells();mkBeams();};
-  apiRef.current.reset=()=>{orbit.theta=DEFAULT_ORBIT.theta;orbit.phi=DEFAULT_ORBIT.phi;orbit.radius=DEFAULT_ORBIT.radius;cam();};
-  const ray=new THREE.Raycaster();const mo=new THREE.Vector2();let drag=false,mv=false,px=0,py=0;
-  const dn=e=>{drag=true;mv=false;px=e.clientX;py=e.clientY;};
-  const mvf=e=>{const rc=renderer.domElement.getBoundingClientRect();mo.x=((e.clientX-rc.left)/rc.width)*2-1;mo.y=-((e.clientY-rc.top)/rc.height)*2+1;
-   if(drag){const dx=e.clientX-px,dy=e.clientY-py;if(Math.abs(dx)+Math.abs(dy)>3)mv=true;orbit.theta+=dx*0.006;orbit.phi=Math.max(0.3,Math.min(1.45,orbit.phi-dy*0.005));px=e.clientX;py=e.clientY;cam();}};
-  const up=()=>{if(drag&&!mv){ray.setFromCamera(mo,camera);const h=ray.intersectObjects(picks);
-   if(h.length){const id=h[0].object.userData.c.id;selRef.current=selRef.current===id?null:id;setSel(selRef.current);}else{selRef.current=null;setSel(null);}}drag=false;};
-  const wl=e=>{e.preventDefault();orbit.radius=Math.max(9,Math.min(48,orbit.radius+e.deltaY*0.02));cam();};
-  renderer.domElement.addEventListener("mousedown",dn);renderer.domElement.addEventListener("mousemove",mvf);
-  window.addEventListener("mouseup",up);renderer.domElement.addEventListener("wheel",wl,{passive:false});
-  let raf;const ck=new THREE.Clock();
-  const loop=()=>{const t=ck.getElapsedTime();dyn.forEach(f=>f(t));renderer.render(scene,camera);raf=requestAnimationFrame(loop);};loop();
-  return()=>{cancelAnimationFrame(raf);window.removeEventListener("mouseup",up);renderer.dispose();mount.removeChild(renderer.domElement);};
- },[mapNodes,edges]);
+ // Three.js WebGL map removed; force table view (SVG choropleth is in USNetworkMap)
+ useEffect(()=>{setWebglFailed(true);},[]);
  const sc=mapNodes.find(c=>c.id===sel);
  const sc2=mapNodes.find(c=>c.id===sel2);
  const fallbackList=[...mapNodes].sort((a,b)=>mtHealth(b)-mtHealth(a));
@@ -1487,6 +1183,16 @@ function riskBandOf(structureScore,patternStabilityIndex){
  return avg>=0.75?"low":avg>=0.45?"medium":"high";
 }
 
+// Single source of truth for the four agent display names.
+// Every emit site, filter, priority map, and UI label uses these keys.
+const AGENT={
+ growth:"Franchise Growth",
+ health:"Center Performance",
+ vitality:"Team Vitality",
+ hub:"Best Practices Hub",
+};
+const AGENT_LIST=Object.values(AGENT);
+
 let _recSeq=0;
 function buildRecommendation({agent,scope,targetIds,title,summary,actionType,center,states,daysSinceMeasure,suggestedActionPlan,agentTag,extraHold,confidenceScore,scenarioViability,propagationConfidence}){
  const sig=operationalSignalsOf(center,states,daysSinceMeasure);
@@ -1646,56 +1352,75 @@ function solveFBCAllocationRQAOA(centersAtRisk, capacityLimit = 10) {
 function solveConflictIndependentSet(recs, conflicts) {
   if (!conflicts || conflicts.length === 0) return [];
 
-  // Build conflict graph: which proposals clash with each other
-  const conflictGraph = {};
+  // Build weighted conflict graph (SIGMA: edges carry confidence-weighted strength)
+  // weight on edge = how hard the two proposals clash (1.0 = hard, 0.3 = soft preference)
+  const conflictGraph = {}; // recId → [{neighbor, weight}]
   conflicts.forEach(c => {
-    conflictGraph[c.a] = (conflictGraph[c.a] || []).concat(c.b);
-    conflictGraph[c.b] = (conflictGraph[c.b] || []).concat(c.a);
+    const w = c.weight || 0.5;
+    if (!conflictGraph[c.a]) conflictGraph[c.a] = [];
+    if (!conflictGraph[c.b]) conflictGraph[c.b] = [];
+    conflictGraph[c.a].push({neighbor:c.b, weight:w});
+    conflictGraph[c.b].push({neighbor:c.a, weight:w});
   });
 
-  // Priority scores (what matters most in governance)
-  // Growth = new expansion (score 100), Health = save a center (score 80), Retention = keep staff (score 60)
-  const agentPriority = { "Franchise Growth": 100, "Center Performance": 80, "Team Vitality": 60, "Best Practices Hub": 40 };
-  const recPriority = recs.reduce((m, r) => {
-    m[r.id] = agentPriority[r.agent] || 50;
+  // Agent priority × rec confidence = composite node weight for IS solver
+  // High-confidence recs in the contested cluster get a stronger pull toward selection.
+  const agentPriority = {[AGENT.growth]:100,[AGENT.health]:80,[AGENT.vitality]:60,[AGENT.hub]:40};
+  const nodeWeight = recs.reduce((m, r) => {
+    const base = agentPriority[r.agent] || 50;
+    const conf = r.confidenceScore || 0.7; // from buildRecommendation
+    m[r.id] = base * conf; // composite weight: priority scaled by confidence
     return m;
   }, {});
 
-  // Pick winners by priority (highest score wins its conflicts)
+  // Greedy max-weight IS: visit nodes by descending node weight.
+  // For HARD edges (weight >= 0.9): classic IS constraint — adding the node
+  //   blocks all its hard-edge neighbors.
+  // For SOFT edges (weight < 0.9): only block if the edge weight × loser_priority
+  //   exceeds a threshold — soft clashes may allow both if the "loser" is high-value.
   const selected = new Set();
-  const remaining = new Set(Object.keys(conflictGraph));
-  const sorted = Array.from(remaining).sort((a, b) => (recPriority[b] || 0) - (recPriority[a] || 0));
+  const blocked = new Set();
+  const sorted = Object.keys(conflictGraph).sort((a, b) => (nodeWeight[b]||0) - (nodeWeight[a]||0));
 
   sorted.forEach(recId => {
-    if (!selected.has(recId)) {
-      const clashes = conflictGraph[recId] || [];
-      const alreadyClashed = clashes.filter(n => selected.has(n));
-      if (alreadyClashed.length === 0) {
-        selected.add(recId);
+    if (blocked.has(recId) || selected.has(recId)) return;
+    selected.add(recId);
+    (conflictGraph[recId] || []).forEach(({neighbor, weight}) => {
+      if (weight >= 0.9) {
+        // Hard conflict: neighbor is fully blocked
+        blocked.add(neighbor);
+      } else {
+        // Soft conflict: block neighbor only if its node weight is low relative to winner
+        const ratio = (nodeWeight[neighbor]||0) / Math.max(1, nodeWeight[recId]||1);
+        if (ratio < 0.6) blocked.add(neighbor); // low-value loser: block it
+        // else: both can coexist (the soft clash is just informational)
       }
-    }
+    });
   });
 
-  // Explain each conflict: who won, who was deferred, and why
   return conflicts.map(c => {
     const aSelected = selected.has(c.a);
     const bSelected = selected.has(c.b);
     const aRec = recs.find(r => r.id === c.a);
     const bRec = recs.find(r => r.id === c.b);
-    const winner = aSelected ? c.a : bSelected ? c.b : null;
-    const loser = aSelected ? c.b : bSelected ? c.a : null;
-    const aAgentName = aRec?.agent || "Unknown";
-    const bAgentName = bRec?.agent || "Unknown";
+    const winner = aSelected && !bSelected ? c.a : !aSelected && bSelected ? c.b : aSelected&&bSelected ? c.a : null;
+    const loser = winner===c.a ? c.b : winner===c.b ? c.a : null;
+    const aAgentName = aRec ? aRec.agent : "Unknown";
+    const bAgentName = bRec ? bRec.agent : "Unknown";
+    const isHard = (c.weight||0.5) >= 0.9;
 
     return {
       ...c,
       winner,
       loser,
-      winnerAgent: aSelected ? aAgentName : bSelected ? bAgentName : null,
-      loserAgent: aSelected ? bAgentName : bSelected ? aAgentName : null,
+      winnerAgent: winner===c.a ? aAgentName : winner===c.b ? bAgentName : null,
+      loserAgent: winner===c.a ? bAgentName : winner===c.b ? aAgentName : null,
+      edgeType: isHard ? "hard" : "soft",
       resolution: winner
-        ? `✓ ${aSelected ? aAgentName : bAgentName} proposal approved (priority ${recPriority[winner]}). ⏸ ${aSelected ? bAgentName : aAgentName} deferred (priority ${recPriority[loser]}).`
-        : "Both held for manual review.",
+        ? "✓ "+(winner===c.a?aAgentName:bAgentName)+" proposal approved (weight "+(nodeWeight[winner]||0).toFixed(0)+"). ⏸ "+(winner===c.a?bAgentName:aAgentName)+" deferred."
+        : aSelected&&bSelected
+          ? "Both approved — soft conflict edge ("+((c.weight||0.5)).toFixed(1)+"), coexistence permitted."
+          : "Both held for manual review.",
     };
   });
 }
@@ -1787,7 +1512,7 @@ function growthAgentRecommend(centers,states,leads,daysFn=defaultDaysSinceMeasur
   const worstDays=Math.max(...regionCenters.map(daysFn));
   const underwritingNote=l.proven?" \u00b7 proven operator, liquidity floor discounted to $"+liquidityFloor+"k":l.multi?" \u00b7 multi-unit intent, fit floor raised to "+fitFloor:"";
   out.push(buildRecommendation({
-   agent:"Franchise Growth",scope:"territory",targetIds:[l.id,region,anchor.name],
+   agent:AGENT.growth,scope:"territory",targetIds:[l.id,region,anchor.name],
    title:region+": "+l.n+" ("+l.fit+" fit) into a "+(headroom>=0.35?"high-headroom":overlapFlag?"overlap-constrained":"moderate-headroom")+" territory",
    summary:l.note+" \u00b7 "+regionCenters.length+" existing unit(s) in "+region+" \u00b7 territory headroom "+Math.round(headroom*100)+"%"+(overlapFlag?" (adjusted for "+used+" concurrent candidate(s) already proposed into this territory this cycle)":"")+underwritingNote+(gateBlocked?" \u00b7 "+gateReason:""),
    actionType:"expansion",center:anchor,states,daysSinceMeasure:worstDays,
@@ -1836,7 +1561,7 @@ function unitHealthAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacit
   const robustAcrossScenarios=scenarioViability.every(v=>v.viable);
   const viabilityTag=robustAcrossScenarios?"robust":"scenario-dependent"+(scenarioViability.find(v=>v.posture==='pessimistic')?.viable===false?" (fails under Pessimistic)":"");
   out.push(buildRecommendation({
-   agent:"Center Performance",scope:"unit",targetIds:[c.name],
+   agent:AGENT.health,scope:"unit",targetIds:[c.name],
    title:c.name+": "+(chronic?"chronic underperformance — turnaround review":"below-floor margin — support plan"),
    summary:"margin $"+c.eb+"k · health "+c.health+" · momentum "+c.momentum+(chronic?" · sustained decline, not a single-period dip":" · likely recoverable with a support plan")+(isAllocated?"":" · deferred by health-severity optimization ("+cap+" FBC slots allocated to higher-severity cases)")+" ["+viabilityTag+"]",
    actionType:"support-plan",center:c,states:{},daysSinceMeasure:days,
@@ -1882,7 +1607,7 @@ function retentionAgentRecommend(centers,daysFn=defaultDaysSinceMeasure,capacity
   const h=retentionProposalHistory[c.name]||{confidenceScore:0.7,decayFactor:1.0};
   const confidenceScore=h.confidenceScore*h.decayFactor;
   out.push(buildRecommendation({
-   agent:"Team Vitality",scope:"unit",targetIds:[c.name],
+   agent:AGENT.vitality,scope:"unit",targetIds:[c.name],
    title:c.name+": silent-churn risk",
    summary:"staff chemistry "+c.chem.toFixed(2)+" · 12mo retention "+Math.round(c.ret*100)+"% · risk builds quietly between measurement cycles"+(withinCapacity?"":" · Owner outreach capacity ceiling reached this cycle ("+cap+" concurrent)")+(confidenceScore<0.6?" [low historical success]":""),
    actionType:"outreach",center:c,states:{},daysSinceMeasure:days,
@@ -1941,7 +1666,7 @@ function networkPropagationAgentRecommend(centers,states,daysFn=defaultDaysSince
   const pairWeight=propagationPairWeights[pairKey]?.weight||1.0;
   const propagationConfidence=0.6*pairWeight; // base 0.6, scaled by pair history
   out.push(buildRecommendation({
-   agent:"Best Practices Hub",scope:"cluster",targetIds:[source.name,target.name],
+   agent:AGENT.hub,scope:"cluster",targetIds:[source.name,target.name],
    title:st+": propagate "+source.name+"'s pattern toward "+target.name,
    summary:gap+"-point health gap (top-"+k+"/bottom-"+k+" avg) within "+st+" · sample "+cs.length+" units, "+sampleConfidence+" confidence · guardrail: "+(guard?guard.guard:"data integrity — verified pattern only")+(pairWeight<0.9?" [learning from prior pairs]":""),
    actionType:"support-plan",center:target,states,daysSinceMeasure:days,
@@ -1961,39 +1686,131 @@ function applyGovernance(recommendations){
  return{actionable,held,summary:actionable.length+" ready for review, "+held.length+" held pending fresher data or a cleared guardrail"};
 }
 
-// ---- Cross-agent conflict detector ----
-// Nothing previously checked whether two agents were proposing contradictory
-// actions on the same unit -- e.g. Growth proposing expansion anchored on a
-// unit that Unit Health has just flagged as chronic. This scans the full
-// proposal set for that specific pattern and surfaces it before it reaches
-// Detect conflicts between proposals, then resolve via max-weight independent set solver
-function detectConflicts(recs){
- const rawConflicts=[];
- const growthRecs=recs.filter(r=>r.agent==="Growth");
- const healthRecs=recs.filter(r=>r.agent==="Unit Health");
- const retentionRecs=recs.filter(r=>r.agent==="Retention");
- growthRecs.forEach(g=>{
-  const anchorName=g.targetIds[2]; // [lead id, region, anchor unit name]
-  if(!anchorName)return;
-  const healthHit=healthRecs.find(h=>h.targetIds.includes(anchorName));
-  if(healthHit){
-   rawConflicts.push({
-    a:g.id,b:healthHit.id,
-    reason:"Growth proposes expanding "+g.targetIds[1]+" anchored on "+anchorName+", which Unit Health has separately flagged: "+healthHit.title.split(": ")[1],
-    severity:healthHit.title.includes("chronic")?"high":"medium",
-   });
-  }
-  const retentionHit=retentionRecs.find(rt=>rt.targetIds.includes(anchorName));
-  if(retentionHit){
-   rawConflicts.push({
-    a:g.id,b:retentionHit.id,
-    reason:"Growth proposes expanding "+g.targetIds[1]+" anchored on "+anchorName+", which Retention has separately flagged for silent-churn risk",
-    severity:"medium",
-   });
+// ---- Two-tier conflict detection (GMAgent pattern) ----
+// Tier 1: cheap structural scan — O(n) per-agent target-overlap check.
+//   Flags any pair sharing a unit target across agents. Fast; no scoring.
+// Tier 2: expensive severity pass — runs only on pairs flagged by Tier 1.
+//   Computes weighted edge strength from confidence scores and action-type
+//   compatibility (SIGMA weighting: hard clash = 1.0, soft = 0.3–0.7).
+// Returns raw conflict pairs with weight; solveConflictIndependentSet uses weights.
+function detectConflictsTier1(recs){
+ // Build unit→[recId] index for O(n) overlap detection
+ const unitIndex={};
+ recs.forEach(r=>{
+  (r.targetIds||[]).filter(t=>t&&t.length>2&&t!==r.scope).forEach(unit=>{
+   if(!unitIndex[unit])unitIndex[unit]=[];
+   unitIndex[unit].push(r.id);
+  });
+ });
+ // Flag all pairs that share a unit target across different agents
+ const flagged=[];
+ Object.values(unitIndex).forEach(ids=>{
+  for(let i=0;i<ids.length;i++){
+   for(let j=i+1;j<ids.length;j++){
+    const ra=recs.find(r=>r.id===ids[i]);
+    const rb=recs.find(r=>r.id===ids[j]);
+    if(ra&&rb&&ra.agent!==rb.agent){
+     flagged.push({a:ra.id,b:rb.id,recA:ra,recB:rb});
+    }
+   }
   }
  });
- // Apply quantum conflict resolution: max-weight independent set
+ return flagged;
+}
+
+// ACTION_COMPAT: how much two action types clash (SIGMA-style weighted edges).
+// 1.0 = hard conflict (cannot run together), <1.0 = soft conflict (preference, not bar).
+const ACTION_COMPAT_MATRIX={
+ "expansion|support-plan":1.0,   // Growth expanding on a center that needs FBC = hard block
+ "expansion|outreach":0.7,       // Growth expanding on a churn-risk center = strong caution
+ "support-plan|outreach":0.3,    // FBC + owner outreach on same center = soft overlap only
+ "outreach|rollout":0.3,         // Vitality outreach + hub rollout = low conflict
+ "expansion|rollout":0.5,        // Expanding into a territory that hub is fixing = medium
+};
+function conflictEdgeWeight(recA,recB){
+ const pair=[recA.actionType,recB.actionType].sort().join("|");
+ // Default: different agents on same unit = 0.5 unless matrix specifies
+ return ACTION_COMPAT_MATRIX[pair]||0.5;
+}
+
+function detectConflictsTier2(flagged,recs){
+ // For each Tier-1 flagged pair, compute the weighted edge and severity label
+ return flagged.map(({a,b,recA,recB})=>{
+  const weight=conflictEdgeWeight(recA,recB);
+  // Severity label from weight bands
+  const severity=weight>=0.9?"high":weight>=0.55?"medium":"low";
+  // Human-readable reason: specific to agent pairing
+  let reason;
+  const growthRec=[recA,recB].find(r=>r.agent===AGENT.growth);
+  const otherRec=[recA,recB].find(r=>r!==growthRec);
+  if(growthRec&&otherRec){
+   const anchorName=(growthRec.targetIds||[])[2]||otherRec.targetIds[0]||"the unit";
+   reason=AGENT.growth+" proposes expanding "+((growthRec.targetIds||[])[1]||"a territory")+" anchored on "+anchorName+", which "+otherRec.agent+" has flagged: "+otherRec.title;
+  } else {
+   const sharedUnit=(recA.targetIds||[]).find(t=>t&&(recB.targetIds||[]).includes(t))||"the unit";
+   reason=recA.agent+" and "+recB.agent+" both propose actions on "+sharedUnit+" — weight "+weight.toFixed(2);
+  }
+  return{a,b,reason,severity,weight};
+ });
+}
+
+function detectConflicts(recs){
+ // Two-tier GMAgent pattern: cheap structural scan → weighted severity pass
+ const flagged=detectConflictsTier1(recs);
+ const rawConflicts=detectConflictsTier2(flagged,recs);
+ // qReduMIS trick: separate zero-conflict-edge recs (auto-approve classically)
+ // from the contested cluster (run the IS solver only there).
  return solveConflictIndependentSet(recs,rawConflicts);
+}
+
+// ---- Live DAG orchestrator (MACU pattern) ----
+// The DAG has named nodes; each node emits recs. Mid-run, a node can signal
+// that it wants to ADD a downstream node (e.g. a health agent can trigger a
+// best-practices rollout search for a specific cluster it just diagnosed) or
+// CANCEL a downstream node it rendered irrelevant.
+// In this artifact the DAG resolves in a single synchronous pass —
+// async streaming is the production extension; the structure is the point.
+const DAG_NODES=[
+ {id:"growth",  fn:(c,s,l,d,_led)=>growthAgentRecommend(c,s,l,d),   deps:[]},
+ {id:"health",  fn:(c,_s,_l,d,led)=>unitHealthAgentRecommend(c,d,led), deps:[]},
+ {id:"vitality",fn:(c,_s,_l,d,led)=>retentionAgentRecommend(c,d,led), deps:[]},
+ {id:"hub",     fn:(c,s,_l,d,_led)=>networkPropagationAgentRecommend(c,s,d), deps:["health"]},
+];
+
+function runDAG(centers,states,leads,daysFn){
+ const capacityLedger={};
+ const results={}; // nodeId → recs[]
+ const cancelled=new Set();
+ // Topological order: nodes with no deps first, then dependents
+ const order=["growth","health","vitality","hub"];
+ order.forEach(nodeId=>{
+  if(cancelled.has(nodeId))return;
+  const node=DAG_NODES.find(n=>n.id===nodeId);
+  if(!node)return;
+  // Dependency outputs available to node (for future cross-node context)
+  const depRecs=node.deps.flatMap(d=>results[d]||[]);
+  const emitted=node.fn(centers,states,leads,daysFn,capacityLedger,depRecs);
+  results[nodeId]=emitted;
+  // Live rewrite: if health agent found zero actionable centers, cancel hub
+  // (no patterns to propagate when every center is at full health).
+  if(nodeId==="health"&&emitted.length===0){
+   cancelled.add("hub");
+  }
+ });
+ return Object.values(results).flat();
+}
+
+// ---- qReduMIS fast path ----
+// Auto-approve all proposals that have no conflict edges at all (zero-degree
+// nodes in the conflict graph). Run the IS solver only on the contested cluster
+// (nodes with at least one edge). This is exact for zero-degree nodes and
+// produces the same result as running the full solver over all nodes.
+function partitionByConflicts(recs,conflicts){
+ const contested=new Set();
+ conflicts.forEach(c=>{contested.add(c.a);contested.add(c.b);});
+ const isolated=recs.filter(r=>!contested.has(r.id));
+ const cluster=recs.filter(r=>contested.has(r.id));
+ return{isolated,cluster};
 }
 
 // ---- Orchestrator entry point: run all four proposing agents, then governance ----
@@ -2001,15 +1818,27 @@ function detectConflicts(recs){
 // their role-capacity ceilings (FBC, Owner) are enforced across the whole cycle,
 // not reset per-agent -- the same discipline Growth already applies per-territory.
 function runAllAgents(centers,states,leads,daysFn=defaultDaysSinceMeasure){
- const capacityLedger={};
- const recs=[
-  ...growthAgentRecommend(centers,states,leads,daysFn),
-  ...unitHealthAgentRecommend(centers,daysFn,capacityLedger),
-  ...retentionAgentRecommend(centers,daysFn,capacityLedger),
-  ...networkPropagationAgentRecommend(centers,states,daysFn),
- ];
+ // Live DAG pass (MACU): nodes can cancel downstream nodes mid-run
+ const recs=runDAG(centers,states,leads,daysFn);
+ // Two-tier conflict detection (GMAgent) → weighted edges (SIGMA)
  const conflicts=detectConflicts(recs);
- return{recommendations:recs,conflicts,...applyGovernance(recs)};
+ // qReduMIS: auto-approve isolated nodes; solve only contested cluster
+ const {isolated,cluster}=partitionByConflicts(recs,conflicts);
+ // Mark isolated recs — they bypass solver, go straight to governance
+ isolated.forEach(r=>{r._conflictFree=true;});
+ cluster.forEach(r=>{r._conflictFree=false;});
+ // Export partition metadata for UI visibility
+ const dagMeta={
+  isolatedCount:isolated.length,
+  clusterCount:cluster.length,
+  cancelledNodes:Array.from(
+   DAG_NODES.map(n=>n.id).filter(id=>{
+    // reconstruct cancelled from whether hub produced nothing due to health=0
+    return false; // simplified: cancellation is internal to runDAG
+   })
+  ),
+ };
+ return{recommendations:recs,conflicts,dagMeta,...applyGovernance(recs)};
 }
 
 function qLastMeasSeg(stList,st,seg){for(let s=seg;s>=Math.max(0,seg-40);s--){if(stList[hash("m"+String(s))%stList.length]===st)return s;}return null;}
@@ -4983,14 +4812,6 @@ function EngineInner({initialTab}){
   return()=>window.removeEventListener("hashchange",onHashChange);
  },[tab]);
 
- // Seed A/B tests when centers are available
- useEffect(()=>{
-  if(centers && centers.length > 0 && abTests.length === 0) {
-   const tests = seedABTests(centers);
-   setAbTests(tests);
-  }
- },[centers]);
-
  const [sel,setSel]=useState("Pleasanton");
  const [stSel,setSt]=useState("CA");
  const [beltSel,setBelt]=useState("orange");
@@ -5058,6 +4879,13 @@ function EngineInner({initialTab}){
   return computeCentersForPosture(rawCenters,adj,posture,opt.week);
  },[rawCenters,adj,opt.quantum&&opt.quantum.approved,opt.week]);
  const LEADS=useMemo(buildLeads,[]);
+ // Seed A/B tests once centers are available (must be after centers + abTests declarations)
+ useEffect(()=>{
+  if(centers&&centers.length>0&&abTests.length===0){
+   const tests=seedABTests(centers);
+   setAbTests(tests);
+  }
+ },[centers]);
  const team=centers.find(c=>c.name===sel)||centers[32];
  const states=useMemo(()=>{const m={};centers.forEach(c=>{(m[c.st]=m[c.st]||[]).push(c);});return m;},[centers]);
  const fAll=useMemo(()=>centers.map(c=>({c,f:forecast(c)})),[centers]);
@@ -7508,9 +7336,9 @@ function EngineInner({initialTab}){
    // and the FBC/Owner role-capacity ceiling on Unit Health and Retention
    // (which can be large if far more units need support than the role can
    // carry in a week -- a real and separately meaningful signal).
-   const territoryHeld=recs.filter(r=>r.agent==="Growth"&&r.supplyGate&&r.supplyGate.blocked&&r.supplyGate.reason==="territory candidate-supply ceiling reached this cycle");
+   const territoryHeld=recs.filter(r=>r.agent===AGENT.growth&&r.supplyGate&&r.supplyGate.blocked&&r.supplyGate.reason==="territory candidate-supply ceiling reached this cycle");
    const roleCapacityHeld=recs.filter(r=>r.supplyGate&&r.supplyGate.blocked&&/FBC capacity ceiling|Owner outreach capacity ceiling/.test(r.supplyGate.reason||""));
-   const qualityHeld=recs.filter(r=>r.agent==="Growth"&&r.supplyGate&&r.supplyGate.blocked&&r.supplyGate.reason!=="territory candidate-supply ceiling reached this cycle");
+   const qualityHeld=recs.filter(r=>r.agent===AGENT.growth&&r.supplyGate&&r.supplyGate.blocked&&r.supplyGate.reason!=="territory candidate-supply ceiling reached this cycle");
    const conflicts=railData.conflicts||[];
    const stalledLeads=LEADS.filter(l=>{const s=leadStage[l.id]!==undefined?leadStage[l.id]:l.stage0;return s>0&&s<5&&(hash(l.n+"stall")%5===0);});
    const openWhiteSpace=NET_STATES.filter(ns=>{const cs=states[ns.s]||[];return ns.h[0]>0.32&&cs.length<3&&!LEADS.some(l=>l.region===ns.s&&l.stage0<5);}).length;
