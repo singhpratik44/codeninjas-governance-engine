@@ -981,7 +981,7 @@ function buildLeads(){
 const QSTATES=["thriving","watch","at-risk"];
 // The 20 tabs that carry the whole 5-minute walkthrough — everything else stays reachable,
 // just hidden from the sub-tab row when "essentials only" is toggled on. Nothing is deleted.
-const ESSENTIAL_TABS=["act","quantum","integrated","exec","franchise","rail","board","alignment","compliance","blockers","table","whitespace","leads","deals","workload","team","lenses","network","portfolio","financials","growthfin","onboarding","audit","agenda","risk","fdd"];
+const ESSENTIAL_TABS=["act","optlayer","quantum","integrated","exec","franchise","rail","board","alignment","compliance","blockers","table","whitespace","leads","deals","workload","team","lenses","network","portfolio","financials","growthfin","onboarding","audit","agenda","risk","fdd"];
 // note: "reports" and "success" are intentionally left out of ESSENTIAL_TABS —
 // they're reviewer/governance depth, not part of the 20-tab walkthrough set.
 const QCOL=["#5cb87c","#d9a62e","#d96a6a"];
@@ -2774,6 +2774,129 @@ function draftActionFor(rec){
   subject:"Support plan for "+center,
   body:"Recommend routing FBC support to "+center+" now. "+detail+". Draft plan: assign an FBC slot this cycle, run the "+(rec.suggestedActionPlan?rec.suggestedActionPlan.n:"Unit-Value Program")+" protocol, and set a measurement checkpoint at 30 days so we're acting on the decline, not a single-period dip.",
   cta:"Approve & authorize support"};
+}
+
+// ============================================================================
+// THE OPTIMIZATION LAYER — what unites the 67 tabs.
+// The honest answer to "turn every segment into an optimization problem" is
+// NOT 67 separate solvers — it is that the 67 tabs were never 67 things. They
+// are the five roles of ONE optimizer running over the network:
+//   MEASURE  → CONSTRAIN → PROPOSE → SELECT → RECORD
+// Design thesis (and the candidate's): this is a single center's operating
+// cadence — measure the state, respect the constraints, propose the move,
+// pick the best feasible one, write it down — generalized. Nothing in the
+// loop is single-center-specific; the same five roles run at N=1 and at
+// N=348. That scale-invariance is the whole claim, and this page makes it
+// checkable by naming, for every segment, which role it plays and how it is
+// actually computed today (real function names, not aspiration).
+// ============================================================================
+
+// Each row maps a real segment to its role in the one optimizer. `method`
+// tags are honest about what the code actually does: SOLVER = a real
+// optimization routine runs; SCORE = computes state / the objective;
+// CHECK = defines the feasible region; RECORD = persists the chosen x;
+// PARAM = chooses the regime the whole problem is solved under.
+const OPT_CATALOGUE=[
+ // MEASURE — compute current state x and the objective f(x)
+ {seg:"Network Health",tab:"network",role:"MEASURE",contributes:"objective f(x): mean unit-health composite",method:"avg(health) over centers",tag:"SCORE"},
+ {seg:"Six Lenses / Center Detail",tab:"lenses",role:"MEASURE",contributes:"per-unit state vector xᵢ",method:"engageOf() · qGovernors() readout",tag:"SCORE"},
+ {seg:"Financial Roll-up",tab:"financials",role:"MEASURE",contributes:"objective term: Σ royalty",method:"royaltyOf(c) summed",tag:"SCORE"},
+ {seg:"Belts / Mastery",tab:"mastery",role:"MEASURE",contributes:"progression velocity (leading signal)",method:"belt-advance rate",tag:"SCORE"},
+ // CONSTRAIN — define the feasible region g(x) ≤ 0
+ {seg:"Four Governors",tab:"rail",role:"CONSTRAIN",contributes:"feasibility: financial · engagement · child-safety · data",method:"qGovernors() / qGate()",tag:"CHECK"},
+ {seg:"Compliance & Safety",tab:"compliance",role:"CONSTRAIN",contributes:"hard constraint: staff-cleared, never posture-dependent",method:"c.compliance · c.staffCleared",tag:"CHECK"},
+ {seg:"FDD Item 20",tab:"fdd",role:"CONSTRAIN",contributes:"legal constraint: 244 authoritative units",method:"reconciliation, never blended",tag:"CHECK"},
+ {seg:"Approver Workload",tab:"workload",role:"CONSTRAIN",contributes:"capacity: Σxᵢ ≤ capᵣ per approver role",method:"role-capacity ledger",tag:"CHECK"},
+ // PROPOSE — generate feasible candidate moves
+ {seg:"Franchise Growth (expansion)",tab:"expansion",role:"PROPOSE",contributes:"decision var: which lead → which territory",method:"solveLeadRankingQUBO() — fit·liquidity·cannibalization",tag:"SOLVER"},
+ {seg:"Center Performance (FBC triage)",tab:"blockers",role:"PROPOSE",contributes:"decision var: which centers get the 10 FBC slots",method:"Triage by Urgency — 60% health + 40% margin",tag:"SOLVER"},
+ {seg:"Team Vitality (outreach)",tab:"rail",role:"PROPOSE",contributes:"decision var: which centers get owner outreach",method:"silent-churn score → capacity-bounded",tag:"SCORE"},
+ {seg:"Best Practices Hub (rollout)",tab:"network",role:"PROPOSE",contributes:"decision var: which source → target rollout",method:"top-vs-bottom gap within cluster",tag:"SCORE"},
+ // SELECT — pick the argmax over the feasible set
+ {seg:"Priority Resolver (conflicts)",tab:"rail",role:"SELECT",contributes:"argmax under conflict edges",method:"solveConflictIndependentSet() — max-weight IS",tag:"SOLVER"},
+ {seg:"Action Queue",tab:"act",role:"SELECT",contributes:"argmax Σ priority·confidence s.t. all constraints",method:"weighted independent set / QUBO",tag:"SOLVER"},
+ {seg:"Approval Queue",tab:"queue",role:"SELECT",contributes:"route chosen x to its human owner",method:"approver-role routing",tag:"RECORD"},
+ // RECORD — persist the chosen decision
+ {seg:"Decision Rail",tab:"rail",role:"RECORD",contributes:"the x that was chosen, human-owned",method:"decisions ledger",tag:"RECORD"},
+ {seg:"Audit Trail",tab:"audit",role:"RECORD",contributes:"provenance of every write",method:"session ledger, append-only",tag:"RECORD"},
+ // PARAMETRIC — choose the regime the whole problem is solved under
+ {seg:"Quantum PM",tab:"quantum",role:"PARAMETRIC",contributes:"posture ∈ {opt, real, pess} — the parameter set",method:"SCENARIO_DELTAS re-solve",tag:"PARAM"},
+ {seg:"Sensitivity Analysis",tab:"sensitivity",role:"PARAMETRIC",contributes:"parametric sweep of the objective",method:"tuition · capacity · support levers",tag:"PARAM"},
+];
+const OPT_ROLES=[
+ {key:"MEASURE",label:"Measure",sub:"compute state x and objective f(x)",col:"#2f7a3f"},
+ {key:"CONSTRAIN",label:"Constrain",sub:"define the feasible region g(x) ≤ 0",col:"#b8860b"},
+ {key:"PROPOSE",label:"Propose",sub:"generate feasible candidate moves",col:"#7a6bd8"},
+ {key:"SELECT",label:"Select",sub:"pick the argmax under constraints",col:"#8b0000"},
+ {key:"RECORD",label:"Record",sub:"persist the chosen x, human-owned",col:"#555"},
+];
+const OPT_TAG_COL={SOLVER:"#7a6bd8",SCORE:"#2f7a3f",CHECK:"#b8860b",RECORD:"#666",PARAM:"#8b0000"};
+
+function OptimizationLayerTab({railData,centers,jumpTo}){
+ const netScore=centers.length?Math.round(centers.reduce((a,c)=>a+c.health,0)/centers.length):0;
+ const recs=(railData.recommendations||[]).length;
+ const actionable=(railData.actionable||[]).length;
+ const held=(railData.held||[]).length;
+ const conflicts=(railData.conflicts||[]).filter(c=>c.winner).length;
+ const byRole=r=>OPT_CATALOGUE.filter(x=>x.role===r);
+ const liveN=OPT_CATALOGUE.filter(x=>x.tag==="SOLVER").length;
+ return(<div>
+  <div style={{fontFamily:"Helvetica",fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:MUT,borderBottom:`1px solid ${RULE}`,paddingBottom:3,marginBottom:10}}>The Optimization Layer — one optimizer, not 67 tabs</div>
+  <div style={{fontSize:11,color:"#555",lineHeight:1.6,marginBottom:12}}>The honest way to turn every segment into an optimization problem isn't {OPT_CATALOGUE.length}+ separate solvers — it's that the tabs were never separate things. They're the <b style={{color:INK}}>five roles of one optimizer</b> running over the network. <b style={{color:INK}}>Design thesis:</b> this is a single center's operating cadence — measure, constrain, propose, select, record — written down and generalized. Nothing in the loop is single-center-specific; the same five roles run at N=1 and at N=348. That scale-invariance is the whole claim — and every row below names which role a segment plays and the real function that computes it.</div>
+
+  {/* The canonical form */}
+  <div style={{border:`1px solid ${RULE}`,borderLeft:`3px solid ${VIO}`,background:"#faf9ff",padding:"10px 12px",marginBottom:12}}>
+   <div style={{fontFamily:"Helvetica",fontSize:9,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:VIO,marginBottom:5}}>The one problem every tab is part of</div>
+   <div style={{fontFamily:"monospace",fontSize:9.5,color:"#3d3470",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{"decide     x   ∈ {0,1}      which interventions / expansions to run this cycle\nmaximize   f(x) = network health · royalty · retention   (MEASURE)\nsubject to g(x) ≤ 0          four governors · approver capacity · cannibalization · FDD (CONSTRAIN)\nfrom       feasible moves generated by the four agents            (PROPOSE)\npick       argmax over the feasible set, conflicts broken by weight (SELECT)\nwrite      the chosen x to the human-owned ledger                  (RECORD)"}</div>
+  </div>
+
+  {/* Five roles, live counts */}
+  <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
+   {OPT_ROLES.map((r,i)=>(<Fragment key={r.key}>
+    <div style={{flex:"1 1 150px",border:`1px solid ${RULE}`,borderTop:`3px solid ${r.col}`,padding:"8px 10px",background:"#fff"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:10.5,fontWeight:800,color:r.col}}>{i+1}. {r.label}</div>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT,marginTop:2,lineHeight:1.4,minHeight:26}}>{r.sub}</div>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,color:INK,marginTop:4,fontWeight:700}}>{byRole(r.key).length} segment{byRole(r.key).length===1?"":"s"}</div>
+    </div>
+   </Fragment>))}
+  </div>
+
+  {/* Live instantiation right now */}
+  <div style={{display:"flex",gap:0,flexWrap:"wrap",border:`1px solid ${RULE}`,borderLeft:`3px solid ${INK}`,background:"#fff",marginBottom:14}}>
+   {[[netScore,"objective f(x) — network health now",GRN],[recs,"feasible moves proposed",VIO],[conflicts,"conflicts resolved by max-weight IS",AC],[actionable+" / "+held,"selected / held under constraints",INK],[liveN,"segments backed by a real solver",VIO]].map(([v,l,c],i)=>(
+    <div key={i} style={{flex:"1 1 150px",padding:"8px 12px",borderLeft:i?`1px solid ${RULE}`:"none"}}>
+     <div style={{fontFamily:"Helvetica",fontSize:18,fontWeight:800,color:c,lineHeight:1}}>{v}</div>
+     <div style={{fontFamily:"Helvetica",fontSize:8.5,color:MUT,marginTop:2,lineHeight:1.3}}>{l}</div>
+    </div>))}
+  </div>
+
+  {/* The catalogue */}
+  <div style={{fontFamily:"Helvetica",fontSize:9.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:MUT,marginBottom:6}}>Every segment, mapped to its role</div>
+  <div style={{border:`1px solid ${RULE}`,background:"#fff",overflowX:"auto"}}>
+   <table style={{width:"100%",borderCollapse:"collapse",fontFamily:"Helvetica",fontSize:9.5}}>
+    <thead><tr style={{textAlign:"left",background:"#f5f5f3",color:MUT}}>
+     <th style={{padding:"6px 8px",fontWeight:700}}>Segment</th>
+     <th style={{padding:"6px 8px",fontWeight:700}}>Role</th>
+     <th style={{padding:"6px 8px",fontWeight:700}}>What it contributes to the problem</th>
+     <th style={{padding:"6px 8px",fontWeight:700}}>How it's computed today</th>
+     <th style={{padding:"6px 8px",fontWeight:700}}></th>
+    </tr></thead>
+    <tbody>
+     {OPT_ROLES.concat([{key:"PARAMETRIC",label:"Parametric",col:AC}]).map(role=>OPT_CATALOGUE.filter(x=>x.role===role.key).map((row,j)=>(
+      <tr key={row.seg+j} style={{borderTop:`1px solid ${RULE}`}}>
+       <td style={{padding:"6px 8px",fontWeight:700,color:INK}}>{jumpTo?<span onClick={()=>jumpTo(row.tab)} style={{cursor:"pointer",textDecoration:"underline"}}>{row.seg}</span>:row.seg}</td>
+       <td style={{padding:"6px 8px"}}><span style={{fontSize:8,fontWeight:700,letterSpacing:0.4,color:role.col}}>{role.label.toUpperCase()}</span></td>
+       <td style={{padding:"6px 8px",color:"#444"}}>{row.contributes}</td>
+       <td style={{padding:"6px 8px",color:"#444",fontFamily:"monospace",fontSize:8.5}}>{row.method}</td>
+       <td style={{padding:"6px 8px"}}><span style={{fontSize:7.5,fontWeight:700,letterSpacing:0.4,color:"#fff",background:OPT_TAG_COL[row.tag],padding:"1px 5px"}}>{row.tag}</span></td>
+      </tr>
+     )))}
+    </tbody>
+   </table>
+  </div>
+
+  <div style={{fontFamily:"Helvetica",fontSize:9,color:MUT,marginTop:12,borderTop:`1px solid ${RULE}`,paddingTop:6,lineHeight:1.5}}>Three segments run a genuine optimization routine (<b style={{color:VIO}}>SOLVER</b>: solveLeadRankingQUBO, the FBC urgency triage, and solveConflictIndependentSet — the last shared by the Priority Resolver and the Action Queue). The rest are the problem's other parts: SCORE computes the objective and state, CHECK defines the feasible region, RECORD persists the choice, PARAM picks the regime. QUBO / quantum-inspired framing here is the problem-class lineage (CONQURE arXiv:2505.02241; QUBO/QAOA agent schedulers), not a runtime claim — this artifact runs no circuits. What's real is the shape: one constrained argmax, five roles, scale-invariant from one center to the network.</div>
+ </div>);
 }
 
 function ActionQueueTab({railData,decisions,setDecisions,recordDecision,logL,opt,jumpTo}){
@@ -4989,8 +5112,8 @@ function EngineInner({initialTab}){
  const staleN=centers.filter(staleBase).length;
  const red=centers.filter(c=>c.eb<0);
  const blocker=useMemo(()=>{let best=null,bs=-1;PATH.forEach((b,i)=>{const s=COHORT[b[0]][1]*(PATH.length-1-i);if(s>bs){bs=s;best=b;}});return best;},[]);
- const GROUPS={OVERVIEW:["act","quantum","integrated","exec","franchise","rail","board","alignment","compliance","workload","queue","blockers","warning","signals"],GROWTH:["leads","deals","expansion","growth","whitespace"],CENTERS:["team","lenses","engagement","mastery","table","batch","compare"],NETWORK:["network","optimizer","transfers","fivebasis","cohort"],WORKFLOW:["acquire","deliver","retain","operate","plan","metrics","failure","onboarding"],PROGRAMS:["portfolio","pain","calendar","financials","growthfin"],METHOD:["agenda","dynamics","audit","success","reports","playback","risk","fdd","review","sensitivity","glossary"],ADAPTIVE:["twin","lifecycle","labor","ltv","velocity","auction","scheduler","sentinel","precedent","constitution"],LIVE:["dojo","season","simulator","monitor","apisview","immune","dagify","ledgerview","brief","negotiate","joy"]};
- const TABL={act:"action queue",quantum:"quantum pm",integrated:"mission control",alignment:"system alignment",dynamics:"operations dynamics",board:"operations board",lenses:"six lenses",rail:"threads & queue",network:"network health",table:"network map",team:"center detail",mastery:"belts",transfers:"transfers",optimizer:"operations",pain:"franchisee support",portfolio:"programs",engagement:"engagement",franchise:"overview",agenda:"methodology",growth:"growth",calendar:"calendar",acquire:"acquire",deliver:"deliver",retain:"retain",operate:"operate",plan:"first 90",metrics:"metrics",failure:"failure",warning:"early warning",leads:"lead pipeline",expansion:"expansion engine",fivebasis:"unified views",signals:"network signals",compliance:"compliance & safety",workload:"approver workload",whitespace:"territory white space",financials:"financial roll-up",audit:"audit trail",blockers:"growth blockers",deals:"deals",onboarding:"opening project plan",growthfin:"financial growth",success:"success rate",reports:"reports & exports",batch:"batch operations",playback:"historical playback",exec:"executive summary",glossary:"glossary",risk:"risk register",fdd:"fdd item 20",review:"week in review",compare:"center comparison",queue:"approval queue",cohort:"cohort analysis",sensitivity:"sensitivity analysis",twin:"network twin",lifecycle:"lifecycle engine",labor:"sensei supply chain",ltv:"family forward value",velocity:"curriculum velocity",auction:"territory portfolio",scheduler:"interaction scheduler",sentinel:"compliance sentinel",precedent:"precedent & calibration",constitution:"governance constitution",dojo:"the dojo floor",season:"the season",simulator:"year simulator",monitor:"state monitor",apisview:"agent systems",immune:"signal integrity",dagify:"dependency graphs",ledgerview:"decision ledger",brief:"weekly brief",negotiate:"negotiation prep",joy:"joy ledger"};
+ const GROUPS={OVERVIEW:["act","optlayer","quantum","integrated","exec","franchise","rail","board","alignment","compliance","workload","queue","blockers","warning","signals"],GROWTH:["leads","deals","expansion","growth","whitespace"],CENTERS:["team","lenses","engagement","mastery","table","batch","compare"],NETWORK:["network","optimizer","transfers","fivebasis","cohort"],WORKFLOW:["acquire","deliver","retain","operate","plan","metrics","failure","onboarding"],PROGRAMS:["portfolio","pain","calendar","financials","growthfin"],METHOD:["agenda","dynamics","audit","success","reports","playback","risk","fdd","review","sensitivity","glossary"],ADAPTIVE:["twin","lifecycle","labor","ltv","velocity","auction","scheduler","sentinel","precedent","constitution"],LIVE:["dojo","season","simulator","monitor","apisview","immune","dagify","ledgerview","brief","negotiate","joy"]};
+ const TABL={act:"action queue",optlayer:"optimization layer",quantum:"quantum pm",integrated:"mission control",alignment:"system alignment",dynamics:"operations dynamics",board:"operations board",lenses:"six lenses",rail:"threads & queue",network:"network health",table:"network map",team:"center detail",mastery:"belts",transfers:"transfers",optimizer:"operations",pain:"franchisee support",portfolio:"programs",engagement:"engagement",franchise:"overview",agenda:"methodology",growth:"growth",calendar:"calendar",acquire:"acquire",deliver:"deliver",retain:"retain",operate:"operate",plan:"first 90",metrics:"metrics",failure:"failure",warning:"early warning",leads:"lead pipeline",expansion:"expansion engine",fivebasis:"unified views",signals:"network signals",compliance:"compliance & safety",workload:"approver workload",whitespace:"territory white space",financials:"financial roll-up",audit:"audit trail",blockers:"growth blockers",deals:"deals",onboarding:"opening project plan",growthfin:"financial growth",success:"success rate",reports:"reports & exports",batch:"batch operations",playback:"historical playback",exec:"executive summary",glossary:"glossary",risk:"risk register",fdd:"fdd item 20",review:"week in review",compare:"center comparison",queue:"approval queue",cohort:"cohort analysis",sensitivity:"sensitivity analysis",twin:"network twin",lifecycle:"lifecycle engine",labor:"sensei supply chain",ltv:"family forward value",velocity:"curriculum velocity",auction:"territory portfolio",scheduler:"interaction scheduler",sentinel:"compliance sentinel",precedent:"precedent & calibration",constitution:"governance constitution",dojo:"the dojo floor",season:"the season",simulator:"year simulator",monitor:"state monitor",apisview:"agent systems",immune:"signal integrity",dagify:"dependency graphs",ledgerview:"decision ledger",brief:"weekly brief",negotiate:"negotiation prep",joy:"joy ledger"};
  const groupOf=t=>Object.keys(GROUPS).find(g=>GROUPS[g].includes(t));
  // Keyboard nav: Left/Right cycles through the visible tabs in the current
  // group, matching what a mouse click on adjacent tab buttons would do —
@@ -6564,6 +6687,7 @@ function EngineInner({initialTab}){
     <div style={{fontFamily:"Helvetica",fontSize:8,color:MUT}}>reads the live lead pipeline · broker/cohort actions write the shared record ledger · candidate submission — proposes, does not enact</div>
    </div>);})()}
   {tab==="lenses"&&<EngineErrorBoundary><SixLensTab centers={centers} states={states} leads={LEADS} railData={railData} opt={opt} setOpt={setOpt} logL={logL} focusCenter={focusCenter} jumpReason={jumpReason} clearJumpReason={()=>setJumpReason(null)}/></EngineErrorBoundary>}
+  {tab==="optlayer"&&<EngineErrorBoundary><OptimizationLayerTab railData={railData} centers={centers} jumpTo={jumpTo}/></EngineErrorBoundary>}
   {tab==="act"&&<EngineErrorBoundary><ActionQueueTab railData={railData} decisions={decisions} setDecisions={setDecisions} recordDecision={recordDecision} logL={logL} opt={opt} jumpTo={jumpTo}/></EngineErrorBoundary>}
   {tab==="rail"&&<DecisionRailTab railData={railData} logL={logL} decisions={decisions} setDecisions={setDecisions} decisionHistory={decisionHistory} recordDecision={recordDecision} jumpTo={jumpTo} opt={opt}/>}
   {tab==="board"&&<EngineErrorBoundary>{boardOverrideActive&&<div style={{border:`1px solid ${VIO}`,borderLeft:`3px solid ${VIO}`,background:"#faf9ff",padding:"6px 10px",marginBottom:10,fontFamily:"Helvetica",fontSize:9.5,color:"#3d3470"}}>This tab is locally overridden to <b>{boardOverride}</b> — network-wide posture is <b>{boardGlobalPosture}</b>. Proposals below reflect the override. Set from Quantum PM.</div>}<OperationsBoardTab railData={boardRailData} decisions={decisions} setDecisions={setDecisions} decisionHistory={decisionHistory} recordDecision={recordDecision} logL={logL} opt={opt} dyn={dyn} jumpTo={jumpTo}/></EngineErrorBoundary>}
