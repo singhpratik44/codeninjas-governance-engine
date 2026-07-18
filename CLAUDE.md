@@ -19,6 +19,16 @@ Multiple Claude Code sessions sometimes work on this repo concurrently and indep
 - `claude/new-session-7sihmx` (PR #1, open) — local scenario override for the `team` tab.
 - `claude/autonomous-quantum-development-5blmms` (no PR yet) — Map3D drill-down fixes.
 
+## Multi-Session GitHub + Claude Coordination
+
+See [`GITHUB_CLAUDE_COORDINATION.md`](./GITHUB_CLAUDE_COORDINATION.md) for verified guidance on:
+- GitHub permission models (monorepo vs. polyrepo, CODEOWNERS, branch protection)
+- Claude Code GitHub Actions setup (triggers, `claude_args`, structured outputs, provider routing)
+- Multi-session parallelism patterns (stable subagents, experimental agent teams)
+- Recommended checks for this repo (PR test harness, `@claude` review action, `PreToolUse` hooks)
+
+That document is the authoritative reference for GitHub/Claude coordination strategy. This section focuses on Engine.tsx-specific architectural invariants.
+
 ## Architecture
 
 - `src/Engine.tsx` — the entire application. One file, ~6,500 lines. `export default function Engine(props)` wraps `EngineInner`, which holds essentially all state.
