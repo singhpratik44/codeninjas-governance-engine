@@ -15,9 +15,8 @@ Multiple Claude Code sessions sometimes work on this repo concurrently and indep
 3. Keep PRs small and merge to `main` (or rebase onto it) frequently. This is a single ~6,500-line file — long-lived branches drift into unresolvable conflicts fast. Prefer opening a PR over pushing straight to `main`.
 4. Remove your line once merged (or abandoned) so this list reflects reality, not history.
 
-**Currently claimed** (as of 2026-07-17 — verify against actual PR/branch state, this goes stale):
-- `claude/new-session-7sihmx` (PR #1, open) — local scenario override for the `team` tab.
-- `claude/autonomous-quantum-development-5blmms` (no PR yet) — Map3D drill-down fixes.
+**Currently claimed** (as of 2026-07-26 — verify against actual PR/branch state, this goes stale):
+- (none — all work merged to main)
 
 ## Architecture
 
