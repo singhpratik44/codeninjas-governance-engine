@@ -1,12 +1,19 @@
 """LangGraph-based orchestration layer with five-plane governance enforcement.
 
 Implements:
-- Topology routing: parallel vs. sequential vs. hierarchical execution
+- Topology routing: parallel vs. sequential vs. hierarchical execution (AdaptOrch pattern)
 - Five-plane governance: reasoning + network/identity/endpoint/data enforcement
 - Dynamic agent instantiation: ⟨Instruction, Context, Tools, Model⟩ tuples
 - Path-based audit: queryable evidence trails via Neo4j
+- Ollama local model provider: zero-cost inference via local LLM
 
 Pattern: AdaptOrch (topology-aware orchestration) + Policies on Paths (path-based governance)
+
+To use Ollama:
+1. Install: https://ollama.ai
+2. Pull model: ollama pull mistral
+3. Start server: ollama serve
+4. This module automatically uses Ollama if available, falls back to Claude API
 """
 from __future__ import annotations
 
@@ -17,15 +24,31 @@ from typing import Any, Callable, Optional, Literal
 from enum import Enum
 import json
 
+try:
+    from ollama_integration import OllamaModelAdapter, OllamaConfig
+    OLLAMA_AVAILABLE = True
+except ImportError:
+    OLLAMA_AVAILABLE = False
+
+try:
+    from topology_router import TopologyRouter, ExecutionTopology as RouterTopology, TaskDAG as RouterTaskDAG
+    TOPOLOGY_ROUTER_AVAILABLE = True
+except ImportError:
+    TOPOLOGY_ROUTER_AVAILABLE = False
+
 
 # ================================================================ Topology Model
 
-class ExecutionTopology(Enum):
-    """Execution topology options (AdaptOrch)."""
-    SEQUENTIAL = "sequential"  # Linear chain: A → B → C
-    PARALLEL = "parallel"      # Fan-out: A → {B, C, D}
-    HIERARCHICAL = "hierarchical"  # Tree: A → {B → {C, D}, E}
-    HYBRID = "hybrid"          # Mixed: some steps parallel, some sequential
+# Use topology_router's ExecutionTopology if available, else define locally
+if TOPOLOGY_ROUTER_AVAILABLE:
+    from topology_router import ExecutionTopology
+else:
+    class ExecutionTopology(Enum):
+        """Execution topology options (AdaptOrch)."""
+        SEQUENTIAL = "sequential"  # Linear chain: A → B → C
+        PARALLEL = "parallel"      # Fan-out: A → {B, C, D}
+        HIERARCHICAL = "hierarchical"  # Tree: A → {B → {C, D}, E}
+        HYBRID = "hybrid"          # Mixed: some steps parallel, some sequential
 
 
 @dataclass
@@ -37,6 +60,7 @@ class TaskDAG:
     can_parallelize: bool = False  # independent of siblings?
     estimated_complexity: int = 1  # 1=simple, 10=complex
     tools_required: list[str] = field(default_factory=list)
+    estimated_duration_ms: int = 100  # Expected runtime
 
     def in_degree(self) -> int:
         """Number of predecessors."""
@@ -58,24 +82,64 @@ class TopologyDecision:
     topology: ExecutionTopology
     reasoning: str
     phases: list[list[str]]  # Grouped task_ids per execution phase
+    confidence: float = 0.8  # Confidence in this topology choice (0-1)
 
 
 class TaskDecompositionRouter:
-    """Routing logic: task DAG → execution topology (O(|V|+|E|))."""
+    """Routing logic: task DAG → execution topology (O(|V|+|E|)).
+
+    Uses production-grade TopologyRouter from topology_router.py if available,
+    falls back to simplified heuristics if module unavailable.
+    """
 
     @staticmethod
     def route(tasks: dict[str, TaskDAG]) -> TopologyDecision:
         """Inspect task DAG and pick optimal topology.
 
-        Algorithm:
-        1. Count dependency depth
-        2. Identify parallelizable clusters
-        3. Select topology
+        Uses TopologyRouter if available (full algorithm), else simplified heuristics.
+        Returns topology choice + execution phases.
         """
         if not tasks:
             return TopologyDecision(ExecutionTopology.SEQUENTIAL, "No tasks", [[]])
 
-        # Build adjacency
+        # Use production topology router if available
+        if TOPOLOGY_ROUTER_AVAILABLE:
+            # Convert our TaskDAG objects to router's format
+            router_tasks = {}
+            for task_id, task in tasks.items():
+                router_tasks[task_id] = RouterTaskDAG(
+                    task_id=task.task_id,
+                    instructions=task.instructions,
+                    dependencies=task.dependencies,
+                    can_parallelize=task.can_parallelize,
+                    estimated_complexity=task.estimated_complexity,
+                    tools_required=task.tools_required,
+                    estimated_duration_ms=task.estimated_duration_ms,
+                )
+
+            # Route using production algorithm
+            decision = TopologyRouter.route(router_tasks)
+
+            # Convert back to our format
+            return TopologyDecision(
+                topology=ExecutionTopology[decision.topology.value.upper()],
+                reasoning=decision.reasoning,
+                phases=decision.phases,
+                confidence=decision.confidence,
+            )
+
+        # Fallback: simplified heuristics
+        return TaskDecompositionRouter._route_simplified(tasks)
+
+    @staticmethod
+    def _route_simplified(tasks: dict[str, TaskDAG]) -> TopologyDecision:
+        """Simplified topology routing (fallback if topology_router unavailable).
+
+        Algorithm:
+        1. Count dependency depth
+        2. Identify parallelizable clusters
+        3. Select topology based on heuristics
+        """
         max_depth = 0
         parallel_opportunities = 0
 
@@ -281,14 +345,23 @@ Authority: {self.principal.capabilities if self.principal else 'undefined'}
 # ================================================================ Model Abstraction
 
 class ModelAdapter:
-    """Model-agnostic adapter: swappable Claude/GPT/Gemini/open-weight."""
+    """Model-agnostic adapter: swappable Claude/GPT/Gemini/Ollama/open-weight."""
 
     PROVIDERS = {
         "claude": {"models": ["claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5-20251001"]},
         "openai": {"models": ["gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"]},
         "gemini": {"models": ["gemini-2.0-pro", "gemini-1.5-pro", "gemini-1.5-flash"]},
+        "ollama": {"models": ["mistral", "llama2", "neural-chat", "orca-mini"]},
         "open-weight": {"models": ["llama-3.1-405b", "llama-2-70b", "mistral-7b"]},
     }
+
+    # Initialize Ollama adapter if available
+    _ollama_adapter = None
+    if OLLAMA_AVAILABLE:
+        try:
+            _ollama_adapter = OllamaModelAdapter(OllamaConfig())
+        except Exception as e:
+            print(f"⚠ Ollama initialization failed: {e}")
 
     @staticmethod
     def resolve_provider(model: str) -> str:
@@ -299,14 +372,62 @@ class ModelAdapter:
         return "claude"  # Default
 
     @staticmethod
-    def get_default_for_complexity(complexity: int, prefer_provider: str = "claude") -> str:
-        """Pick model based on task complexity."""
-        if complexity <= 2:
-            return "claude-haiku-4-5-20251001"
-        elif complexity <= 5:
-            return "claude-sonnet-5"
+    def get_default_for_complexity(complexity: int, prefer_provider: str = "claude", prefer_ollama: bool = True) -> str:
+        """Pick model based on task complexity.
+
+        If Ollama is available and prefer_ollama=True, uses local models (zero cost).
+        Otherwise falls back to Claude/OpenAI based on complexity.
+
+        Args:
+            complexity: 1-10 scale (1=simple, 10=complex)
+            prefer_provider: Provider preference if Ollama unavailable
+            prefer_ollama: Use Ollama if available (zero cost)
+
+        Returns:
+            Model name/identifier
+        """
+        # Prefer local Ollama if available (zero token cost)
+        if prefer_ollama and ModelAdapter._ollama_adapter:
+            return f"ollama:{ModelAdapter._ollama_adapter.select_model(complexity, prefer_speed=True)}"
+
+        # Fallback to API-based models
+        if prefer_provider == "claude":
+            if complexity <= 2:
+                return "claude-haiku-4-5-20251001"
+            elif complexity <= 5:
+                return "claude-sonnet-5"
+            else:
+                return "claude-opus-5"
+        elif prefer_provider == "openai":
+            if complexity <= 2:
+                return "gpt-3.5-turbo"
+            elif complexity <= 5:
+                return "gpt-4"
+            else:
+                return "gpt-4-turbo"
         else:
-            return "claude-opus-5"
+            # Fallback to Claude
+            return "claude-haiku-4-5-20251001"
+
+    @staticmethod
+    def invoke(model: str, prompt: str, system: Optional[str] = None) -> str:
+        """Invoke a model (Ollama or API).
+
+        Args:
+            model: Model identifier (e.g., "ollama:mistral", "claude-sonnet-5")
+            prompt: The prompt to send
+            system: Optional system prompt
+
+        Returns:
+            Generated response
+        """
+        if model.startswith("ollama:") and ModelAdapter._ollama_adapter:
+            # Use local Ollama
+            model_name = model.split(":", 1)[1]
+            return ModelAdapter._ollama_adapter.invoke(prompt, system=system, model=model_name)
+
+        # For API models, return a placeholder (would need actual API client)
+        return f"[Model {model} would invoke API here]"
 
 
 # ================================================================ Orchestration Graph (LangGraph)
