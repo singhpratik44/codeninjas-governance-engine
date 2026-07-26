@@ -1,0 +1,18 @@
+{
+  "name": "runtime-governance",
+  "version": "1.0.0",
+  "description": "Clearline: Runtime Governance for Autonomous Work. Synthesizing 10 cutting-edge research papers into a coherent policy enforcement framework.",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.jsx --bundle --minify --outfile=bundle.js --define:__BUILD_SHA__=\\\"$(git rev-parse HEAD)\\\" && echo 'Build complete. SHA: '$(git rev-parse HEAD)",
+    "dev": "esbuild src/main.jsx --bundle --outfile=bundle.js --define:__BUILD_SHA__=\\\"local\\\" --watch",
+    "test": "node scripts/test-render.js"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}
