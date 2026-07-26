@@ -11,6 +11,7 @@ A research-informed governance engine for clinical triage decisions with runtime
 - **DAG orchestration** for parallel gate execution and critical path analysis
 - **Hash-chained audit trail** (AuditWeave pattern) with cryptographic integrity verification
 - **Decision Bill of Material** tracking model version, data sources, and evidence chain
+- **Neo4j persistence** (optional) for persistent graph storage and Cypher query support
 
 ## Quick Start
 
@@ -48,13 +49,33 @@ Parallelizable gates: ['fever_gate', 'hypoxia_gate', 'comorbidity_gate']
 Audit chain integrity: 100% verified
 ```
 
-### Fallback Mode (Sequential Gates)
+### Fallback Modes
 
-If `networkx` is unavailable, the engine falls back to sequential gate evaluation:
-
+**Sequential Gates** (if networkx unavailable):
 ```bash
 python -m triage_engine triage --no-dag
 ```
+
+**With Neo4j Persistence** (if Neo4j server running):
+```bash
+# Initialize governance DAG in Neo4j
+python -m triage_engine neo4j-init \
+  --uri bolt://localhost:7687 \
+  --user neo4j \
+  --password password
+
+# Triage with persistent graph storage
+python -m triage_engine triage \
+  --neo4j-uri bolt://localhost:7687 \
+  --neo4j-user neo4j \
+  --neo4j-password password
+
+# Query graph statistics
+python -m triage_engine neo4j-stats
+```
+
+Neo4j is **optional** — triage works without it (JSON snapshots only).
+
 
 ## Architecture
 
@@ -234,8 +255,9 @@ Results:
 ## Documentation
 
 - **[DAG_ORCHESTRATION.md](./DAG_ORCHESTRATION.md)** — Detailed architecture guide with research sources
-- **[requirements.txt](./requirements.txt)** — Python dependencies (networkx>=3.0)
-- **tests/** — Unit test suite (15 tests covering all major functions)
+- **[NEO4J_PERSISTENCE.md](./NEO4J_PERSISTENCE.md)** — Neo4j graph storage, Cypher queries, setup guide
+- **[requirements.txt](./requirements.txt)** — Python dependencies (networkx>=3.0, neo4j>=5.0)
+- **tests/** — Unit test suite (20 tests: 15 core + 5 Neo4j integration)
 
 ## Research Sources
 
