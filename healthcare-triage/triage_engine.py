@@ -24,6 +24,12 @@ try:
 except ImportError:
     DAG_AVAILABLE = False
 
+try:
+    from triage_neo4j import TriageNeo4jStore
+    NEO4J_AVAILABLE = True
+except ImportError:
+    NEO4J_AVAILABLE = False
+
 SCHEMA_VERSION = 1
 TRIAGE_LEVELS = ["green", "yellow", "orange", "red"]  # stable → urgent
 ROUTING_OPTIONS = ["discharge", "general_admission", "ed", "icu", "trauma"]
@@ -559,11 +565,17 @@ def ingest_patients(state: TriageState, csv_path: str) -> TriageState:
                 state.patients.append(patient)
     return state
 
-def triage_all_patients(state: TriageState, use_dag: bool = True) -> TriageState:
+def triage_all_patients(state: TriageState, use_dag: bool = True, neo4j_store: TriageNeo4jStore | None = None) -> TriageState:
     """Make triage decisions for all patients without existing decisions.
 
     Uses DAG orchestrator if available (parallel gates, hash-chained audit trail).
     Falls back to sequential gate evaluation if networkx not available.
+    Optionally persists decisions to Neo4j graph database.
+
+    Args:
+        state: Triage state to update
+        use_dag: Use DAG orchestration (default True)
+        neo4j_store: Optional Neo4j store for persistence
     """
     for i, patient in enumerate(state.patients):
         # Skip if already has a decision
@@ -576,6 +588,10 @@ def triage_all_patients(state: TriageState, use_dag: bool = True) -> TriageState
             decision = make_triage_decision(patient, f"TRIAGE-{i:04d}", state.config)
 
         state.decisions.append(decision)
+
+        # Persist to Neo4j if available
+        if neo4j_store and NEO4J_AVAILABLE:
+            neo4j_store.store_decision(decision.decision_id, patient.patient_id, asdict(decision))
 
     return state
 
@@ -656,17 +672,30 @@ def build_command_center_snapshot(state: TriageState) -> dict:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Healthcare Triage Engine (with DAG governance)")
+    parser = argparse.ArgumentParser(description="Healthcare Triage Engine (with DAG + Neo4j)")
     subparsers = parser.add_subparsers(dest="command", help="Command")
 
     ingest_parser = subparsers.add_parser("ingest", help="Ingest patients from CSV")
     ingest_parser.add_argument("--csv", default=os.path.join(DATA_DIR, "patients.csv"), help="Path to CSV file")
 
     triage_parser = subparsers.add_parser("triage", help="Run triage on ingested patients")
-    triage_parser.add_argument("--no-dag", action="store_true", help="Disable DAG orchestration (use sequential gates)")
+    triage_parser.add_argument("--no-dag", action="store_true", help="Disable DAG orchestration")
+    triage_parser.add_argument("--neo4j-uri", default="bolt://localhost:7687", help="Neo4j URI")
+    triage_parser.add_argument("--neo4j-user", default="neo4j", help="Neo4j username")
+    triage_parser.add_argument("--neo4j-password", default="password", help="Neo4j password")
 
     build_parser = subparsers.add_parser("build", help="Build command center snapshot")
     build_parser.add_argument("--no-dag", action="store_true", help="Disable DAG metadata in snapshot")
+
+    neo4j_parser = subparsers.add_parser("neo4j-init", help="Initialize Neo4j governance DAG")
+    neo4j_parser.add_argument("--uri", default="bolt://localhost:7687", help="Neo4j URI")
+    neo4j_parser.add_argument("--user", default="neo4j", help="Neo4j username")
+    neo4j_parser.add_argument("--password", default="password", help="Neo4j password")
+
+    neo4j_stats_parser = subparsers.add_parser("neo4j-stats", help="Get Neo4j graph statistics")
+    neo4j_stats_parser.add_argument("--uri", default="bolt://localhost:7687", help="Neo4j URI")
+    neo4j_stats_parser.add_argument("--user", default="neo4j", help="Neo4j username")
+    neo4j_stats_parser.add_argument("--password", default="password", help="Neo4j password")
 
     args = parser.parse_args()
 
@@ -678,11 +707,25 @@ if __name__ == "__main__":
     elif args.command == "triage":
         state = load_state()
         use_dag = not args.no_dag
-        state = triage_all_patients(state, use_dag=use_dag)
+
+        # Initialize Neo4j if available
+        neo4j_store = None
+        if NEO4J_AVAILABLE:
+            neo4j_store = TriageNeo4jStore(uri=args.neo4j_uri, user=args.neo4j_user, password=args.neo4j_password)
+            if neo4j_store.connect():
+                neo4j_store.store_governance_dag()
+
+        state = triage_all_patients(state, use_dag=use_dag, neo4j_store=neo4j_store)
         save_state(state)
         print(f"Triaged {len(state.decisions)} patients")
+
         if DAG_AVAILABLE and use_dag:
             print("✓ DAG orchestration enabled (parallel gates, hash-chained audit trail)")
+        if NEO4J_AVAILABLE and neo4j_store and neo4j_store._connected:
+            stats = neo4j_store.stats()
+            print(f"✓ Neo4j persisted: {stats.get('decision_count', 0)} decisions, {stats.get('relationship_count', 0)} relationships")
+            neo4j_store.close()
+
     elif args.command == "build":
         state = load_state()
         snapshot = build_command_center_snapshot(state)
@@ -701,5 +744,27 @@ if __name__ == "__main__":
             print(f"Parallelizable gates: {list(dag.get('parallelization_opportunities', {}).keys())}")
             if snapshot["metrics"].get("dag_chain_integrity_rate"):
                 print(f"Audit chain integrity: {snapshot['metrics']['dag_chain_integrity_rate']*100:.0f}% verified")
+
+    elif args.command == "neo4j-init":
+        if NEO4J_AVAILABLE:
+            store = TriageNeo4jStore(uri=args.uri, user=args.user, password=args.password)
+            if store.connect():
+                store.store_governance_dag()
+                store.close()
+        else:
+            print("Neo4j driver not available. Install: pip install neo4j")
+
+    elif args.command == "neo4j-stats":
+        if NEO4J_AVAILABLE:
+            store = TriageNeo4jStore(uri=args.uri, user=args.user, password=args.password)
+            if store.connect():
+                stats = store.stats()
+                print("=== Neo4j Graph Statistics ===")
+                for key, value in sorted(stats.items()):
+                    print(f"{key}: {value}")
+                store.close()
+        else:
+            print("Neo4j driver not available. Install: pip install neo4j")
+
     else:
         parser.print_help()
