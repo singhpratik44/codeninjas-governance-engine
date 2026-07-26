@@ -1,0 +1,927 @@
+{
+  "generated_at": "2026-07-26T04:07:53.288674+00:00",
+  "snapshot_seq": 2,
+  "queue": [
+    {
+      "decision_id": "TRIAGE-0001",
+      "patient_id": "P002",
+      "ai_triage_level": "yellow",
+      "ai_routing": "general_admission",
+      "ai_confidence": 0.5499999999999999,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "high fever requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.8,
+          "oxygen_saturation": 94,
+          "blood_pressure_sys": 105,
+          "heart_rate": 118
+        },
+        "demographics": {
+          "age": 7,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "fever cough",
+          "comorbidities": [
+            "asthma"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 1
+        },
+        "triage_reasoning": "high fever; mild hypoxia"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": false,
+        "hypoxia_gate": true,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 1500,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.287988+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0002",
+      "patient_id": "P003",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.6,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "age 81 requires escalation; low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 36.8,
+          "oxygen_saturation": 88,
+          "blood_pressure_sys": 155,
+          "heart_rate": 102
+        },
+        "demographics": {
+          "age": 81,
+          "sex": "M"
+        },
+        "presentation": {
+          "chief_complaint": "shortness of breath",
+          "comorbidities": [
+            "COPD",
+            "heart failure"
+          ],
+          "allergies": [
+            "NSAIDs"
+          ],
+          "prior_visits": 12
+        },
+        "triage_reasoning": "low oxygen; age-based risk"
+      },
+      "policy_checks": {
+        "age_gate": false,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288000+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0009",
+      "patient_id": "P010",
+      "ai_triage_level": "yellow",
+      "ai_routing": "general_admission",
+      "ai_confidence": 0.44999999999999996,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 37.8,
+          "oxygen_saturation": 91,
+          "blood_pressure_sys": 155,
+          "heart_rate": 105
+        },
+        "demographics": {
+          "age": 56,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "chest tightness",
+          "comorbidities": [
+            "CAD",
+            "hypertension"
+          ],
+          "allergies": [
+            "aspirin allergy"
+          ],
+          "prior_visits": 4
+        },
+        "triage_reasoning": "low oxygen"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 1500,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288070+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0013",
+      "patient_id": "P014",
+      "ai_triage_level": "red",
+      "ai_routing": "icu",
+      "ai_confidence": 0.95,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "age 3 requires escalation; low oxygen requires escalation; critical triage requires physician review",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.1,
+          "oxygen_saturation": 89,
+          "blood_pressure_sys": 98,
+          "heart_rate": 125
+        },
+        "demographics": {
+          "age": 3,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "persistent cough",
+          "comorbidities": [
+            "RSV risk"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 0
+        },
+        "triage_reasoning": "fever; low oxygen; abnormal heart rate; age-based risk"
+      },
+      "policy_checks": {
+        "age_gate": false,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": false
+      },
+      "cost_estimate": 5000,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288103+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0016",
+      "patient_id": "P017",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.75,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 37.5,
+          "oxygen_saturation": 89,
+          "blood_pressure_sys": 165,
+          "heart_rate": 125
+        },
+        "demographics": {
+          "age": 60,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "crushing chest pain",
+          "comorbidities": [
+            "MI risk",
+            "diabetes"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 5
+        },
+        "triage_reasoning": "low oxygen; abnormal heart rate; abnormal blood pressure"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288125+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0018",
+      "patient_id": "P019",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.6,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "age 77 requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 36.8,
+          "oxygen_saturation": 94,
+          "blood_pressure_sys": 100,
+          "heart_rate": 48
+        },
+        "demographics": {
+          "age": 77,
+          "sex": "M"
+        },
+        "presentation": {
+          "chief_complaint": "syncope",
+          "comorbidities": [
+            "heart failure",
+            "anemia"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 9
+        },
+        "triage_reasoning": "mild hypoxia; abnormal heart rate; age-based risk"
+      },
+      "policy_checks": {
+        "age_gate": false,
+        "fever_gate": true,
+        "hypoxia_gate": true,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288139+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0019",
+      "patient_id": "P020",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.6,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 38.5,
+          "oxygen_saturation": 88,
+          "blood_pressure_sys": 130,
+          "heart_rate": 120
+        },
+        "demographics": {
+          "age": 41,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe allergic reaction",
+          "comorbidities": [
+            "anaphylaxis history"
+          ],
+          "allergies": [
+            "peanut",
+            "shellfish"
+          ],
+          "prior_visits": 4
+        },
+        "triage_reasoning": "fever; low oxygen"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288219+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0020",
+      "patient_id": "P021",
+      "ai_triage_level": "yellow",
+      "ai_routing": "general_admission",
+      "ai_confidence": 0.4,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "high fever requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.6,
+          "oxygen_saturation": 95,
+          "blood_pressure_sys": 125,
+          "heart_rate": 105
+        },
+        "demographics": {
+          "age": 15,
+          "sex": "M"
+        },
+        "presentation": {
+          "chief_complaint": "severe abdominal pain",
+          "comorbidities": [
+            "appendicitis suspect"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 0
+        },
+        "triage_reasoning": "high fever"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": false,
+        "hypoxia_gate": true,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 1500,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288233+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0021",
+      "patient_id": "P022",
+      "ai_triage_level": "red",
+      "ai_routing": "icu",
+      "ai_confidence": 0.9499999999999998,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "high fever requires escalation; low oxygen requires escalation; critical triage requires physician review",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 40.2,
+          "oxygen_saturation": 90,
+          "blood_pressure_sys": 160,
+          "heart_rate": 125
+        },
+        "demographics": {
+          "age": 70,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe infection signs",
+          "comorbidities": [
+            "immunocompromised"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 8
+        },
+        "triage_reasoning": "high fever; low oxygen; abnormal heart rate"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": false,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": false
+      },
+      "cost_estimate": 5000,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288242+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0024",
+      "patient_id": "P025",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.65,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 37.8,
+          "oxygen_saturation": 85,
+          "blood_pressure_sys": 140,
+          "heart_rate": 135
+        },
+        "demographics": {
+          "age": 26,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe dyspnea",
+          "comorbidities": [
+            "asthma exacerbation"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 3
+        },
+        "triage_reasoning": "low oxygen; abnormal heart rate"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288268+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0039",
+      "patient_id": "P040",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.6,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 38.7,
+          "oxygen_saturation": 91,
+          "blood_pressure_sys": 150,
+          "heart_rate": 108
+        },
+        "demographics": {
+          "age": 57,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "moderate shortness breath",
+          "comorbidities": [
+            "COPD"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 6
+        },
+        "triage_reasoning": "fever; low oxygen"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288375+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0041",
+      "patient_id": "P042",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.75,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "age 76 requires escalation; high fever requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.8,
+          "oxygen_saturation": 95,
+          "blood_pressure_sys": 110,
+          "heart_rate": 125
+        },
+        "demographics": {
+          "age": 76,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe dehydration",
+          "comorbidities": [
+            "kidney disease"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 5
+        },
+        "triage_reasoning": "high fever; abnormal heart rate; age-based risk"
+      },
+      "policy_checks": {
+        "age_gate": false,
+        "fever_gate": false,
+        "hypoxia_gate": true,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288392+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0043",
+      "patient_id": "P044",
+      "ai_triage_level": "red",
+      "ai_routing": "icu",
+      "ai_confidence": 0.9499999999999998,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "high fever requires escalation; low oxygen requires escalation; critical triage requires physician review",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 40.1,
+          "oxygen_saturation": 87,
+          "blood_pressure_sys": 155,
+          "heart_rate": 125
+        },
+        "demographics": {
+          "age": 66,
+          "sex": "M"
+        },
+        "presentation": {
+          "chief_complaint": "severe pneumonia signs",
+          "comorbidities": [
+            "lung disease"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 3
+        },
+        "triage_reasoning": "high fever; low oxygen; abnormal heart rate"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": false,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": false
+      },
+      "cost_estimate": 5000,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288407+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0044",
+      "patient_id": "P045",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.7999999999999999,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 38.9,
+          "oxygen_saturation": 82,
+          "blood_pressure_sys": 140,
+          "heart_rate": 135
+        },
+        "demographics": {
+          "age": 18,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe acute asthma",
+          "comorbidities": [
+            "asthma"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 2
+        },
+        "triage_reasoning": "fever; low oxygen; abnormal heart rate"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288416+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0050",
+      "patient_id": "P051",
+      "ai_triage_level": "yellow",
+      "ai_routing": "general_admission",
+      "ai_confidence": 0.4,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "high fever requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.7,
+          "oxygen_saturation": 96,
+          "blood_pressure_sys": 135,
+          "heart_rate": 112
+        },
+        "demographics": {
+          "age": 44,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "fever vomiting",
+          "comorbidities": [
+            "none"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 0
+        },
+        "triage_reasoning": "high fever"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": false,
+        "hypoxia_gate": true,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 1500,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288463+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0056",
+      "patient_id": "P057",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.8499999999999999,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.5,
+          "oxygen_saturation": 90,
+          "blood_pressure_sys": 180,
+          "heart_rate": 120
+        },
+        "demographics": {
+          "age": 58,
+          "sex": "M"
+        },
+        "presentation": {
+          "chief_complaint": "severe stroke symptoms",
+          "comorbidities": [
+            "hypertension",
+            "afib"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 4
+        },
+        "triage_reasoning": "high fever; low oxygen; abnormal blood pressure"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288512+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0058",
+      "patient_id": "P059",
+      "ai_triage_level": "red",
+      "ai_routing": "icu",
+      "ai_confidence": 0.9499999999999998,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "high fever requires escalation; low oxygen requires escalation; critical triage requires physician review",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 40.5,
+          "oxygen_saturation": 88,
+          "blood_pressure_sys": 145,
+          "heart_rate": 135
+        },
+        "demographics": {
+          "age": 67,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe sepsis signs",
+          "comorbidities": [
+            "immunocompromised",
+            "diabetes"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 6
+        },
+        "triage_reasoning": "high fever; low oxygen; abnormal heart rate"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": false,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": false
+      },
+      "cost_estimate": 5000,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288530+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0059",
+      "patient_id": "P060",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.7999999999999999,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.1,
+          "oxygen_saturation": 85,
+          "blood_pressure_sys": 105,
+          "heart_rate": 140
+        },
+        "demographics": {
+          "age": 21,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe anaphylaxis",
+          "comorbidities": [
+            "severe allergies"
+          ],
+          "allergies": [
+            "peanut",
+            "tree nut"
+          ],
+          "prior_visits": 1
+        },
+        "triage_reasoning": "fever; low oxygen; abnormal heart rate"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288538+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0063",
+      "patient_id": "P064",
+      "ai_triage_level": "orange",
+      "ai_routing": "ed",
+      "ai_confidence": 0.65,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 37.9,
+          "oxygen_saturation": 89,
+          "blood_pressure_sys": 95,
+          "heart_rate": 125
+        },
+        "demographics": {
+          "age": 46,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe GI bleed",
+          "comorbidities": [
+            "GI ulcer risk"
+          ],
+          "allergies": [
+            "NSAIDs"
+          ],
+          "prior_visits": 3
+        },
+        "triage_reasoning": "low oxygen; abnormal heart rate"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 2400,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288574+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0069",
+      "patient_id": "P070",
+      "ai_triage_level": "yellow",
+      "ai_routing": "general_admission",
+      "ai_confidence": 0.5499999999999999,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "high fever requires escalation",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.8,
+          "oxygen_saturation": 92,
+          "blood_pressure_sys": 155,
+          "heart_rate": 115
+        },
+        "demographics": {
+          "age": 38,
+          "sex": "F"
+        },
+        "presentation": {
+          "chief_complaint": "severe infection",
+          "comorbidities": [
+            "immunocompromised"
+          ],
+          "allergies": [
+            "none"
+          ],
+          "prior_visits": 5
+        },
+        "triage_reasoning": "high fever; mild hypoxia"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": false,
+        "hypoxia_gate": true,
+        "comorbidity_gate": true,
+        "critical_gate": true
+      },
+      "cost_estimate": 1500,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288625+00:00"
+    },
+    {
+      "decision_id": "TRIAGE-0071",
+      "patient_id": "P072",
+      "ai_triage_level": "red",
+      "ai_routing": "icu",
+      "ai_confidence": 0.8999999999999999,
+      "status": "escalated",
+      "escalation_required": true,
+      "escalation_reason": "low oxygen requires escalation; critical triage requires physician review",
+      "evidence_pack": {
+        "vitals": {
+          "temperature": 39.0,
+          "oxygen_saturation": 86,
+          "blood_pressure_sys": 175,
+          "heart_rate": 135
+        },
+        "demographics": {
+          "age": 61,
+          "sex": "M"
+        },
+        "presentation": {
+          "chief_complaint": "severe cardiac",
+          "comorbidities": [
+            "heart failure",
+            "afib"
+          ],
+          "allergies": [
+            "digoxin"
+          ],
+          "prior_visits": 8
+        },
+        "triage_reasoning": "fever; low oxygen; abnormal heart rate; abnormal blood pressure"
+      },
+      "policy_checks": {
+        "age_gate": true,
+        "fever_gate": true,
+        "hypoxia_gate": false,
+        "comorbidity_gate": true,
+        "critical_gate": false
+      },
+      "cost_estimate": 5000,
+      "decision_time_ms": 0,
+      "created_at": "2026-07-26T04:07:53.288645+00:00"
+    }
+  ],
+  "metrics": {
+    "total_decisions": 75,
+    "auto_approve_rate": 0.72,
+    "escalation_rate": 0.28,
+    "override_rate": 0.0,
+    "avg_latency_ms": 0.0,
+    "total_cost": 70300,
+    "pending_count": 21
+  }
+}

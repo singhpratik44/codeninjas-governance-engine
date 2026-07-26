@@ -1,0 +1,16 @@
+{
+  "name": "healthcare-triage",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/main.jsx --bundle --minify --outfile=dist/bundle.js --loader:.tsx=tsx --jsx=automatic --define:__BUILD_SHA__=\"'${BUILD_SHA:-local}'\""
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^29.1.1"
+  }
+}

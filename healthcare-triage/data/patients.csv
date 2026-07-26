@@ -1,0 +1,76 @@
+patient_id,age,sex,chief_complaint,vital_temp,vital_spo2,vital_bp_sys,vital_hr,comorbidities,allergies,prior_visits
+P001,42,M,chest pain,37.2,98,145,92,hypertension,penicillin,3
+P002,7,F,fever cough,39.8,94,105,118,asthma,none,1
+P003,81,M,shortness of breath,36.8,88,155,102,COPD;heart failure,NSAIDs,12
+P004,28,F,abdominal pain,38.5,97,125,88,none,none,0
+P005,65,M,confusion,37.5,96,168,78,diabetes;hypertension,none,5
+P006,34,F,pregnant bleeding,37.1,99,130,76,none,codeine,2
+P007,19,M,severe headache,39.2,97,140,110,none,none,0
+P008,73,F,fall fracture,36.5,95,122,70,osteoporosis;arthritis,none,8
+P009,11,M,sore throat,39.5,96,110,95,none,none,1
+P010,56,F,chest tightness,37.8,91,155,105,CAD;hypertension,aspirin allergy,4
+P011,22,F,allergic reaction,38.1,93,118,115,asthma,penicillin;sulfa,1
+P012,68,M,severe dizziness,36.2,97,88,52,atrial fibrillation,warfarin,6
+P013,45,M,severe laceration,37.0,98,140,100,diabetes,none,0
+P014,3,F,persistent cough,39.1,89,98,125,RSV risk,none,0
+P015,52,F,severe leg pain,37.9,96,148,88,DVT risk,none,2
+P016,38,M,altered mental status,38.7,92,135,110,substance use history,cocaine,3
+P017,60,F,crushing chest pain,37.5,89,165,125,MI risk;diabetes,none,5
+P018,29,F,severe nausea,39.3,97,128,95,migraine;IBS,none,1
+P019,77,M,syncope,36.8,94,100,48,heart failure;anemia,none,9
+P020,41,F,severe allergic reaction,38.5,88,130,120,anaphylaxis history,peanut;shellfish,4
+P021,15,M,severe abdominal pain,39.6,95,125,105,appendicitis suspect,none,0
+P022,70,F,severe infection signs,40.2,90,160,125,immunocompromised,none,8
+P023,33,F,severe palpitations,37.2,98,155,145,SVT history,none,2
+P024,47,M,severe weakness,37.0,95,105,60,myocardial infarction risk,none,1
+P025,26,F,severe dyspnea,37.8,85,140,135,asthma exacerbation,none,3
+P026,51,F,stable chest discomfort,37.1,99,130,75,anxiety,none,1
+P027,44,M,stable headache,36.9,99,120,70,tension headache,none,0
+P028,58,F,stable joint pain,37.3,97,128,80,osteoarthritis,ibuprofen,5
+P029,35,M,stable rash,37.0,98,115,72,eczema,none,0
+P030,64,M,stable cough,37.2,96,125,78,chronic bronchitis,none,3
+P031,48,F,minor laceration,37.1,99,118,68,none,none,0
+P032,22,M,minor ankle pain,36.8,99,112,70,none,none,0
+P033,39,F,minor sore throat,37.4,98,122,75,none,none,1
+P034,55,M,minor indigestion,37.0,99,128,72,none,none,0
+P035,27,F,minor eye irritation,37.1,98,120,73,none,none,0
+P036,50,F,moderate fever,38.9,95,145,98,hypertension,none,2
+P037,32,M,moderate cough,38.6,94,135,105,none,none,1
+P038,61,M,moderate chest pain,38.5,93,160,102,diabetes,none,4
+P039,24,F,moderate leg swelling,38.2,96,122,92,none,none,0
+P040,57,F,moderate shortness breath,38.7,91,150,108,COPD,none,6
+P041,40,M,severe dizziness fall,39.5,92,98,65,syncope risk,none,1
+P042,76,F,severe dehydration,39.8,95,110,125,kidney disease,none,5
+P043,31,F,severe migraine,39.2,97,145,110,migraine;pregnancy,none,1
+P044,66,M,severe pneumonia signs,40.1,87,155,125,lung disease,none,3
+P045,18,F,severe acute asthma,38.9,82,140,135,asthma,none,2
+P046,49,M,stable cardiac,37.0,98,125,72,post-MI,aspirin,8
+P047,36,F,stable post-surgery,37.2,99,120,76,none,none,0
+P048,71,M,stable chronic pain,37.1,96,128,74,arthritis,NSAIDs,10
+P049,25,F,stable URI,37.3,97,115,78,none,none,0
+P050,53,F,stable management,37.0,98,130,71,diabetes control,metformin,4
+P051,44,F,fever vomiting,39.7,96,135,112,none,none,0
+P052,20,M,severe diarrhea,39.1,97,118,105,gastroenteritis,none,0
+P053,62,F,chest wall pain,37.4,99,145,82,musculoskeletal,none,2
+P054,37,M,severe kidney pain,38.8,96,155,105,kidney stone,none,1
+P055,73,F,severe fatigue,37.0,94,120,55,anemia;thyroid,none,7
+P056,29,F,moderate anxiety,37.1,99,128,95,anxiety disorder,none,1
+P057,58,M,severe stroke symptoms,39.5,90,180,120,hypertension;afib,none,4
+P058,43,M,moderate trauma,38.2,97,140,98,MVA risk,none,0
+P059,67,F,severe sepsis signs,40.5,88,145,135,immunocompromised;diabetes,none,6
+P060,21,F,severe anaphylaxis,39.1,85,105,140,severe allergies,peanut;tree nut,1
+P061,51,M,stable follow-up,37.2,98,125,72,HTN control,lisinopril,5
+P062,35,F,minor injury,37.0,99,120,70,none,none,0
+P063,64,M,moderate flu,38.7,94,150,110,none,none,2
+P064,46,F,severe GI bleed,37.9,89,95,125,GI ulcer risk,NSAIDs,3
+P065,28,M,stable wellness,37.1,99,115,68,none,none,0
+P066,72,F,severe UTI symptoms,39.3,96,140,95,diabetes,none,4
+P067,41,M,moderate trauma,38.1,96,135,105,none,none,0
+P068,26,F,severe psychiatric,37.0,97,125,110,bipolar;depression,lithium,2
+P069,55,M,stable diabetes,37.3,98,130,76,diabetes type 2,metformin,6
+P070,38,F,severe infection,39.8,92,155,115,immunocompromised,none,5
+P071,49,F,moderate pain,38.2,97,128,90,fibromyalgia,none,1
+P072,61,M,severe cardiac,39.0,86,175,135,heart failure;afib,digoxin,8
+P073,33,M,minor viral,37.5,99,120,75,none,none,0
+P074,70,F,severe fall injury,37.1,95,110,85,osteoporosis;frail,none,9
+P075,24,F,severe burns,38.9,93,140,125,burn wound,none,0
