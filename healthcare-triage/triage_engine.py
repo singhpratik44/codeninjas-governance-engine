@@ -30,6 +30,21 @@ try:
 except ImportError:
     NEO4J_AVAILABLE = False
 
+try:
+    from triage_orchestration import (
+        create_triage_orchestration_graph,
+        GovernanceEngine,
+        TaskDecompositionRouter,
+        TaskDAG,
+        AgentSpecification,
+        ExecutionPath,
+        CompositePrincipal,
+        ExecutionTopology,
+    )
+    ORCHESTRATION_AVAILABLE = True
+except ImportError:
+    ORCHESTRATION_AVAILABLE = False
+
 SCHEMA_VERSION = 1
 TRIAGE_LEVELS = ["green", "yellow", "orange", "red"]  # stable → urgent
 ROUTING_OPTIONS = ["discharge", "general_admission", "ed", "icu", "trauma"]
@@ -467,6 +482,235 @@ def make_triage_decision_with_dag(patient: PatientRecord, decision_id: str, conf
 
     return decision, journey
 
+def evaluate_governance_planes(patient: PatientRecord, decision_id: str, proposed_action: str, governance_engine: GovernanceEngine) -> tuple[bool, str, list[tuple[str, str]]]:
+    """Evaluate five-plane governance for a triage decision.
+
+    Planes: REASONING (intent) + NETWORK/IDENTITY/ENDPOINT/DATA (execution checks)
+    Returns: (allowed, reason, plane_results)
+    """
+    # Build execution path for governance evaluation
+    principal = CompositePrincipal(
+        agent_id=f"triage-agent-{decision_id}",
+        capabilities={"execute_triage_task", "escalate", "route_to_facility"},
+        max_depth=2,  # Triage agents have one level of delegation
+    )
+
+    path = ExecutionPath(
+        task_id=f"triage-{patient.patient_id}",
+        principal=principal,
+        proposed_action=proposed_action,
+        previous_steps=["assess_vitals", "evaluate_gates"],
+        org_state={"patient_isolation_mode": False, "current_patient_count": 0},
+    )
+
+    allowed, reason, plane_results = governance_engine.evaluate(path)
+    return allowed, reason, plane_results
+
+def build_triage_task_dag(patient: PatientRecord, config: dict) -> dict[str, TaskDAG]:
+    """Build a task DAG for triage sub-tasks (topology routing).
+
+    Tasks:
+    - assess_vitals: assess patient vitals (no dependencies)
+    - evaluate_gates: evaluate policy gates (depends on assess_vitals)
+    - escalation_decision: decide if escalation needed (depends on evaluate_gates)
+    - routing: determine facility routing (depends on escalation_decision)
+    - approval: final approval gate (depends on routing)
+    """
+    tasks = {}
+
+    # Task 1: Assess vitals (baseline)
+    tasks["assess_vitals"] = TaskDAG(
+        task_id="assess_vitals",
+        instructions=f"Assess patient vitals: temp={patient.vital_temp}, spo2={patient.vital_spo2}, hr={patient.vital_hr}, bp={patient.vital_bp_sys}",
+        dependencies=[],
+        can_parallelize=False,
+        estimated_complexity=2,
+        tools_required=["vital_reader"],
+    )
+
+    # Task 2: Evaluate gates (depends on assess_vitals, but independent from each other)
+    tasks["age_gate"] = TaskDAG(
+        task_id="age_gate",
+        instructions=f"Evaluate age gate for patient age {patient.age}",
+        dependencies=["assess_vitals"],
+        can_parallelize=True,
+        estimated_complexity=1,
+        tools_required=["age_validator"],
+    )
+
+    tasks["fever_gate"] = TaskDAG(
+        task_id="fever_gate",
+        instructions=f"Evaluate fever gate for temp={patient.vital_temp}",
+        dependencies=["assess_vitals"],
+        can_parallelize=True,
+        estimated_complexity=1,
+        tools_required=["fever_validator"],
+    )
+
+    tasks["hypoxia_gate"] = TaskDAG(
+        task_id="hypoxia_gate",
+        instructions=f"Evaluate hypoxia gate for spo2={patient.vital_spo2}",
+        dependencies=["assess_vitals"],
+        can_parallelize=True,
+        estimated_complexity=1,
+        tools_required=["hypoxia_validator"],
+    )
+
+    tasks["comorbidity_gate"] = TaskDAG(
+        task_id="comorbidity_gate",
+        instructions=f"Evaluate comorbidity gate for {len(patient.comorbidities)} conditions",
+        dependencies=["assess_vitals"],
+        can_parallelize=True,
+        estimated_complexity=1,
+        tools_required=["comorbidity_validator"],
+    )
+
+    # Task 3: Escalation decision (fan-in from gates)
+    tasks["escalation_decision"] = TaskDAG(
+        task_id="escalation_decision",
+        instructions="Determine if escalation to physician is required",
+        dependencies=["age_gate", "fever_gate", "hypoxia_gate", "comorbidity_gate"],
+        can_parallelize=False,
+        estimated_complexity=3,
+        tools_required=["decision_engine"],
+    )
+
+    # Task 4: Routing (fan-out conditional)
+    tasks["routing"] = TaskDAG(
+        task_id="routing",
+        instructions="Determine facility routing based on escalation and severity",
+        dependencies=["escalation_decision"],
+        can_parallelize=False,
+        estimated_complexity=2,
+        tools_required=["routing_engine"],
+    )
+
+    # Task 5: Approval
+    tasks["approval"] = TaskDAG(
+        task_id="approval",
+        instructions="Final approval gate before decision persists",
+        dependencies=["routing"],
+        can_parallelize=False,
+        estimated_complexity=1,
+        tools_required=["approval_gate"],
+    )
+
+    return tasks
+
+def make_triage_decision_with_governance(patient: PatientRecord, decision_id: str, config: dict) -> tuple[TriageDecision, dict]:
+    """Make a triage decision using five-plane governance engine + topology routing.
+
+    Combines DAG orchestration (if available) with governance evaluation.
+    Returns: (TriageDecision, governance_metadata)
+    """
+    if not ORCHESTRATION_AVAILABLE:
+        # Fallback to DAG version if orchestration not available
+        return make_triage_decision_with_dag(patient, decision_id, config)
+
+    import time
+    start_time = time.time() * 1000
+
+    # Initialize governance engine
+    governance_engine = GovernanceEngine()
+
+    # Build task DAG for topology routing
+    tasks = build_triage_task_dag(patient, config)
+
+    # Route tasks using topology decomposition router
+    router = TaskDecompositionRouter()
+    topology_decision = router.route(tasks)
+
+    # Make base triage decision (same as before)
+    ai_level, ai_severity, reasoning = compute_triage_severity(patient)
+    routing_map = {
+        "green": "discharge",
+        "yellow": "general_admission",
+        "orange": "ed",
+        "red": "icu",
+    }
+    ai_routing = routing_map.get(ai_level, "ed")
+    ai_confidence = min(1.0, ai_severity + 0.1)
+
+    # Evaluate governance planes for the proposed triage decision
+    allowed, gov_reason, plane_results = evaluate_governance_planes(
+        patient,
+        decision_id,
+        f"route_to_{ai_routing}",
+        governance_engine
+    )
+
+    # Policy checks (existing logic)
+    policy_checks, escalation_required, escalation_reason = evaluate_policy_gates(patient, ai_level, config)
+
+    # Governance verdict overrides if governance check fails
+    if not allowed:
+        escalation_required = True
+        if not escalation_reason:
+            escalation_reason = gov_reason
+        else:
+            escalation_reason += f"; governance: {gov_reason}"
+
+    # Cost estimate
+    cost_map = {"discharge": 0, "general_admission": 1500, "ed": 2400, "icu": 5000, "trauma": 7500}
+    cost = cost_map.get(ai_routing, 2400)
+
+    # Evidence pack
+    evidence_pack = {
+        "vitals": {
+            "temperature": patient.vital_temp,
+            "oxygen_saturation": patient.vital_spo2,
+            "blood_pressure_sys": patient.vital_bp_sys,
+            "heart_rate": patient.vital_hr,
+        },
+        "demographics": {
+            "age": patient.age,
+            "sex": patient.sex,
+        },
+        "presentation": {
+            "chief_complaint": patient.chief_complaint,
+            "comorbidities": patient.comorbidities,
+            "allergies": patient.allergies,
+            "prior_visits": patient.prior_visits,
+        },
+        "triage_reasoning": reasoning,
+        "governance_planes": {plane: result for plane, result in plane_results},
+    }
+
+    elapsed_ms = int(time.time() * 1000 - start_time)
+
+    # Governance metadata
+    governance_metadata = {
+        "topology": topology_decision.topology.value,
+        "topology_reasoning": topology_decision.reasoning,
+        "execution_phases": topology_decision.phases,
+        "governance_allowed": allowed,
+        "governance_reason": gov_reason,
+        "plane_verdicts": plane_results,
+        "critical_path_length": len(topology_decision.phases),
+    }
+
+    # Create decision
+    decision = TriageDecision(
+        decision_id=decision_id,
+        patient_id=patient.patient_id,
+        ai_severity_score=ai_severity,
+        ai_triage_level=ai_level,
+        ai_routing=ai_routing,
+        ai_confidence=ai_confidence,
+        ai_reasoning=reasoning,
+        policy_checks=policy_checks,
+        escalation_required=escalation_required,
+        escalation_reason=escalation_reason,
+        status="auto_approved" if not escalation_required else "escalated",
+        cost_estimate=cost,
+        evidence_pack=evidence_pack,
+        decision_time_ms=elapsed_ms,
+        dag_journey=governance_metadata,
+        chain_integrity_verified=allowed,
+    )
+
+    return decision, governance_metadata
+
 def approve_decision(state: TriageState, decision_id: str, approved_by: str, override: bool = False, override_reason: str = "") -> dict:
     """Approve a triage decision or override it with reason."""
     decision = next((d for d in state.decisions if d.decision_id == decision_id), None)
@@ -565,16 +809,18 @@ def ingest_patients(state: TriageState, csv_path: str) -> TriageState:
                 state.patients.append(patient)
     return state
 
-def triage_all_patients(state: TriageState, use_dag: bool = True, neo4j_store: TriageNeo4jStore | None = None) -> TriageState:
+def triage_all_patients(state: TriageState, use_dag: bool = True, use_governance: bool = True, neo4j_store: TriageNeo4jStore | None = None) -> TriageState:
     """Make triage decisions for all patients without existing decisions.
 
-    Uses DAG orchestrator if available (parallel gates, hash-chained audit trail).
-    Falls back to sequential gate evaluation if networkx not available.
-    Optionally persists decisions to Neo4j graph database.
+    Topology: orchestration (if available) → DAG (if available) → baseline
+    - Orchestration: five-plane governance + topology routing + LangGraph execution
+    - DAG: parallel gates + hash-chained audit trail
+    - Baseline: sequential gate evaluation
 
     Args:
         state: Triage state to update
         use_dag: Use DAG orchestration (default True)
+        use_governance: Use five-plane governance + topology routing (default True)
         neo4j_store: Optional Neo4j store for persistence
     """
     for i, patient in enumerate(state.patients):
@@ -582,7 +828,9 @@ def triage_all_patients(state: TriageState, use_dag: bool = True, neo4j_store: T
         if any(d.patient_id == patient.patient_id for d in state.decisions):
             continue
 
-        if use_dag and DAG_AVAILABLE:
+        if use_governance and ORCHESTRATION_AVAILABLE:
+            decision, governance_metadata = make_triage_decision_with_governance(patient, f"TRIAGE-{i:04d}", state.config)
+        elif use_dag and DAG_AVAILABLE:
             decision, journey = make_triage_decision_with_dag(patient, f"TRIAGE-{i:04d}", state.config)
         else:
             decision = make_triage_decision(patient, f"TRIAGE-{i:04d}", state.config)
@@ -679,6 +927,7 @@ if __name__ == "__main__":
     ingest_parser.add_argument("--csv", default=os.path.join(DATA_DIR, "patients.csv"), help="Path to CSV file")
 
     triage_parser = subparsers.add_parser("triage", help="Run triage on ingested patients")
+    triage_parser.add_argument("--no-governance", action="store_true", help="Disable five-plane governance + topology routing")
     triage_parser.add_argument("--no-dag", action="store_true", help="Disable DAG orchestration")
     triage_parser.add_argument("--neo4j-uri", default="bolt://localhost:7687", help="Neo4j URI")
     triage_parser.add_argument("--neo4j-user", default="neo4j", help="Neo4j username")
@@ -706,6 +955,7 @@ if __name__ == "__main__":
         print(f"Ingested {len(state.patients)} patients")
     elif args.command == "triage":
         state = load_state()
+        use_governance = not args.no_governance
         use_dag = not args.no_dag
 
         # Initialize Neo4j if available
@@ -715,10 +965,12 @@ if __name__ == "__main__":
             if neo4j_store.connect():
                 neo4j_store.store_governance_dag()
 
-        state = triage_all_patients(state, use_dag=use_dag, neo4j_store=neo4j_store)
+        state = triage_all_patients(state, use_governance=use_governance, use_dag=use_dag, neo4j_store=neo4j_store)
         save_state(state)
         print(f"Triaged {len(state.decisions)} patients")
 
+        if ORCHESTRATION_AVAILABLE and use_governance:
+            print("✓ Five-plane governance enabled (topology routing + execution planes)")
         if DAG_AVAILABLE and use_dag:
             print("✓ DAG orchestration enabled (parallel gates, hash-chained audit trail)")
         if NEO4J_AVAILABLE and neo4j_store and neo4j_store._connected:
@@ -734,14 +986,26 @@ if __name__ == "__main__":
             json.dump(snapshot, f, indent=2)
         print(f"Built snapshot: {snapshot_path}")
 
-        # Research pass footer (DAG governance analysis)
-        if DAG_AVAILABLE and snapshot.get("dag_governance"):
+        # Research pass footer (governance analysis)
+        if snapshot.get("dag_governance"):
+            print("\n=== Governance Architecture ===")
             dag = snapshot["dag_governance"]
-            print("\n=== DAG Governance Analysis ===")
-            print(f"Critical path length: {len(dag.get('critical_path', []))} states")
-            print(f"Fan-in synchronization points: {len(dag.get('fan_in_points', []))}")
-            print(f"Fan-out conditional branches: {len(dag.get('fan_out_points', []))}")
-            print(f"Parallelizable gates: {list(dag.get('parallelization_opportunities', {}).keys())}")
+
+            # Five-plane governance info
+            if "governance_allowed" in dag:
+                print(f"Five-plane governance: {'ALLOWED' if dag['governance_allowed'] else 'BLOCKED'}")
+                print(f"Topology: {dag.get('topology', 'unknown')}")
+                print(f"Planes evaluated: {len([p for p, r in dag.get('plane_verdicts', []) if p])}")
+
+            # Critical path
+            print(f"Critical path length: {dag.get('critical_path_length', 0)} phases")
+
+            # DAG-specific analysis
+            if DAG_AVAILABLE and "critical_path" in dag:
+                print(f"Fan-in synchronization points: {len(dag.get('fan_in_points', []))}")
+                print(f"Fan-out conditional branches: {len(dag.get('fan_out_points', []))}")
+                print(f"Parallelizable gates: {list(dag.get('parallelization_opportunities', {}).keys())}")
+
             if snapshot["metrics"].get("dag_chain_integrity_rate"):
                 print(f"Audit chain integrity: {snapshot['metrics']['dag_chain_integrity_rate']*100:.0f}% verified")
 
