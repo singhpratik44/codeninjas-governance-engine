@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-26T04:07:53.288674+00:00",
+  "generated_at": "2026-07-26T05:00:42.680963+00:00",
   "snapshot_seq": 2,
   "queue": [
     {
@@ -43,7 +43,150 @@
       },
       "cost_estimate": 1500,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.287988+00:00"
+      "created_at": "2026-07-26T05:00:42.585367+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0001",
+        "patient_id": "P002",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": false,
+          "hypoxia_gate": true,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.584498+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P002"
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "",
+            "current_hash": "b351fc04781d694e6495b95d8e9ecd7c7b734fcdb264ab2063697d1404c65611"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.584537+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.8,
+              "spo2": 94,
+              "bp_sys": 105,
+              "hr": 118
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "b351fc04781d694e6495b95d8e9ecd7c7b734fcdb264ab2063697d1404c65611",
+            "current_hash": "28fe9873232e6d8bee89bd7759cb0358358ecb6166227b43192ae856e6a8846c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.584605+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 7,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "28fe9873232e6d8bee89bd7759cb0358358ecb6166227b43192ae856e6a8846c",
+            "current_hash": "c0dfb28dcff59e876abea12a2001bec7bc453aa7801588835550d4b2ddc8d4e7"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.584628+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.8,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "c0dfb28dcff59e876abea12a2001bec7bc453aa7801588835550d4b2ddc8d4e7",
+            "current_hash": "c504872d9b6ecb092945c1de08c6053d78dae1c9dc0f46027eaf5a4f72a21bd2"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.584650+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 94,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "c504872d9b6ecb092945c1de08c6053d78dae1c9dc0f46027eaf5a4f72a21bd2",
+            "current_hash": "1aa083cb64d7fffcacca4257672533b082b431336a967a6b60b7b9afcf3374a5"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.584664+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "1aa083cb64d7fffcacca4257672533b082b431336a967a6b60b7b9afcf3374a5",
+            "current_hash": "2aa02de936c6ca51a1401ba78f0c9ca626e76dd20cc5bf5bce1e112327a01079"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.584688+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "2aa02de936c6ca51a1401ba78f0c9ca626e76dd20cc5bf5bce1e112327a01079",
+            "current_hash": "c86a26247cc667419a11a38e0223aa3047d13b57d75c771c998e2cbd20fd417d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.584702+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "c86a26247cc667419a11a38e0223aa3047d13b57d75c771c998e2cbd20fd417d",
+            "current_hash": "c31770d4d8bc766644376a37e777638b3036e25601aadbff8bca9ee346d7a9a3"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.584713+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0001",
+              "final_routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0001",
+            "previous_hash": "c31770d4d8bc766644376a37e777638b3036e25601aadbff8bca9ee346d7a9a3",
+            "current_hash": "b704014876b8a4c990926961aeb00c5d63fce89e877702148d399a1ea4c0b9c8"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0002",
@@ -87,7 +230,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288000+00:00"
+      "created_at": "2026-07-26T05:00:42.586834+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0002",
+        "patient_id": "P003",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.585971+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P003"
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "",
+            "current_hash": "633a28383c8441b172405c767c2f2bad9c0085c29fa8cdd2208b26d14a520141"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.586002+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 36.8,
+              "spo2": 88,
+              "bp_sys": 155,
+              "hr": 102
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "633a28383c8441b172405c767c2f2bad9c0085c29fa8cdd2208b26d14a520141",
+            "current_hash": "400f20f51626836ea13de4e4c4ad3c2c8164665aace2d7dffb144ccf1f3e0d7b"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.586021+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 81,
+              "escalation_required": true
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "400f20f51626836ea13de4e4c4ad3c2c8164665aace2d7dffb144ccf1f3e0d7b",
+            "current_hash": "4be068e98932b256c0f26184ecbf28e24dc172d4480a0257fb681a629df103f6"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.586038+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 36.8,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "4be068e98932b256c0f26184ecbf28e24dc172d4480a0257fb681a629df103f6",
+            "current_hash": "40ebf1abc47d5945b2115dc56c207f451695803a84916c8d559c558bbba65363"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.586052+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 88,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "40ebf1abc47d5945b2115dc56c207f451695803a84916c8d559c558bbba65363",
+            "current_hash": "b6491679d179d8fe80c285d53de7e4c9409d557c9f407fd7dcac0046cdea3966"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.586064+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 2,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "b6491679d179d8fe80c285d53de7e4c9409d557c9f407fd7dcac0046cdea3966",
+            "current_hash": "9d366c293fc5e89914b075febdf7cd520239bc807f52676b5eea92283d5fd402"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.586107+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "9d366c293fc5e89914b075febdf7cd520239bc807f52676b5eea92283d5fd402",
+            "current_hash": "79ca4aaf579cf1a6434614cb659e69e591c7ee3e8dfa8680272613b226a40a32"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.586127+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "79ca4aaf579cf1a6434614cb659e69e591c7ee3e8dfa8680272613b226a40a32",
+            "current_hash": "9d6e57f3b2559b0300099c6850a6707bfac0d411acd986c071958acc8deef907"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.586140+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0002",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0002",
+            "previous_hash": "9d6e57f3b2559b0300099c6850a6707bfac0d411acd986c071958acc8deef907",
+            "current_hash": "5786026b9b581848db6acb7727f788140a6e53e56289e8b8e574217b5789c092"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0009",
@@ -131,7 +417,150 @@
       },
       "cost_estimate": 1500,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288070+00:00"
+      "created_at": "2026-07-26T05:00:42.596257+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0009",
+        "patient_id": "P010",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.595462+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P010"
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "",
+            "current_hash": "66f5e2a40c21120e6f2283ae9bef010cb43d8d4d1b9c69622094d1dda3940ac0"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.595488+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 37.8,
+              "spo2": 91,
+              "bp_sys": 155,
+              "hr": 105
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "66f5e2a40c21120e6f2283ae9bef010cb43d8d4d1b9c69622094d1dda3940ac0",
+            "current_hash": "4bc6ad6f1ff3f914b8b1b8a81e8065286f5dd96fd168beb5b13039cd429d9b36"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.595505+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 56,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "4bc6ad6f1ff3f914b8b1b8a81e8065286f5dd96fd168beb5b13039cd429d9b36",
+            "current_hash": "49e8ff17aedb4c4c8b8d430be960f11b3058cbbe7df897e48f9ee366e7589784"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.595521+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 37.8,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "49e8ff17aedb4c4c8b8d430be960f11b3058cbbe7df897e48f9ee366e7589784",
+            "current_hash": "03773ee487710142eb38b280a8c7fdf7fcda6ce1058e575c04aff62a0c963cf5"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.595535+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 91,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "03773ee487710142eb38b280a8c7fdf7fcda6ce1058e575c04aff62a0c963cf5",
+            "current_hash": "c61dddb47ffaac159fc2e2e80f79bf03b445656e0bbe13fc53aaf08d74375d63"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.595546+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 2,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "c61dddb47ffaac159fc2e2e80f79bf03b445656e0bbe13fc53aaf08d74375d63",
+            "current_hash": "05f405692650e167423bdc408abe00e9429b08540ae5f96b215b390d46f16b70"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.595563+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "05f405692650e167423bdc408abe00e9429b08540ae5f96b215b390d46f16b70",
+            "current_hash": "bb07620399a3cedd3a008eefafede1db7dabb31405a56cf3fe3787efbb0547d6"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.595574+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "bb07620399a3cedd3a008eefafede1db7dabb31405a56cf3fe3787efbb0547d6",
+            "current_hash": "ba1c9db7a946a9f4d5b5cd030765f3dec2bc485a3e208e628b2c3f689e1e2f84"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.595627+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0009",
+              "final_routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0009",
+            "previous_hash": "ba1c9db7a946a9f4d5b5cd030765f3dec2bc485a3e208e628b2c3f689e1e2f84",
+            "current_hash": "0999ffb460e5cbbb0ab78b7921dee7265ddf34529cd406a8c15293b285165dfd"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0013",
@@ -174,7 +603,150 @@
       },
       "cost_estimate": 5000,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288103+00:00"
+      "created_at": "2026-07-26T05:00:42.601477+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0013",
+        "patient_id": "P014",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.600640+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P014"
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "",
+            "current_hash": "f29f455d989ec440252dae381efeb177fcbf8d238582e6aa020e31ebcaaeac3f"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.600668+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.1,
+              "spo2": 89,
+              "bp_sys": 98,
+              "hr": 125
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "f29f455d989ec440252dae381efeb177fcbf8d238582e6aa020e31ebcaaeac3f",
+            "current_hash": "09aa308bf8ef414a813ec75aa772c3d025c1528eb9fcd6f1dca87a13fdfd8d2f"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.600803+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 3,
+              "escalation_required": true
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "09aa308bf8ef414a813ec75aa772c3d025c1528eb9fcd6f1dca87a13fdfd8d2f",
+            "current_hash": "6481a0dcf934273d72c1f4165bac492d84ccb3b65db3928510b3b42adadb3677"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.600826+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "6481a0dcf934273d72c1f4165bac492d84ccb3b65db3928510b3b42adadb3677",
+            "current_hash": "a93f62a07ed2f6c445537e95338f436e0df8fcab22de1e47c06325efa9a171e1"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.600840+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 89,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "a93f62a07ed2f6c445537e95338f436e0df8fcab22de1e47c06325efa9a171e1",
+            "current_hash": "5690ecbf8c732cfc4bf7df294f8fbd745551460000b14e1d4f2471cc4005bb30"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.600852+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "5690ecbf8c732cfc4bf7df294f8fbd745551460000b14e1d4f2471cc4005bb30",
+            "current_hash": "4d82228e4dbe965480c90e17135eb3e54a5951ae37b1f27c064c865d64ae30db"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.600868+00:00",
+            "state": "StateType.ROUTE_ICU",
+            "evidence": {
+              "routing": "icu"
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "4d82228e4dbe965480c90e17135eb3e54a5951ae37b1f27c064c865d64ae30db",
+            "current_hash": "445c43fad99eb0c6d481cdc514635eaf04fdafa5f7136d82bc6eb590bb1e561e"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.600880+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "445c43fad99eb0c6d481cdc514635eaf04fdafa5f7136d82bc6eb590bb1e561e",
+            "current_hash": "55675130210f1e0fc0a51d347f5baccc6a7fe1bd30aebbe7e00eabca51625fc8"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.600890+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0013",
+              "final_routing": "icu"
+            },
+            "decision_id": "TRIAGE-0013",
+            "previous_hash": "55675130210f1e0fc0a51d347f5baccc6a7fe1bd30aebbe7e00eabca51625fc8",
+            "current_hash": "aec09bca5e9a1d0882c2d30e736e7e8128c9f90c1f944144c30326fe7d920a2a"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0016",
@@ -218,7 +790,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288125+00:00"
+      "created_at": "2026-07-26T05:00:42.605544+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0016",
+        "patient_id": "P017",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.604764+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P017"
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "",
+            "current_hash": "6d7dd18e7735065a52ae36a167781aabea743ba09c4f5cda05a18f45c81a1c14"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.604790+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 37.5,
+              "spo2": 89,
+              "bp_sys": 165,
+              "hr": 125
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "6d7dd18e7735065a52ae36a167781aabea743ba09c4f5cda05a18f45c81a1c14",
+            "current_hash": "11b43c7c4558937ffff3eeffd9b9feb9767cffa2aeb098313b1defddfe6ecb30"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.604808+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 60,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "11b43c7c4558937ffff3eeffd9b9feb9767cffa2aeb098313b1defddfe6ecb30",
+            "current_hash": "7bd12493cd6198d01030e14ecd4fdf95370c8dfc8f5696963b0e8a6c7cd7258d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.604823+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 37.5,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "7bd12493cd6198d01030e14ecd4fdf95370c8dfc8f5696963b0e8a6c7cd7258d",
+            "current_hash": "79554785e480dfcf72ac0f089e7c9b44a6a08f9502b91818aa1712252120ed60"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.604837+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 89,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "79554785e480dfcf72ac0f089e7c9b44a6a08f9502b91818aa1712252120ed60",
+            "current_hash": "05081bbec2974d1ef902d4af5a09ff8c766e56dcb455d16b8b1f9722ee822c86"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.604849+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 2,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "05081bbec2974d1ef902d4af5a09ff8c766e56dcb455d16b8b1f9722ee822c86",
+            "current_hash": "17df8a00ba67c6473fc915ed83566a6d7209ab3987b674ffdeab134368162a2b"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.604864+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "17df8a00ba67c6473fc915ed83566a6d7209ab3987b674ffdeab134368162a2b",
+            "current_hash": "e643053ba22a8da61f2c963bdb8e30ca625b67f414753f6c7d836b5c18f257d0"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.604919+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "e643053ba22a8da61f2c963bdb8e30ca625b67f414753f6c7d836b5c18f257d0",
+            "current_hash": "1cc02de5014f58af84f60aec4e033a95c54db7addaa69eedb1ba017a71578473"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.604936+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0016",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0016",
+            "previous_hash": "1cc02de5014f58af84f60aec4e033a95c54db7addaa69eedb1ba017a71578473",
+            "current_hash": "7f65dcffcbdf7d211ec766ae60f61eda48c0178f0582ee324a28cdf4c96c5c6d"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0018",
@@ -262,7 +977,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288139+00:00"
+      "created_at": "2026-07-26T05:00:42.608142+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0018",
+        "patient_id": "P019",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": true,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.607453+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P019"
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "",
+            "current_hash": "4d94d425bc4a0cb1bf44018c08941af498a54b6d657fc16e2dc3461ea7b592b1"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.607479+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 36.8,
+              "spo2": 94,
+              "bp_sys": 100,
+              "hr": 48
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "4d94d425bc4a0cb1bf44018c08941af498a54b6d657fc16e2dc3461ea7b592b1",
+            "current_hash": "e985e404f79f38ce606535d4f6b59eadae1af2ba795f249074286187d461deb4"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.607497+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 77,
+              "escalation_required": true
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "e985e404f79f38ce606535d4f6b59eadae1af2ba795f249074286187d461deb4",
+            "current_hash": "557d2a6335ec4ef290540620f5e1c5cbca02c2556debb2f19a7edebcf78c1b07"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.607512+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 36.8,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "557d2a6335ec4ef290540620f5e1c5cbca02c2556debb2f19a7edebcf78c1b07",
+            "current_hash": "e1ddf43a4a9d8fd3ee0ce02155423d50c3736af87c5718d37410d669bafc0ef9"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.607526+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 94,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "e1ddf43a4a9d8fd3ee0ce02155423d50c3736af87c5718d37410d669bafc0ef9",
+            "current_hash": "2ab40ddd83a9120724490b192bc8e7a3b9558e5299ef9a3bc745b43d4292ef6d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.607538+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 2,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "2ab40ddd83a9120724490b192bc8e7a3b9558e5299ef9a3bc745b43d4292ef6d",
+            "current_hash": "e08e2104f3177a96d08d695861d5192847541ce0628a044d26197a539129222c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.607554+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "e08e2104f3177a96d08d695861d5192847541ce0628a044d26197a539129222c",
+            "current_hash": "9f0536a099030209ed2fc29312477d34cf710d5ef9e11089f7efb53004b890ff"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.607565+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "9f0536a099030209ed2fc29312477d34cf710d5ef9e11089f7efb53004b890ff",
+            "current_hash": "6f43660a37d33b099d86506e1a2186a680a928c347eca9babb31896df33e4870"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.607575+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0018",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0018",
+            "previous_hash": "6f43660a37d33b099d86506e1a2186a680a928c347eca9babb31896df33e4870",
+            "current_hash": "fb4138abde89526d37d5eb39b005ec90ab83e039f7051863b15b0926e935235e"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0019",
@@ -306,7 +1164,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288219+00:00"
+      "created_at": "2026-07-26T05:00:42.609266+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0019",
+        "patient_id": "P020",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.608572+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P020"
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "",
+            "current_hash": "96198370d2c47f74113faf199cc0a3f80acd3b8dd2734aa37b00ecfaae281922"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.608600+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 38.5,
+              "spo2": 88,
+              "bp_sys": 130,
+              "hr": 120
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "96198370d2c47f74113faf199cc0a3f80acd3b8dd2734aa37b00ecfaae281922",
+            "current_hash": "cfcf97e3def095323d8e0426870c7ea33da01f6557e86cf77f9f6e0c967f6e39"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.608662+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 41,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "cfcf97e3def095323d8e0426870c7ea33da01f6557e86cf77f9f6e0c967f6e39",
+            "current_hash": "34a8e8d49763ac2fb6f14d3dcb93bc30110d95656c26499ad069151a485a2fe3"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.608682+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 38.5,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "34a8e8d49763ac2fb6f14d3dcb93bc30110d95656c26499ad069151a485a2fe3",
+            "current_hash": "7ba9f2f610ba8634c5bdea91d38ed0dcbad3ca789505fbf1f48ae0480e22145c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.608697+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 88,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "7ba9f2f610ba8634c5bdea91d38ed0dcbad3ca789505fbf1f48ae0480e22145c",
+            "current_hash": "0f652ae2784a3e370007bce861e5dc6e74a79b19b986584b6940f15c590ef2fa"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.608709+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "0f652ae2784a3e370007bce861e5dc6e74a79b19b986584b6940f15c590ef2fa",
+            "current_hash": "38cf64c1b5794591a7391f6a9b05b8128e07614e9e9883de6d949327e9fc900d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.608725+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "38cf64c1b5794591a7391f6a9b05b8128e07614e9e9883de6d949327e9fc900d",
+            "current_hash": "3e6b8248c625d59d825e2da81a80757a69124851adb4f079dbbb27f44c62a714"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.608738+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "3e6b8248c625d59d825e2da81a80757a69124851adb4f079dbbb27f44c62a714",
+            "current_hash": "84bedb3404d0aee026b979f3a8a2f3c744a5d946d4f00961dd6dc473f6958538"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.608748+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0019",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0019",
+            "previous_hash": "84bedb3404d0aee026b979f3a8a2f3c744a5d946d4f00961dd6dc473f6958538",
+            "current_hash": "448eb8c59d46d263527a6a0bbce725726f87b6d7782611de22344d6d9505f0f9"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0020",
@@ -349,7 +1350,150 @@
       },
       "cost_estimate": 1500,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288233+00:00"
+      "created_at": "2026-07-26T05:00:42.610594+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0020",
+        "patient_id": "P021",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": false,
+          "hypoxia_gate": true,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.609834+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P021"
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "",
+            "current_hash": "436f951663f056354c71260bd481bd85fa081c2c070387be4fafbc701ba292bf"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.609862+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.6,
+              "spo2": 95,
+              "bp_sys": 125,
+              "hr": 105
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "436f951663f056354c71260bd481bd85fa081c2c070387be4fafbc701ba292bf",
+            "current_hash": "4d8236e1cde7a23bf34c99499fd0c3f12db4c82338c519d421ae88d688d13e5d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.609881+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 15,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "4d8236e1cde7a23bf34c99499fd0c3f12db4c82338c519d421ae88d688d13e5d",
+            "current_hash": "134e3f39592d8c102c822295239e909b5b1b182851a30518a0aa110d246889be"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.609897+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.6,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "134e3f39592d8c102c822295239e909b5b1b182851a30518a0aa110d246889be",
+            "current_hash": "65eb82d5e3caefcade7886e295d6f40cfb3af7c64a6272e387fbbf08e9d6b5bd"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.609910+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 95,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "65eb82d5e3caefcade7886e295d6f40cfb3af7c64a6272e387fbbf08e9d6b5bd",
+            "current_hash": "cc75ebdd24e9c5fac29cc4b1f981c7c3b9f1beca534d61852a9118be447a0be7"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.609959+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "cc75ebdd24e9c5fac29cc4b1f981c7c3b9f1beca534d61852a9118be447a0be7",
+            "current_hash": "e71091f9690f405c27630ae6124d5ea7a3da3cfd6edcb2d30cdefe146259b797"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.609981+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "e71091f9690f405c27630ae6124d5ea7a3da3cfd6edcb2d30cdefe146259b797",
+            "current_hash": "a43739ae4549d9ae00476b13da633814ec068fc0d4683097207ad7371891c8cf"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.609995+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "a43739ae4549d9ae00476b13da633814ec068fc0d4683097207ad7371891c8cf",
+            "current_hash": "abc21b7da9058f55da7d259a133151f7f848beae09297af17bbfa5c97b18e6d2"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.610005+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0020",
+              "final_routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0020",
+            "previous_hash": "abc21b7da9058f55da7d259a133151f7f848beae09297af17bbfa5c97b18e6d2",
+            "current_hash": "945897c46cd7504bcb86c7ef783d8daf35c0af5cd7c9de87556df937e251c90d"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0021",
@@ -392,7 +1536,150 @@
       },
       "cost_estimate": 5000,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288242+00:00"
+      "created_at": "2026-07-26T05:00:42.611998+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0021",
+        "patient_id": "P022",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": false,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.611183+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P022"
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "",
+            "current_hash": "e9dc7e591343d714bc973a6092abdd7abdf42ccc53d6c29568ef20a51b3b4fd4"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.611209+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 40.2,
+              "spo2": 90,
+              "bp_sys": 160,
+              "hr": 125
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "e9dc7e591343d714bc973a6092abdd7abdf42ccc53d6c29568ef20a51b3b4fd4",
+            "current_hash": "7200338eaad004278b65d1db1d77e473ce1598d1756e033c354f59ce432d7392"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.611265+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 70,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "7200338eaad004278b65d1db1d77e473ce1598d1756e033c354f59ce432d7392",
+            "current_hash": "d6c9748eb111f6c3c47a1835c6f543609e7ca98ff74fa46d5a0b6cb3873cb274"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.611323+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 40.2,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "d6c9748eb111f6c3c47a1835c6f543609e7ca98ff74fa46d5a0b6cb3873cb274",
+            "current_hash": "84b7afdb52a65971dd45fabf53aac9d78970258207d83ff3b5cc4509e82ab0ee"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.611349+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 90,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "84b7afdb52a65971dd45fabf53aac9d78970258207d83ff3b5cc4509e82ab0ee",
+            "current_hash": "2ccbd5ffe0efdf5a3c6e07f66c14573b9a8266ffa2b9c53c0018f83dec2a2daf"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.611362+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "2ccbd5ffe0efdf5a3c6e07f66c14573b9a8266ffa2b9c53c0018f83dec2a2daf",
+            "current_hash": "25434a143c052640f6de78b3f26eaffa28e74bc5387ae1bdd0b3bdc585679ba0"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.611380+00:00",
+            "state": "StateType.ROUTE_ICU",
+            "evidence": {
+              "routing": "icu"
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "25434a143c052640f6de78b3f26eaffa28e74bc5387ae1bdd0b3bdc585679ba0",
+            "current_hash": "158ef530a88b61ca00938b1a1f5ca1f9388bd188505aa51483acfd0e388227cf"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.611392+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "158ef530a88b61ca00938b1a1f5ca1f9388bd188505aa51483acfd0e388227cf",
+            "current_hash": "af5a970089f510006165152a24648ce061cb068eb6ef90bd24c333068774763f"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.611402+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0021",
+              "final_routing": "icu"
+            },
+            "decision_id": "TRIAGE-0021",
+            "previous_hash": "af5a970089f510006165152a24648ce061cb068eb6ef90bd24c333068774763f",
+            "current_hash": "a22091e4fef251c080b68c6f09a3f40a90351fde53999c34cb8fefec13b3a093"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0024",
@@ -435,7 +1722,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288268+00:00"
+      "created_at": "2026-07-26T05:00:42.615682+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0024",
+        "patient_id": "P025",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.614869+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P025"
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "",
+            "current_hash": "cd74019b8f1031974665da151e42743a6013cdfba5116ec830fdee588c948435"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.614896+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 37.8,
+              "spo2": 85,
+              "bp_sys": 140,
+              "hr": 135
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "cd74019b8f1031974665da151e42743a6013cdfba5116ec830fdee588c948435",
+            "current_hash": "eb51c3d94068b529fcdbd7776ea0a85b0d1b127627392fe16c649690d2bf4a93"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.614954+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 26,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "eb51c3d94068b529fcdbd7776ea0a85b0d1b127627392fe16c649690d2bf4a93",
+            "current_hash": "f647d76737874ea6b52ee261f03ac54b1125cae180cfda9ed997517e4c51f0f3"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.614974+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 37.8,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "f647d76737874ea6b52ee261f03ac54b1125cae180cfda9ed997517e4c51f0f3",
+            "current_hash": "e2910ab8c63d4dc3aa28b7e3b8b35382fb2aa4231364da4f25bdd8d45f97e8c7"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.614988+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 85,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "e2910ab8c63d4dc3aa28b7e3b8b35382fb2aa4231364da4f25bdd8d45f97e8c7",
+            "current_hash": "1372b990d7779baae31392895c0a56bfdfd8b5a0e212c2e5b03d5d6b54c98af9"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.615000+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "1372b990d7779baae31392895c0a56bfdfd8b5a0e212c2e5b03d5d6b54c98af9",
+            "current_hash": "594e75a0de87fd8570e2f11d56c2e997c8898e7cf0b1d2318708a5ca844e4946"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.615017+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "594e75a0de87fd8570e2f11d56c2e997c8898e7cf0b1d2318708a5ca844e4946",
+            "current_hash": "785fd6455f032ad7425d27ecae96c1c6813df38eb6ca72ccf79aca0f754371fa"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.615029+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "785fd6455f032ad7425d27ecae96c1c6813df38eb6ca72ccf79aca0f754371fa",
+            "current_hash": "3faff21575d25510d9e6272a7f272ce81b622792d955428c23032709632d752d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.615039+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0024",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0024",
+            "previous_hash": "3faff21575d25510d9e6272a7f272ce81b622792d955428c23032709632d752d",
+            "current_hash": "323d8b72facc86b88799577959c301a8bdde3c9b3a3f9410540e6b12e87276e4"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0039",
@@ -478,7 +1908,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288375+00:00"
+      "created_at": "2026-07-26T05:00:42.635621+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0039",
+        "patient_id": "P040",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.634789+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P040"
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "",
+            "current_hash": "290054d8a4631af402a1862e69445ae591f8003f476b10ac33b18f4cf6d57f41"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.634822+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 38.7,
+              "spo2": 91,
+              "bp_sys": 150,
+              "hr": 108
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "290054d8a4631af402a1862e69445ae591f8003f476b10ac33b18f4cf6d57f41",
+            "current_hash": "ee47fb70935e16bd8f9ef2d4545604c35f37cf004818f986f6115d70a7cc250e"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.634841+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 57,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "ee47fb70935e16bd8f9ef2d4545604c35f37cf004818f986f6115d70a7cc250e",
+            "current_hash": "674e0355f199630071f1811592fbc4d52b9f911150a28bc581085f9d31cd6fbc"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.634856+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 38.7,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "674e0355f199630071f1811592fbc4d52b9f911150a28bc581085f9d31cd6fbc",
+            "current_hash": "24785093faf48cdd949d159699813391b13a9631f77ffb44cfa3c5a2f4ae84e4"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.634869+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 91,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "24785093faf48cdd949d159699813391b13a9631f77ffb44cfa3c5a2f4ae84e4",
+            "current_hash": "d64fc6d31b007529284e2a217bdda43b1b31292dfa5f815596826beb26475786"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.634881+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "d64fc6d31b007529284e2a217bdda43b1b31292dfa5f815596826beb26475786",
+            "current_hash": "9af17da90d5c8c58496e751dfc9820724ad9bd964844be97ac08ca23d22ad563"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.634897+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "9af17da90d5c8c58496e751dfc9820724ad9bd964844be97ac08ca23d22ad563",
+            "current_hash": "9ce707078a396c12dbbe63aaa5a8b13ddaac7398408a800a3013053d1f60b7a6"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.634953+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "9ce707078a396c12dbbe63aaa5a8b13ddaac7398408a800a3013053d1f60b7a6",
+            "current_hash": "7a31744286720e997e9f123aed406df165396ebacfd71496256e89cdce4f69df"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.634971+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0039",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0039",
+            "previous_hash": "7a31744286720e997e9f123aed406df165396ebacfd71496256e89cdce4f69df",
+            "current_hash": "7c9d8242b010682cb9fd428e5e1ba8d57a8d5844bccf579aeaf33180273f95e6"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0041",
@@ -521,7 +2094,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288392+00:00"
+      "created_at": "2026-07-26T05:00:42.638144+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0041",
+        "patient_id": "P042",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": false,
+          "hypoxia_gate": true,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.637393+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P042"
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "",
+            "current_hash": "57fee4a9071971c538eeb2a9c3dab0b9e1eac2000ceb5df117f928e8ae99156c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.637417+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.8,
+              "spo2": 95,
+              "bp_sys": 110,
+              "hr": 125
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "57fee4a9071971c538eeb2a9c3dab0b9e1eac2000ceb5df117f928e8ae99156c",
+            "current_hash": "6d67088c6583942e73a4513c229ff4ac4f534cbe2ca9f88bc07d5d37811b662c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.637434+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 76,
+              "escalation_required": true
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "6d67088c6583942e73a4513c229ff4ac4f534cbe2ca9f88bc07d5d37811b662c",
+            "current_hash": "1a6b353a61ae8c270a7937e3bcb759ff911ee1bd7a0ac21e209d36e539762670"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.637449+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.8,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "1a6b353a61ae8c270a7937e3bcb759ff911ee1bd7a0ac21e209d36e539762670",
+            "current_hash": "05ad05cb04666a3a097e5f21c32cec2ef866e54545f3edab5851a4bb93ba8bc2"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.637463+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 95,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "05ad05cb04666a3a097e5f21c32cec2ef866e54545f3edab5851a4bb93ba8bc2",
+            "current_hash": "a1d8a04a0782bd0fc3a4b99ec36de50847373670560cc798d6fa645178f4c2e4"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.637475+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "a1d8a04a0782bd0fc3a4b99ec36de50847373670560cc798d6fa645178f4c2e4",
+            "current_hash": "4fbb1ac28bfda64321e58eed16e332c22bfa250bf443fad911081df7fdc53f81"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.637490+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "4fbb1ac28bfda64321e58eed16e332c22bfa250bf443fad911081df7fdc53f81",
+            "current_hash": "8458ddde2a2dbfd885329f64f0dabb8f01b2a89d5dfc7bb3d77ffb6a4a72442a"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.637558+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "8458ddde2a2dbfd885329f64f0dabb8f01b2a89d5dfc7bb3d77ffb6a4a72442a",
+            "current_hash": "3cb191424c2ccd337f11c72b2c519b37544784d6824ff83649eaa4228a57b78a"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.637575+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0041",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0041",
+            "previous_hash": "3cb191424c2ccd337f11c72b2c519b37544784d6824ff83649eaa4228a57b78a",
+            "current_hash": "d81ec8d3c47b25db51b725487bc3f22862da658bb494b5fa3761342ce3069062"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0043",
@@ -564,7 +2280,150 @@
       },
       "cost_estimate": 5000,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288407+00:00"
+      "created_at": "2026-07-26T05:00:42.640863+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0043",
+        "patient_id": "P044",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": false,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.640150+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P044"
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "",
+            "current_hash": "27f0e4f33ffb0d383caa2b7893d118e8c44c9fee67edb1d665d42ea3493efb21"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.640179+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 40.1,
+              "spo2": 87,
+              "bp_sys": 155,
+              "hr": 125
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "27f0e4f33ffb0d383caa2b7893d118e8c44c9fee67edb1d665d42ea3493efb21",
+            "current_hash": "07f25520405faa08c729919b1532425d0a9100335994625574f55d65e33d37b6"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.640197+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 66,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "07f25520405faa08c729919b1532425d0a9100335994625574f55d65e33d37b6",
+            "current_hash": "25c7d68d05659a52bbf434556ba23cf1ed7000a9fbd9d77a6cca5bda0539b5e6"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.640212+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 40.1,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "25c7d68d05659a52bbf434556ba23cf1ed7000a9fbd9d77a6cca5bda0539b5e6",
+            "current_hash": "1b420a0f59ad875145950b02f9f02566a29d8e4d461dccaf4f3c36d585464948"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.640226+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 87,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "1b420a0f59ad875145950b02f9f02566a29d8e4d461dccaf4f3c36d585464948",
+            "current_hash": "165822302e57a88897df4bda04ee4ef3b3f8b7f5eadceab2a18f6567355bf3c8"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.640238+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "165822302e57a88897df4bda04ee4ef3b3f8b7f5eadceab2a18f6567355bf3c8",
+            "current_hash": "724b1cb0b2cc0b5f2896f46260cc2db41f3fa96f461023fdb4069db716549f08"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.640254+00:00",
+            "state": "StateType.ROUTE_ICU",
+            "evidence": {
+              "routing": "icu"
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "724b1cb0b2cc0b5f2896f46260cc2db41f3fa96f461023fdb4069db716549f08",
+            "current_hash": "bd7214236f852187232d89086eeac851be8d163dd78ac57ee97dbed02b1ed5aa"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.640305+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "bd7214236f852187232d89086eeac851be8d163dd78ac57ee97dbed02b1ed5aa",
+            "current_hash": "a73e5796d2e577069ca246832daddc97ac872e65881ac18d835001f0a13e209c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.640323+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0043",
+              "final_routing": "icu"
+            },
+            "decision_id": "TRIAGE-0043",
+            "previous_hash": "a73e5796d2e577069ca246832daddc97ac872e65881ac18d835001f0a13e209c",
+            "current_hash": "be042ca2a1bc37ecb6a902848e977e1d096034ce8afaeee4d1ae0281c2fe0470"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0044",
@@ -606,8 +2465,151 @@
         "critical_gate": true
       },
       "cost_estimate": 2400,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288416+00:00"
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:00:42.642532+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0044",
+        "patient_id": "P045",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.641808+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P045"
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "",
+            "current_hash": "fa09afaa7782d86c251f60cd80d97f5fd6d34be9935d034e5fe5a5d9025d5513"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.641843+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 38.9,
+              "spo2": 82,
+              "bp_sys": 140,
+              "hr": 135
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "fa09afaa7782d86c251f60cd80d97f5fd6d34be9935d034e5fe5a5d9025d5513",
+            "current_hash": "d5bba3b1a13e85c53427a8b44b5a8b88be4283de66defaf6751bbe0dd40949fb"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.641867+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 18,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "d5bba3b1a13e85c53427a8b44b5a8b88be4283de66defaf6751bbe0dd40949fb",
+            "current_hash": "aca0c760dd167609533e06731d3c072f352e7ccd58f6aa408d79909b5f95fce2"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.641886+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 38.9,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "aca0c760dd167609533e06731d3c072f352e7ccd58f6aa408d79909b5f95fce2",
+            "current_hash": "f135debe657922b5d3208d09d41f3b1cb370c1aad2b2f34f3afab6eb249e146d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.641900+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 82,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "f135debe657922b5d3208d09d41f3b1cb370c1aad2b2f34f3afab6eb249e146d",
+            "current_hash": "c2b61f9d348f7aebe1396fda477776d97f03914567b223b42bd4bcc006060e6d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.641912+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "c2b61f9d348f7aebe1396fda477776d97f03914567b223b42bd4bcc006060e6d",
+            "current_hash": "0b40c1b0f624c6f88575c5efb30473be942159a7da00fef7e8adb5d3eec62c42"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.641933+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "0b40c1b0f624c6f88575c5efb30473be942159a7da00fef7e8adb5d3eec62c42",
+            "current_hash": "054dd1adaf70eb0394b482ffc21b430073ab7dbc3b2c97826f9c19c394d8ab1c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.641948+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "054dd1adaf70eb0394b482ffc21b430073ab7dbc3b2c97826f9c19c394d8ab1c",
+            "current_hash": "0df9065851dd987855c49139401ad488845f6600495a50e45fa2d19159b687e1"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.641957+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0044",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0044",
+            "previous_hash": "0df9065851dd987855c49139401ad488845f6600495a50e45fa2d19159b687e1",
+            "current_hash": "56f407ad917106b3efa8bf68c0aab7e4744014ea43f61a63d6c6837106157573"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0050",
@@ -650,7 +2652,150 @@
       },
       "cost_estimate": 1500,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288463+00:00"
+      "created_at": "2026-07-26T05:00:42.649281+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0050",
+        "patient_id": "P051",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": false,
+          "hypoxia_gate": true,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.648542+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P051"
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "",
+            "current_hash": "05ec0fcedc95cae7fbbf9613a08000d3827eee37718a3df400177ff5ae745352"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.648615+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.7,
+              "spo2": 96,
+              "bp_sys": 135,
+              "hr": 112
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "05ec0fcedc95cae7fbbf9613a08000d3827eee37718a3df400177ff5ae745352",
+            "current_hash": "f8fd5171cdfe00b03b34d08942339ede3bf66c45598cc8a8724f1b7eb83f4d90"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.648642+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 44,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "f8fd5171cdfe00b03b34d08942339ede3bf66c45598cc8a8724f1b7eb83f4d90",
+            "current_hash": "ccf83708306f5c5da9168c819977dd50a5df5615f5b5c2fbbb9479dedff4c9ab"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.648658+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.7,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "ccf83708306f5c5da9168c819977dd50a5df5615f5b5c2fbbb9479dedff4c9ab",
+            "current_hash": "3f14d157aea474223372b904694daa01b1deb57fc4158b9c08eff23e1b3475e8"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.648671+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 96,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "3f14d157aea474223372b904694daa01b1deb57fc4158b9c08eff23e1b3475e8",
+            "current_hash": "b42e1ba716408c7fcc04be95ba42387cdfe250a51dc3ebfa83876194eaf8ad96"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.648685+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "b42e1ba716408c7fcc04be95ba42387cdfe250a51dc3ebfa83876194eaf8ad96",
+            "current_hash": "2aa5e487b1f6dd580ceb602fd29c8f735bcc525461ead9a62b3ae842803012f4"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.648708+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "2aa5e487b1f6dd580ceb602fd29c8f735bcc525461ead9a62b3ae842803012f4",
+            "current_hash": "b9f1bb71ce0df4849b9f1f76d0e5652fa6ada12e30524b34cf7731c733368969"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.648726+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "b9f1bb71ce0df4849b9f1f76d0e5652fa6ada12e30524b34cf7731c733368969",
+            "current_hash": "67d30b181f5c134145842f29bbb8abf161a0eea8f9bebfe57876cdca3300c3dd"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.648741+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0050",
+              "final_routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0050",
+            "previous_hash": "67d30b181f5c134145842f29bbb8abf161a0eea8f9bebfe57876cdca3300c3dd",
+            "current_hash": "8832dc530655ad37467c15b295a776f4f1f9c25b269a6f266c3e2999bcc2c686"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0056",
@@ -694,7 +2839,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288512+00:00"
+      "created_at": "2026-07-26T05:00:42.657476+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0056",
+        "patient_id": "P057",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.656700+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P057"
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "",
+            "current_hash": "f078bff3a1076e11b58598f71c91f6933769e93221276207d5024c3781299144"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.656735+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.5,
+              "spo2": 90,
+              "bp_sys": 180,
+              "hr": 120
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "f078bff3a1076e11b58598f71c91f6933769e93221276207d5024c3781299144",
+            "current_hash": "51d7938e26bd7463888b2605a0ec85b4da490250d8309a85b7e6d94de78e1b81"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.656857+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 58,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "51d7938e26bd7463888b2605a0ec85b4da490250d8309a85b7e6d94de78e1b81",
+            "current_hash": "941938cd0d0ebf417b65249a9c9aa13fa3709a82bf7c2f40776e6e7da7a9d761"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.656879+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.5,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "941938cd0d0ebf417b65249a9c9aa13fa3709a82bf7c2f40776e6e7da7a9d761",
+            "current_hash": "895f532696944447417d545c048ae257038cc1745d1b74d6815bbc83af385570"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.656894+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 90,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "895f532696944447417d545c048ae257038cc1745d1b74d6815bbc83af385570",
+            "current_hash": "4a15b64f2bc0bb410643d9d2a4413678224e9e3384e0b29521a9fe6d6b0985d3"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.656907+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 2,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "4a15b64f2bc0bb410643d9d2a4413678224e9e3384e0b29521a9fe6d6b0985d3",
+            "current_hash": "8e0a37b2ce44707c99abb882f82cc1dcce60ee45bbbf23f88534c9c69915e21c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.656924+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "8e0a37b2ce44707c99abb882f82cc1dcce60ee45bbbf23f88534c9c69915e21c",
+            "current_hash": "878fe5be4a4f6b233781271899629af29e46621dfdd56e34b3c941e14e9d414f"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.656936+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "878fe5be4a4f6b233781271899629af29e46621dfdd56e34b3c941e14e9d414f",
+            "current_hash": "35fe56aae21aae1a8eeecf1dea57554c0eb97b3d8e139f449f746ddeb2faf973"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.656947+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0056",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0056",
+            "previous_hash": "35fe56aae21aae1a8eeecf1dea57554c0eb97b3d8e139f449f746ddeb2faf973",
+            "current_hash": "aa9bdc757e4e1369eadd64a9293064070baf439cd1affe7e36e5d5797916f1ac"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0058",
@@ -738,7 +3026,150 @@
       },
       "cost_estimate": 5000,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288530+00:00"
+      "created_at": "2026-07-26T05:00:42.660179+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0058",
+        "patient_id": "P059",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": false,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.659222+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P059"
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "",
+            "current_hash": "3895b71ba37d6643f04e856c1643011554263ad8f6b8a34597b30217168531f2"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.659250+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 40.5,
+              "spo2": 88,
+              "bp_sys": 145,
+              "hr": 135
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "3895b71ba37d6643f04e856c1643011554263ad8f6b8a34597b30217168531f2",
+            "current_hash": "3c9ba63606af9c7ade1189cd28a51bdac3e5556c201e50a82f5228291f42db88"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.659269+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 67,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "3c9ba63606af9c7ade1189cd28a51bdac3e5556c201e50a82f5228291f42db88",
+            "current_hash": "4f1232ca16c8afaa259a743541e3a189c9843a5bd6d4840aaff662b7810fb145"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.659285+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 40.5,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "4f1232ca16c8afaa259a743541e3a189c9843a5bd6d4840aaff662b7810fb145",
+            "current_hash": "bff08b4545fc47d42c2d9fc51b884a2c2e82e1d525b8e66874aceabc72556cbf"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.659349+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 88,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "bff08b4545fc47d42c2d9fc51b884a2c2e82e1d525b8e66874aceabc72556cbf",
+            "current_hash": "1eb963add1de0c99db9e1e42894b90bcd903d37b8f10c38aba63216d2711daf5"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.659367+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 2,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "1eb963add1de0c99db9e1e42894b90bcd903d37b8f10c38aba63216d2711daf5",
+            "current_hash": "4383b3866b0745d7843a96683bb3892b671013be89eed9e9991ff87477692091"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.659388+00:00",
+            "state": "StateType.ROUTE_ICU",
+            "evidence": {
+              "routing": "icu"
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "4383b3866b0745d7843a96683bb3892b671013be89eed9e9991ff87477692091",
+            "current_hash": "fa26987b82275abad5a89c5df0d543f09693eb3de121abff003d2ac1bba66004"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.659406+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "fa26987b82275abad5a89c5df0d543f09693eb3de121abff003d2ac1bba66004",
+            "current_hash": "b563c2609fc4ad80ebc45d0f116cbfc08e9b8db65b90d1949e26580732db0c1a"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.659424+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0058",
+              "final_routing": "icu"
+            },
+            "decision_id": "TRIAGE-0058",
+            "previous_hash": "b563c2609fc4ad80ebc45d0f116cbfc08e9b8db65b90d1949e26580732db0c1a",
+            "current_hash": "73fc011009574b388ceb4f6132940353100de7a6b3936daecffba9c6593091d0"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0059",
@@ -782,7 +3213,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288538+00:00"
+      "created_at": "2026-07-26T05:00:42.661395+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0059",
+        "patient_id": "P060",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.660705+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P060"
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "",
+            "current_hash": "e4b04197892ab03012b566bcbb6945d729f671046bfa85a5c8d2cc4064cca002"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.660768+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.1,
+              "spo2": 85,
+              "bp_sys": 105,
+              "hr": 140
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "e4b04197892ab03012b566bcbb6945d729f671046bfa85a5c8d2cc4064cca002",
+            "current_hash": "7b8821038fcac6315e3031a018a9a707bc501c95492d00b21ee9fb98542e784d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.660789+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 21,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "7b8821038fcac6315e3031a018a9a707bc501c95492d00b21ee9fb98542e784d",
+            "current_hash": "47c27bcf14696252cc362070f8ea5bd565030e53143b3c9bf2f80f66c7c6c563"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.660805+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "47c27bcf14696252cc362070f8ea5bd565030e53143b3c9bf2f80f66c7c6c563",
+            "current_hash": "e87d11dfa0bed3e65986a200b5ae838c4e2e1e3682f2e54d43d0eb02dbcc439d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.660819+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 85,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "e87d11dfa0bed3e65986a200b5ae838c4e2e1e3682f2e54d43d0eb02dbcc439d",
+            "current_hash": "3ff38e554b37efbd929cc1f61e6a59d8fbcd45b382639bc8135de8ffa2220fd9"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.660831+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "3ff38e554b37efbd929cc1f61e6a59d8fbcd45b382639bc8135de8ffa2220fd9",
+            "current_hash": "e6f8e4fa5005a2338946eaf44a2f9c00c1156d8a99b7db7921cc604c7392e6ce"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.660848+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "e6f8e4fa5005a2338946eaf44a2f9c00c1156d8a99b7db7921cc604c7392e6ce",
+            "current_hash": "b36ccf95361f65ac27139d7db82c0155fea522ce3269f12f08e74d75bb0b2319"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.660860+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "b36ccf95361f65ac27139d7db82c0155fea522ce3269f12f08e74d75bb0b2319",
+            "current_hash": "f025461f4b2c7a2c16b951d6232583b52e1c705d645b8df3f4af37f3147d7c8b"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.660870+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0059",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0059",
+            "previous_hash": "f025461f4b2c7a2c16b951d6232583b52e1c705d645b8df3f4af37f3147d7c8b",
+            "current_hash": "63709fffb60015f442b95d76fa41df4ad5bf2368c26163a348fc999b0a506e88"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0063",
@@ -825,7 +3399,150 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288574+00:00"
+      "created_at": "2026-07-26T05:00:42.666490+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0063",
+        "patient_id": "P064",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.665839+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P064"
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "",
+            "current_hash": "cdbc10fa79112cc4feca5051c52639fecb853eca91ee4be8d035f4428e8f94a9"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.665865+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 37.9,
+              "spo2": 89,
+              "bp_sys": 95,
+              "hr": 125
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "cdbc10fa79112cc4feca5051c52639fecb853eca91ee4be8d035f4428e8f94a9",
+            "current_hash": "d3527fce68b03a3c136aff01053cc7b21c01d6f54518b5ef9eee41636f980fd1"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.665883+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 46,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "d3527fce68b03a3c136aff01053cc7b21c01d6f54518b5ef9eee41636f980fd1",
+            "current_hash": "f621e20a9392c4ce5e542f5453804f9139429008c90521efe0deeb938ff33c41"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.665898+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 37.9,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "f621e20a9392c4ce5e542f5453804f9139429008c90521efe0deeb938ff33c41",
+            "current_hash": "9894ed18ad94d010acf1822459caa18c146b57f93b84249f3b95d554369855c4"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.665911+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 89,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "9894ed18ad94d010acf1822459caa18c146b57f93b84249f3b95d554369855c4",
+            "current_hash": "4d914e65f340e67b2b712ed31c7022946be9c51066f2558bf7c850167e32bbc7"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.665923+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "4d914e65f340e67b2b712ed31c7022946be9c51066f2558bf7c850167e32bbc7",
+            "current_hash": "eded86b21f72fe608ffbb3bcb59a3d96c2d4f18c9e0373198dfd6543ae251a2f"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.665939+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "ed"
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "eded86b21f72fe608ffbb3bcb59a3d96c2d4f18c9e0373198dfd6543ae251a2f",
+            "current_hash": "ed3c4670655946d6a6c18f801c7091eed99ed83f9ebf80911e153406204fe144"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.665951+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "ed3c4670655946d6a6c18f801c7091eed99ed83f9ebf80911e153406204fe144",
+            "current_hash": "b67cbd42e6dfd10a5b8a07e2d74eabee4fc4ee837f106ded4a9cd4f499fc6338"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.665961+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0063",
+              "final_routing": "ed"
+            },
+            "decision_id": "TRIAGE-0063",
+            "previous_hash": "b67cbd42e6dfd10a5b8a07e2d74eabee4fc4ee837f106ded4a9cd4f499fc6338",
+            "current_hash": "4c0b3ae94dcdccf950e24fe1b228eae6f45896c2902f13f12f61a737ae171dab"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0069",
@@ -868,7 +3585,150 @@
       },
       "cost_estimate": 1500,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288625+00:00"
+      "created_at": "2026-07-26T05:00:42.674458+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0069",
+        "patient_id": "P070",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": false,
+          "hypoxia_gate": true,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.673590+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P070"
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "",
+            "current_hash": "00cadbf601d65e502a38c7db0c4a338386a0a0966c9d8b0c574ea7856cc710a9"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.673616+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.8,
+              "spo2": 92,
+              "bp_sys": 155,
+              "hr": 115
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "00cadbf601d65e502a38c7db0c4a338386a0a0966c9d8b0c574ea7856cc710a9",
+            "current_hash": "189c480c7d77f3f4c3f8d2af21dde08bf7f7060f20f1a7cd0af41c1236aa6583"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.673644+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 38,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "189c480c7d77f3f4c3f8d2af21dde08bf7f7060f20f1a7cd0af41c1236aa6583",
+            "current_hash": "04d9b7196b0a54e18c7e09e38ccca15950f04d84653cc3d04cc8cc20cc738c37"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.673660+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.8,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "04d9b7196b0a54e18c7e09e38ccca15950f04d84653cc3d04cc8cc20cc738c37",
+            "current_hash": "f46e0f1fb004418c26eef796659e16e79726cbb4d8780e80ecd231bcf2331498"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.673673+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 92,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "f46e0f1fb004418c26eef796659e16e79726cbb4d8780e80ecd231bcf2331498",
+            "current_hash": "2d75499165034378c290f7f820c75b2ce2e5956f6b139731c38f5f289c9d1c88"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.673684+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 1,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "2d75499165034378c290f7f820c75b2ce2e5956f6b139731c38f5f289c9d1c88",
+            "current_hash": "b558f6fc531dcddfde750dd409fc45a88a47b5a77558d33fcec6c99399d26749"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.673742+00:00",
+            "state": "StateType.ROUTE_ED",
+            "evidence": {
+              "routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "b558f6fc531dcddfde750dd409fc45a88a47b5a77558d33fcec6c99399d26749",
+            "current_hash": "372eb42b627e94dfd2deb9713056243e8c2bd9c9028941fe364e51672e1a212d"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.673760+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "372eb42b627e94dfd2deb9713056243e8c2bd9c9028941fe364e51672e1a212d",
+            "current_hash": "b5ee419c3dd29d4bad37df6c05b475bfcbfa61b3a0f94a37023a3c3942f5008e"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.673773+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0069",
+              "final_routing": "general_admission"
+            },
+            "decision_id": "TRIAGE-0069",
+            "previous_hash": "b5ee419c3dd29d4bad37df6c05b475bfcbfa61b3a0f94a37023a3c3942f5008e",
+            "current_hash": "44f02e4b57358b6601e7cd368ed27089faf86ffa8dfed1515aae07670149e81a"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     },
     {
       "decision_id": "TRIAGE-0071",
@@ -912,7 +3772,150 @@
       },
       "cost_estimate": 5000,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T04:07:53.288645+00:00"
+      "created_at": "2026-07-26T05:00:42.677059+00:00",
+      "dag_journey": {
+        "decision_id": "TRIAGE-0071",
+        "patient_id": "P072",
+        "current_state": "complete",
+        "gates_evaluated": {
+          "fever_gate": true,
+          "hypoxia_gate": false,
+          "comorbidity_gate": true
+        },
+        "evidence_chain": [
+          {
+            "timestamp": "2026-07-26T05:00:42.676241+00:00",
+            "state": "StateType.START",
+            "evidence": {
+              "patient_id": "P072"
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "",
+            "current_hash": "973e439e078afd458de8b218f5c431c64ea7dc72dc1ef4dcefdec5b404a461f3"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.676269+00:00",
+            "state": "StateType.ASSESS_VITALS",
+            "evidence": {
+              "temperature": 39.0,
+              "spo2": 86,
+              "bp_sys": 175,
+              "hr": 135
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "973e439e078afd458de8b218f5c431c64ea7dc72dc1ef4dcefdec5b404a461f3",
+            "current_hash": "a44d7c70a116d37ef63dafb9b35bad7416c035b6ac92ccdcac7f0020368866af"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.676286+00:00",
+            "state": "StateType.GATE_AGE",
+            "evidence": {
+              "age": 61,
+              "escalation_required": false
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "a44d7c70a116d37ef63dafb9b35bad7416c035b6ac92ccdcac7f0020368866af",
+            "current_hash": "85922eb3829244cdb18b82ef0938217e5b8de295ce2f6a62840dfe72627783b8"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.676301+00:00",
+            "state": "StateType.GATE_FEVER",
+            "evidence": {
+              "temp": 39.0,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "85922eb3829244cdb18b82ef0938217e5b8de295ce2f6a62840dfe72627783b8",
+            "current_hash": "0b8ac611d04b1037e134393ba04f4a99aaf140fc83e0c1179cc755d953bcad2f"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.676315+00:00",
+            "state": "StateType.GATE_HYPOXIA",
+            "evidence": {
+              "spo2": 86,
+              "passed": false
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "0b8ac611d04b1037e134393ba04f4a99aaf140fc83e0c1179cc755d953bcad2f",
+            "current_hash": "c7a58ae20cf0cddcd694daf1f6b384ac75a40f54f42421f7bacd67686c51778b"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.676327+00:00",
+            "state": "StateType.GATE_COMORBID",
+            "evidence": {
+              "comorbidities": 2,
+              "passed": true
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "c7a58ae20cf0cddcd694daf1f6b384ac75a40f54f42421f7bacd67686c51778b",
+            "current_hash": "830d8a6ad1002fd9eec8e8fa450551217eb9445279b20de1ab3d770361f5678c"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.676343+00:00",
+            "state": "StateType.ROUTE_ICU",
+            "evidence": {
+              "routing": "icu"
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "830d8a6ad1002fd9eec8e8fa450551217eb9445279b20de1ab3d770361f5678c",
+            "current_hash": "3caaac0985a1328fc10dbe8624cc84569135bff28d45038cbf782638a4d5d81b"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.676355+00:00",
+            "state": "StateType.APPROVAL",
+            "evidence": {
+              "approved": false
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "3caaac0985a1328fc10dbe8624cc84569135bff28d45038cbf782638a4d5d81b",
+            "current_hash": "1a515d0a7dcc6c62f894b1f7fc29668165938e20159a426417090c8163a7841f"
+          },
+          {
+            "timestamp": "2026-07-26T05:00:42.676409+00:00",
+            "state": "StateType.COMPLETE",
+            "evidence": {
+              "decision_id": "TRIAGE-0071",
+              "final_routing": "icu"
+            },
+            "decision_id": "TRIAGE-0071",
+            "previous_hash": "1a515d0a7dcc6c62f894b1f7fc29668165938e20159a426417090c8163a7841f",
+            "current_hash": "4d738f18b18223e2b546bde31bc7d6c686d65065761409a95ab1abf851d716e8"
+          }
+        ],
+        "chain_integrity_verified": true,
+        "critical_path": [
+          "fever_gate",
+          "escalation_decision",
+          "route_icu",
+          "approval",
+          "complete"
+        ],
+        "fan_in_points": [
+          "escalation_decision",
+          "approval",
+          "complete"
+        ],
+        "fan_out_points": [
+          "age_gate",
+          "escalation_decision",
+          "approval"
+        ],
+        "parallelization_opportunities": {
+          "fever_gate": [
+            "hypoxia_gate",
+            "comorbidity_gate"
+          ],
+          "hypoxia_gate": [
+            "fever_gate",
+            "comorbidity_gate"
+          ],
+          "comorbidity_gate": [
+            "fever_gate",
+            "hypoxia_gate"
+          ]
+        }
+      },
+      "chain_integrity_verified": true
     }
   ],
   "metrics": {
@@ -920,8 +3923,42 @@
     "auto_approve_rate": 0.72,
     "escalation_rate": 0.28,
     "override_rate": 0.0,
-    "avg_latency_ms": 0.0,
+    "avg_latency_ms": 0.02666666666666667,
     "total_cost": 70300,
-    "pending_count": 21
+    "pending_count": 21,
+    "dag_chain_integrity_rate": 1.0
+  },
+  "dag_governance": {
+    "critical_path": [
+      "fever_gate",
+      "escalation_decision",
+      "route_icu",
+      "approval",
+      "complete"
+    ],
+    "fan_in_points": [
+      "escalation_decision",
+      "approval",
+      "complete"
+    ],
+    "fan_out_points": [
+      "age_gate",
+      "escalation_decision",
+      "approval"
+    ],
+    "parallelization_opportunities": {
+      "fever_gate": [
+        "hypoxia_gate",
+        "comorbidity_gate"
+      ],
+      "hypoxia_gate": [
+        "fever_gate",
+        "comorbidity_gate"
+      ],
+      "comorbidity_gate": [
+        "fever_gate",
+        "hypoxia_gate"
+      ]
+    }
   }
 }
