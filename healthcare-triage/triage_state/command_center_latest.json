@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-26T05:00:42.680963+00:00",
+  "generated_at": "2026-07-26T05:03:20.488261+00:00",
   "snapshot_seq": 2,
   "queue": [
     {
@@ -43,7 +43,7 @@
       },
       "cost_estimate": 1500,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.585367+00:00",
+      "created_at": "2026-07-26T05:03:20.351201+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0001",
         "patient_id": "P002",
@@ -55,17 +55,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.584498+00:00",
+            "timestamp": "2026-07-26T05:03:20.350413+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P002"
             },
             "decision_id": "TRIAGE-0001",
             "previous_hash": "",
-            "current_hash": "b351fc04781d694e6495b95d8e9ecd7c7b734fcdb264ab2063697d1404c65611"
+            "current_hash": "13989a7cb21ce5d2ff4cdf00c973f8de238cd59cc62abc5131f955dd7388300f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.584537+00:00",
+            "timestamp": "2026-07-26T05:03:20.350449+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.8,
@@ -74,83 +74,83 @@
               "hr": 118
             },
             "decision_id": "TRIAGE-0001",
-            "previous_hash": "b351fc04781d694e6495b95d8e9ecd7c7b734fcdb264ab2063697d1404c65611",
-            "current_hash": "28fe9873232e6d8bee89bd7759cb0358358ecb6166227b43192ae856e6a8846c"
+            "previous_hash": "13989a7cb21ce5d2ff4cdf00c973f8de238cd59cc62abc5131f955dd7388300f",
+            "current_hash": "a357d2820321a1154c11be99e5b0d09a98b22750ac42591cf404e0503f6d1ed2"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.584605+00:00",
+            "timestamp": "2026-07-26T05:03:20.350472+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 7,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0001",
-            "previous_hash": "28fe9873232e6d8bee89bd7759cb0358358ecb6166227b43192ae856e6a8846c",
-            "current_hash": "c0dfb28dcff59e876abea12a2001bec7bc453aa7801588835550d4b2ddc8d4e7"
+            "previous_hash": "a357d2820321a1154c11be99e5b0d09a98b22750ac42591cf404e0503f6d1ed2",
+            "current_hash": "09b27e7aab0cddf3cbf8f9c0bc3634acc527e5657e82c82807d5c1ece26aa674"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.584628+00:00",
+            "timestamp": "2026-07-26T05:03:20.350491+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.8,
               "passed": false
             },
             "decision_id": "TRIAGE-0001",
-            "previous_hash": "c0dfb28dcff59e876abea12a2001bec7bc453aa7801588835550d4b2ddc8d4e7",
-            "current_hash": "c504872d9b6ecb092945c1de08c6053d78dae1c9dc0f46027eaf5a4f72a21bd2"
+            "previous_hash": "09b27e7aab0cddf3cbf8f9c0bc3634acc527e5657e82c82807d5c1ece26aa674",
+            "current_hash": "2b90b060d6e663d1d8ea433cd6a4d2f4ebab6c648bfed0c74d605930f52eb871"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.584650+00:00",
+            "timestamp": "2026-07-26T05:03:20.350505+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 94,
               "passed": true
             },
             "decision_id": "TRIAGE-0001",
-            "previous_hash": "c504872d9b6ecb092945c1de08c6053d78dae1c9dc0f46027eaf5a4f72a21bd2",
-            "current_hash": "1aa083cb64d7fffcacca4257672533b082b431336a967a6b60b7b9afcf3374a5"
+            "previous_hash": "2b90b060d6e663d1d8ea433cd6a4d2f4ebab6c648bfed0c74d605930f52eb871",
+            "current_hash": "f7852711cefbcbe49efabc6253a6016144c7019c4bd21b9f9d7acfc0568fb34d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.584664+00:00",
+            "timestamp": "2026-07-26T05:03:20.350517+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0001",
-            "previous_hash": "1aa083cb64d7fffcacca4257672533b082b431336a967a6b60b7b9afcf3374a5",
-            "current_hash": "2aa02de936c6ca51a1401ba78f0c9ca626e76dd20cc5bf5bce1e112327a01079"
+            "previous_hash": "f7852711cefbcbe49efabc6253a6016144c7019c4bd21b9f9d7acfc0568fb34d",
+            "current_hash": "1e071fda3590b82fa3deda99c7021956fc08dad1106f05ef2e48b3f6713c790d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.584688+00:00",
+            "timestamp": "2026-07-26T05:03:20.350540+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "general_admission"
             },
             "decision_id": "TRIAGE-0001",
-            "previous_hash": "2aa02de936c6ca51a1401ba78f0c9ca626e76dd20cc5bf5bce1e112327a01079",
-            "current_hash": "c86a26247cc667419a11a38e0223aa3047d13b57d75c771c998e2cbd20fd417d"
+            "previous_hash": "1e071fda3590b82fa3deda99c7021956fc08dad1106f05ef2e48b3f6713c790d",
+            "current_hash": "2ee612ca9d9a41a894daf1a22f00a0b0e550139afad75a890a0cd4ed3b0baa9d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.584702+00:00",
+            "timestamp": "2026-07-26T05:03:20.350553+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0001",
-            "previous_hash": "c86a26247cc667419a11a38e0223aa3047d13b57d75c771c998e2cbd20fd417d",
-            "current_hash": "c31770d4d8bc766644376a37e777638b3036e25601aadbff8bca9ee346d7a9a3"
+            "previous_hash": "2ee612ca9d9a41a894daf1a22f00a0b0e550139afad75a890a0cd4ed3b0baa9d",
+            "current_hash": "74e52e4e690245e14c64c8bd9c847f5b8910ce6ab288d1c9e2130f35753ce38f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.584713+00:00",
+            "timestamp": "2026-07-26T05:03:20.350564+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0001",
               "final_routing": "general_admission"
             },
             "decision_id": "TRIAGE-0001",
-            "previous_hash": "c31770d4d8bc766644376a37e777638b3036e25601aadbff8bca9ee346d7a9a3",
-            "current_hash": "b704014876b8a4c990926961aeb00c5d63fce89e877702148d399a1ea4c0b9c8"
+            "previous_hash": "74e52e4e690245e14c64c8bd9c847f5b8910ce6ab288d1c9e2130f35753ce38f",
+            "current_hash": "c67b17736d6dddc3ecb82d4d4ba199352f143736e6b8e927ce4dd0380dd32e59"
           }
         ],
         "chain_integrity_verified": true,
@@ -230,7 +230,7 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.586834+00:00",
+      "created_at": "2026-07-26T05:03:20.352494+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0002",
         "patient_id": "P003",
@@ -242,17 +242,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.585971+00:00",
+            "timestamp": "2026-07-26T05:03:20.351660+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P003"
             },
             "decision_id": "TRIAGE-0002",
             "previous_hash": "",
-            "current_hash": "633a28383c8441b172405c767c2f2bad9c0085c29fa8cdd2208b26d14a520141"
+            "current_hash": "dc0e925fb472747b4289ec9ece224600d3dc50fd44f81317efbf1c9359cba6b2"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.586002+00:00",
+            "timestamp": "2026-07-26T05:03:20.351691+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 36.8,
@@ -261,83 +261,83 @@
               "hr": 102
             },
             "decision_id": "TRIAGE-0002",
-            "previous_hash": "633a28383c8441b172405c767c2f2bad9c0085c29fa8cdd2208b26d14a520141",
-            "current_hash": "400f20f51626836ea13de4e4c4ad3c2c8164665aace2d7dffb144ccf1f3e0d7b"
+            "previous_hash": "dc0e925fb472747b4289ec9ece224600d3dc50fd44f81317efbf1c9359cba6b2",
+            "current_hash": "c20414eba78a5ce0baa6f85cd718fa1bf0dd0eeafd1ded967a86097b8735f954"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.586021+00:00",
+            "timestamp": "2026-07-26T05:03:20.351710+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 81,
               "escalation_required": true
             },
             "decision_id": "TRIAGE-0002",
-            "previous_hash": "400f20f51626836ea13de4e4c4ad3c2c8164665aace2d7dffb144ccf1f3e0d7b",
-            "current_hash": "4be068e98932b256c0f26184ecbf28e24dc172d4480a0257fb681a629df103f6"
+            "previous_hash": "c20414eba78a5ce0baa6f85cd718fa1bf0dd0eeafd1ded967a86097b8735f954",
+            "current_hash": "1920e9a73da96a84af50612484f974967a22cdcd326bf1cc363141941a2b8a9a"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.586038+00:00",
+            "timestamp": "2026-07-26T05:03:20.351728+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 36.8,
               "passed": true
             },
             "decision_id": "TRIAGE-0002",
-            "previous_hash": "4be068e98932b256c0f26184ecbf28e24dc172d4480a0257fb681a629df103f6",
-            "current_hash": "40ebf1abc47d5945b2115dc56c207f451695803a84916c8d559c558bbba65363"
+            "previous_hash": "1920e9a73da96a84af50612484f974967a22cdcd326bf1cc363141941a2b8a9a",
+            "current_hash": "efa622d6bfdf7a7815dfcec25e4a7ef8681fed6cdced91841a0c3e5ced515740"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.586052+00:00",
+            "timestamp": "2026-07-26T05:03:20.351750+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 88,
               "passed": false
             },
             "decision_id": "TRIAGE-0002",
-            "previous_hash": "40ebf1abc47d5945b2115dc56c207f451695803a84916c8d559c558bbba65363",
-            "current_hash": "b6491679d179d8fe80c285d53de7e4c9409d557c9f407fd7dcac0046cdea3966"
+            "previous_hash": "efa622d6bfdf7a7815dfcec25e4a7ef8681fed6cdced91841a0c3e5ced515740",
+            "current_hash": "736a2d72b20cd60ab352044fcfb6dbe5574be522b0c4c795ac3354fae9448e36"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.586064+00:00",
+            "timestamp": "2026-07-26T05:03:20.351770+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 2,
               "passed": true
             },
             "decision_id": "TRIAGE-0002",
-            "previous_hash": "b6491679d179d8fe80c285d53de7e4c9409d557c9f407fd7dcac0046cdea3966",
-            "current_hash": "9d366c293fc5e89914b075febdf7cd520239bc807f52676b5eea92283d5fd402"
+            "previous_hash": "736a2d72b20cd60ab352044fcfb6dbe5574be522b0c4c795ac3354fae9448e36",
+            "current_hash": "d528b23c083b4925f93d4011cb69c055bbf0fcbbdfb004cc8d63f8a497e85f5f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.586107+00:00",
+            "timestamp": "2026-07-26T05:03:20.351787+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0002",
-            "previous_hash": "9d366c293fc5e89914b075febdf7cd520239bc807f52676b5eea92283d5fd402",
-            "current_hash": "79ca4aaf579cf1a6434614cb659e69e591c7ee3e8dfa8680272613b226a40a32"
+            "previous_hash": "d528b23c083b4925f93d4011cb69c055bbf0fcbbdfb004cc8d63f8a497e85f5f",
+            "current_hash": "22411ced68ea07952ff15f91c83f69b3a2e17acb35fa1d05702c6854e0f8d159"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.586127+00:00",
+            "timestamp": "2026-07-26T05:03:20.351799+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0002",
-            "previous_hash": "79ca4aaf579cf1a6434614cb659e69e591c7ee3e8dfa8680272613b226a40a32",
-            "current_hash": "9d6e57f3b2559b0300099c6850a6707bfac0d411acd986c071958acc8deef907"
+            "previous_hash": "22411ced68ea07952ff15f91c83f69b3a2e17acb35fa1d05702c6854e0f8d159",
+            "current_hash": "3245b863c3f8baa61ec8ea43cf3668ce5bd1906a2af7941dc2c6d28dea8bdc80"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.586140+00:00",
+            "timestamp": "2026-07-26T05:03:20.351809+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0002",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0002",
-            "previous_hash": "9d6e57f3b2559b0300099c6850a6707bfac0d411acd986c071958acc8deef907",
-            "current_hash": "5786026b9b581848db6acb7727f788140a6e53e56289e8b8e574217b5789c092"
+            "previous_hash": "3245b863c3f8baa61ec8ea43cf3668ce5bd1906a2af7941dc2c6d28dea8bdc80",
+            "current_hash": "99f3eeb7af8ec365d58b1f9859f0b55d0ab8e96f7c36cfae0f09acc31369393a"
           }
         ],
         "chain_integrity_verified": true,
@@ -416,8 +416,8 @@
         "critical_gate": true
       },
       "cost_estimate": 1500,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.596257+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.362434+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0009",
         "patient_id": "P010",
@@ -429,17 +429,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.595462+00:00",
+            "timestamp": "2026-07-26T05:03:20.361281+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P010"
             },
             "decision_id": "TRIAGE-0009",
             "previous_hash": "",
-            "current_hash": "66f5e2a40c21120e6f2283ae9bef010cb43d8d4d1b9c69622094d1dda3940ac0"
+            "current_hash": "abec39a26d84016b48f4804fdf6c484147e494348dcae33990d89d034bd044a0"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.595488+00:00",
+            "timestamp": "2026-07-26T05:03:20.361322+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 37.8,
@@ -448,83 +448,83 @@
               "hr": 105
             },
             "decision_id": "TRIAGE-0009",
-            "previous_hash": "66f5e2a40c21120e6f2283ae9bef010cb43d8d4d1b9c69622094d1dda3940ac0",
-            "current_hash": "4bc6ad6f1ff3f914b8b1b8a81e8065286f5dd96fd168beb5b13039cd429d9b36"
+            "previous_hash": "abec39a26d84016b48f4804fdf6c484147e494348dcae33990d89d034bd044a0",
+            "current_hash": "d414402d4e38044219ae641f4c34cef8937ac419bc467481f91dd3cb4e4e69e2"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.595505+00:00",
+            "timestamp": "2026-07-26T05:03:20.361358+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 56,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0009",
-            "previous_hash": "4bc6ad6f1ff3f914b8b1b8a81e8065286f5dd96fd168beb5b13039cd429d9b36",
-            "current_hash": "49e8ff17aedb4c4c8b8d430be960f11b3058cbbe7df897e48f9ee366e7589784"
+            "previous_hash": "d414402d4e38044219ae641f4c34cef8937ac419bc467481f91dd3cb4e4e69e2",
+            "current_hash": "6c813cbe8bed051792c3d1c16fe9fdfafec77b69331edcbc3d1d5161f04c9245"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.595521+00:00",
+            "timestamp": "2026-07-26T05:03:20.361376+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 37.8,
               "passed": true
             },
             "decision_id": "TRIAGE-0009",
-            "previous_hash": "49e8ff17aedb4c4c8b8d430be960f11b3058cbbe7df897e48f9ee366e7589784",
-            "current_hash": "03773ee487710142eb38b280a8c7fdf7fcda6ce1058e575c04aff62a0c963cf5"
+            "previous_hash": "6c813cbe8bed051792c3d1c16fe9fdfafec77b69331edcbc3d1d5161f04c9245",
+            "current_hash": "b72d4b783d37d663e8db58ac49e168038ce04427ac5a4ada96766d1d53e3fc55"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.595535+00:00",
+            "timestamp": "2026-07-26T05:03:20.361390+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 91,
               "passed": false
             },
             "decision_id": "TRIAGE-0009",
-            "previous_hash": "03773ee487710142eb38b280a8c7fdf7fcda6ce1058e575c04aff62a0c963cf5",
-            "current_hash": "c61dddb47ffaac159fc2e2e80f79bf03b445656e0bbe13fc53aaf08d74375d63"
+            "previous_hash": "b72d4b783d37d663e8db58ac49e168038ce04427ac5a4ada96766d1d53e3fc55",
+            "current_hash": "4b6386673e30799dfe5f483711d848674fd01a34660b8ad9f964cff635026296"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.595546+00:00",
+            "timestamp": "2026-07-26T05:03:20.361407+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 2,
               "passed": true
             },
             "decision_id": "TRIAGE-0009",
-            "previous_hash": "c61dddb47ffaac159fc2e2e80f79bf03b445656e0bbe13fc53aaf08d74375d63",
-            "current_hash": "05f405692650e167423bdc408abe00e9429b08540ae5f96b215b390d46f16b70"
+            "previous_hash": "4b6386673e30799dfe5f483711d848674fd01a34660b8ad9f964cff635026296",
+            "current_hash": "529c5b89bc101dcd0eb7734e8863daccab4dd348a1c8ab538de14ca315a80d15"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.595563+00:00",
+            "timestamp": "2026-07-26T05:03:20.361425+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "general_admission"
             },
             "decision_id": "TRIAGE-0009",
-            "previous_hash": "05f405692650e167423bdc408abe00e9429b08540ae5f96b215b390d46f16b70",
-            "current_hash": "bb07620399a3cedd3a008eefafede1db7dabb31405a56cf3fe3787efbb0547d6"
+            "previous_hash": "529c5b89bc101dcd0eb7734e8863daccab4dd348a1c8ab538de14ca315a80d15",
+            "current_hash": "d569b4d7438a1098aea7f7c231245fa0d05c33a02ba0586e87fe14dee8409910"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.595574+00:00",
+            "timestamp": "2026-07-26T05:03:20.361437+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0009",
-            "previous_hash": "bb07620399a3cedd3a008eefafede1db7dabb31405a56cf3fe3787efbb0547d6",
-            "current_hash": "ba1c9db7a946a9f4d5b5cd030765f3dec2bc485a3e208e628b2c3f689e1e2f84"
+            "previous_hash": "d569b4d7438a1098aea7f7c231245fa0d05c33a02ba0586e87fe14dee8409910",
+            "current_hash": "2f01d02b05b084cd64b027c790723bf73f61f25ba3b7707d7d792961a5893ebe"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.595627+00:00",
+            "timestamp": "2026-07-26T05:03:20.361841+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0009",
               "final_routing": "general_admission"
             },
             "decision_id": "TRIAGE-0009",
-            "previous_hash": "ba1c9db7a946a9f4d5b5cd030765f3dec2bc485a3e208e628b2c3f689e1e2f84",
-            "current_hash": "0999ffb460e5cbbb0ab78b7921dee7265ddf34529cd406a8c15293b285165dfd"
+            "previous_hash": "2f01d02b05b084cd64b027c790723bf73f61f25ba3b7707d7d792961a5893ebe",
+            "current_hash": "6ccd4544315ce8af9c29e62fc30a0c542816e57e79b7f0c0c5b54a1a293f1fc6"
           }
         ],
         "chain_integrity_verified": true,
@@ -602,8 +602,8 @@
         "critical_gate": false
       },
       "cost_estimate": 5000,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.601477+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.369648+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0013",
         "patient_id": "P014",
@@ -615,17 +615,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.600640+00:00",
+            "timestamp": "2026-07-26T05:03:20.368384+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P014"
             },
             "decision_id": "TRIAGE-0013",
             "previous_hash": "",
-            "current_hash": "f29f455d989ec440252dae381efeb177fcbf8d238582e6aa020e31ebcaaeac3f"
+            "current_hash": "8bb957d5b78a4e427aebcf973389309078ae3a2f6b369ec775a5efaaf66f0c8c"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.600668+00:00",
+            "timestamp": "2026-07-26T05:03:20.368569+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.1,
@@ -634,83 +634,83 @@
               "hr": 125
             },
             "decision_id": "TRIAGE-0013",
-            "previous_hash": "f29f455d989ec440252dae381efeb177fcbf8d238582e6aa020e31ebcaaeac3f",
-            "current_hash": "09aa308bf8ef414a813ec75aa772c3d025c1528eb9fcd6f1dca87a13fdfd8d2f"
+            "previous_hash": "8bb957d5b78a4e427aebcf973389309078ae3a2f6b369ec775a5efaaf66f0c8c",
+            "current_hash": "218c7e5b6fea1be820fb3fe2d2933360860b9bf507cee425e33e6db34ed95e1a"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.600803+00:00",
+            "timestamp": "2026-07-26T05:03:20.368644+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 3,
               "escalation_required": true
             },
             "decision_id": "TRIAGE-0013",
-            "previous_hash": "09aa308bf8ef414a813ec75aa772c3d025c1528eb9fcd6f1dca87a13fdfd8d2f",
-            "current_hash": "6481a0dcf934273d72c1f4165bac492d84ccb3b65db3928510b3b42adadb3677"
+            "previous_hash": "218c7e5b6fea1be820fb3fe2d2933360860b9bf507cee425e33e6db34ed95e1a",
+            "current_hash": "b5a26fecb92201e20a4d844c77484e184dc478d695b529812d157b3e60671179"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.600826+00:00",
+            "timestamp": "2026-07-26T05:03:20.368668+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.1,
               "passed": true
             },
             "decision_id": "TRIAGE-0013",
-            "previous_hash": "6481a0dcf934273d72c1f4165bac492d84ccb3b65db3928510b3b42adadb3677",
-            "current_hash": "a93f62a07ed2f6c445537e95338f436e0df8fcab22de1e47c06325efa9a171e1"
+            "previous_hash": "b5a26fecb92201e20a4d844c77484e184dc478d695b529812d157b3e60671179",
+            "current_hash": "cc7cd4a087a84aaef5e28175c09fdc1d46429f4c79baf1a037c3f8632809378d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.600840+00:00",
+            "timestamp": "2026-07-26T05:03:20.368690+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 89,
               "passed": false
             },
             "decision_id": "TRIAGE-0013",
-            "previous_hash": "a93f62a07ed2f6c445537e95338f436e0df8fcab22de1e47c06325efa9a171e1",
-            "current_hash": "5690ecbf8c732cfc4bf7df294f8fbd745551460000b14e1d4f2471cc4005bb30"
+            "previous_hash": "cc7cd4a087a84aaef5e28175c09fdc1d46429f4c79baf1a037c3f8632809378d",
+            "current_hash": "9d4180561f2e29da8ac86f2e2665669941d49de4cffd0040ab17de7cd62753f0"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.600852+00:00",
+            "timestamp": "2026-07-26T05:03:20.368703+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0013",
-            "previous_hash": "5690ecbf8c732cfc4bf7df294f8fbd745551460000b14e1d4f2471cc4005bb30",
-            "current_hash": "4d82228e4dbe965480c90e17135eb3e54a5951ae37b1f27c064c865d64ae30db"
+            "previous_hash": "9d4180561f2e29da8ac86f2e2665669941d49de4cffd0040ab17de7cd62753f0",
+            "current_hash": "725d1994c907825cc9b32c718fb0f3a9c5d233de7ad99305426c4d083982888e"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.600868+00:00",
+            "timestamp": "2026-07-26T05:03:20.368723+00:00",
             "state": "StateType.ROUTE_ICU",
             "evidence": {
               "routing": "icu"
             },
             "decision_id": "TRIAGE-0013",
-            "previous_hash": "4d82228e4dbe965480c90e17135eb3e54a5951ae37b1f27c064c865d64ae30db",
-            "current_hash": "445c43fad99eb0c6d481cdc514635eaf04fdafa5f7136d82bc6eb590bb1e561e"
+            "previous_hash": "725d1994c907825cc9b32c718fb0f3a9c5d233de7ad99305426c4d083982888e",
+            "current_hash": "9bd3fc6c1f9b136ed1049d155ba93b98579fdaefdb470961bae579bd77f5ea9e"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.600880+00:00",
+            "timestamp": "2026-07-26T05:03:20.368738+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0013",
-            "previous_hash": "445c43fad99eb0c6d481cdc514635eaf04fdafa5f7136d82bc6eb590bb1e561e",
-            "current_hash": "55675130210f1e0fc0a51d347f5baccc6a7fe1bd30aebbe7e00eabca51625fc8"
+            "previous_hash": "9bd3fc6c1f9b136ed1049d155ba93b98579fdaefdb470961bae579bd77f5ea9e",
+            "current_hash": "b99a6fb5d7e23ce0d2505e32249a9c2987aebe6fd554122279ddd07d42597ebd"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.600890+00:00",
+            "timestamp": "2026-07-26T05:03:20.368748+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0013",
               "final_routing": "icu"
             },
             "decision_id": "TRIAGE-0013",
-            "previous_hash": "55675130210f1e0fc0a51d347f5baccc6a7fe1bd30aebbe7e00eabca51625fc8",
-            "current_hash": "aec09bca5e9a1d0882c2d30e736e7e8128c9f90c1f944144c30326fe7d920a2a"
+            "previous_hash": "b99a6fb5d7e23ce0d2505e32249a9c2987aebe6fd554122279ddd07d42597ebd",
+            "current_hash": "2fad5c09a2548dbc8c084258b0a122e24a4e2fab0f44d2e36b1f6ec62f417bb7"
           }
         ],
         "chain_integrity_verified": true,
@@ -789,8 +789,8 @@
         "critical_gate": true
       },
       "cost_estimate": 2400,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.605544+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.375360+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0016",
         "patient_id": "P017",
@@ -802,17 +802,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.604764+00:00",
+            "timestamp": "2026-07-26T05:03:20.374141+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P017"
             },
             "decision_id": "TRIAGE-0016",
             "previous_hash": "",
-            "current_hash": "6d7dd18e7735065a52ae36a167781aabea743ba09c4f5cda05a18f45c81a1c14"
+            "current_hash": "4817ed8e1b69763fb92b3baecfccf1fd6c8f2edc6e27241a22ef8192acfe0aa7"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.604790+00:00",
+            "timestamp": "2026-07-26T05:03:20.374171+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 37.5,
@@ -821,83 +821,83 @@
               "hr": 125
             },
             "decision_id": "TRIAGE-0016",
-            "previous_hash": "6d7dd18e7735065a52ae36a167781aabea743ba09c4f5cda05a18f45c81a1c14",
-            "current_hash": "11b43c7c4558937ffff3eeffd9b9feb9767cffa2aeb098313b1defddfe6ecb30"
+            "previous_hash": "4817ed8e1b69763fb92b3baecfccf1fd6c8f2edc6e27241a22ef8192acfe0aa7",
+            "current_hash": "ce5de7f90cc7fcc327838f11d88b751157955cd1fd77ea3e0ebb66f26955a68b"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.604808+00:00",
+            "timestamp": "2026-07-26T05:03:20.374189+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 60,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0016",
-            "previous_hash": "11b43c7c4558937ffff3eeffd9b9feb9767cffa2aeb098313b1defddfe6ecb30",
-            "current_hash": "7bd12493cd6198d01030e14ecd4fdf95370c8dfc8f5696963b0e8a6c7cd7258d"
+            "previous_hash": "ce5de7f90cc7fcc327838f11d88b751157955cd1fd77ea3e0ebb66f26955a68b",
+            "current_hash": "d628ed16a074c94435bc8492f7341748aaa257864775b98b28cb7506c1a484d6"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.604823+00:00",
+            "timestamp": "2026-07-26T05:03:20.374205+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 37.5,
               "passed": true
             },
             "decision_id": "TRIAGE-0016",
-            "previous_hash": "7bd12493cd6198d01030e14ecd4fdf95370c8dfc8f5696963b0e8a6c7cd7258d",
-            "current_hash": "79554785e480dfcf72ac0f089e7c9b44a6a08f9502b91818aa1712252120ed60"
+            "previous_hash": "d628ed16a074c94435bc8492f7341748aaa257864775b98b28cb7506c1a484d6",
+            "current_hash": "a1540929af16d8e2851fd9e59d40ca388aa5978789e9265f576d253675c42f64"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.604837+00:00",
+            "timestamp": "2026-07-26T05:03:20.374218+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 89,
               "passed": false
             },
             "decision_id": "TRIAGE-0016",
-            "previous_hash": "79554785e480dfcf72ac0f089e7c9b44a6a08f9502b91818aa1712252120ed60",
-            "current_hash": "05081bbec2974d1ef902d4af5a09ff8c766e56dcb455d16b8b1f9722ee822c86"
+            "previous_hash": "a1540929af16d8e2851fd9e59d40ca388aa5978789e9265f576d253675c42f64",
+            "current_hash": "ea54c4d5776705bf82c41857cf925eb7e0f6af31b1b28cb6f3a8141835665852"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.604849+00:00",
+            "timestamp": "2026-07-26T05:03:20.374229+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 2,
               "passed": true
             },
             "decision_id": "TRIAGE-0016",
-            "previous_hash": "05081bbec2974d1ef902d4af5a09ff8c766e56dcb455d16b8b1f9722ee822c86",
-            "current_hash": "17df8a00ba67c6473fc915ed83566a6d7209ab3987b674ffdeab134368162a2b"
+            "previous_hash": "ea54c4d5776705bf82c41857cf925eb7e0f6af31b1b28cb6f3a8141835665852",
+            "current_hash": "06ba58b64fefcf582b8867b1a13c73d3562df98847715042105526cac68d7f24"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.604864+00:00",
+            "timestamp": "2026-07-26T05:03:20.374246+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0016",
-            "previous_hash": "17df8a00ba67c6473fc915ed83566a6d7209ab3987b674ffdeab134368162a2b",
-            "current_hash": "e643053ba22a8da61f2c963bdb8e30ca625b67f414753f6c7d836b5c18f257d0"
+            "previous_hash": "06ba58b64fefcf582b8867b1a13c73d3562df98847715042105526cac68d7f24",
+            "current_hash": "5c8a0ee4e4076ec16b1df2a5d54751096eb2bb99b30ef9ddfa0d69e5094ba9ba"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.604919+00:00",
+            "timestamp": "2026-07-26T05:03:20.374375+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0016",
-            "previous_hash": "e643053ba22a8da61f2c963bdb8e30ca625b67f414753f6c7d836b5c18f257d0",
-            "current_hash": "1cc02de5014f58af84f60aec4e033a95c54db7addaa69eedb1ba017a71578473"
+            "previous_hash": "5c8a0ee4e4076ec16b1df2a5d54751096eb2bb99b30ef9ddfa0d69e5094ba9ba",
+            "current_hash": "f0dd013dde506fb3b026a65f0cd3f28e46c8acc133a58104961e4eb830d20a69"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.604936+00:00",
+            "timestamp": "2026-07-26T05:03:20.374394+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0016",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0016",
-            "previous_hash": "1cc02de5014f58af84f60aec4e033a95c54db7addaa69eedb1ba017a71578473",
-            "current_hash": "7f65dcffcbdf7d211ec766ae60f61eda48c0178f0582ee324a28cdf4c96c5c6d"
+            "previous_hash": "f0dd013dde506fb3b026a65f0cd3f28e46c8acc133a58104961e4eb830d20a69",
+            "current_hash": "05ed68035460404c0525ece1df071a174df4bbc22ef6fe3a87d8283fad95ad36"
           }
         ],
         "chain_integrity_verified": true,
@@ -976,8 +976,8 @@
         "critical_gate": true
       },
       "cost_estimate": 2400,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.608142+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.379019+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0018",
         "patient_id": "P019",
@@ -989,17 +989,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.607453+00:00",
+            "timestamp": "2026-07-26T05:03:20.378263+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P019"
             },
             "decision_id": "TRIAGE-0018",
             "previous_hash": "",
-            "current_hash": "4d94d425bc4a0cb1bf44018c08941af498a54b6d657fc16e2dc3461ea7b592b1"
+            "current_hash": "485f4e2b961176b94ee00641c22be2cc8d35256c1bc487dc10531fb2a88f06b2"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.607479+00:00",
+            "timestamp": "2026-07-26T05:03:20.378293+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 36.8,
@@ -1008,83 +1008,83 @@
               "hr": 48
             },
             "decision_id": "TRIAGE-0018",
-            "previous_hash": "4d94d425bc4a0cb1bf44018c08941af498a54b6d657fc16e2dc3461ea7b592b1",
-            "current_hash": "e985e404f79f38ce606535d4f6b59eadae1af2ba795f249074286187d461deb4"
+            "previous_hash": "485f4e2b961176b94ee00641c22be2cc8d35256c1bc487dc10531fb2a88f06b2",
+            "current_hash": "a7dbe636116283593752b9441009efc73d6e6bdeefc5c40ccb1c2db0690dcb7c"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.607497+00:00",
+            "timestamp": "2026-07-26T05:03:20.378319+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 77,
               "escalation_required": true
             },
             "decision_id": "TRIAGE-0018",
-            "previous_hash": "e985e404f79f38ce606535d4f6b59eadae1af2ba795f249074286187d461deb4",
-            "current_hash": "557d2a6335ec4ef290540620f5e1c5cbca02c2556debb2f19a7edebcf78c1b07"
+            "previous_hash": "a7dbe636116283593752b9441009efc73d6e6bdeefc5c40ccb1c2db0690dcb7c",
+            "current_hash": "adb1c6b14a8b8fd5405387ca7e2b3d56b253071a59cf413da77073f5cbfce044"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.607512+00:00",
+            "timestamp": "2026-07-26T05:03:20.378344+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 36.8,
               "passed": true
             },
             "decision_id": "TRIAGE-0018",
-            "previous_hash": "557d2a6335ec4ef290540620f5e1c5cbca02c2556debb2f19a7edebcf78c1b07",
-            "current_hash": "e1ddf43a4a9d8fd3ee0ce02155423d50c3736af87c5718d37410d669bafc0ef9"
+            "previous_hash": "adb1c6b14a8b8fd5405387ca7e2b3d56b253071a59cf413da77073f5cbfce044",
+            "current_hash": "db0b517ff3e70276343d12828fc0afa6c4c977470159cb922abe7d23ff79774f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.607526+00:00",
+            "timestamp": "2026-07-26T05:03:20.378363+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 94,
               "passed": true
             },
             "decision_id": "TRIAGE-0018",
-            "previous_hash": "e1ddf43a4a9d8fd3ee0ce02155423d50c3736af87c5718d37410d669bafc0ef9",
-            "current_hash": "2ab40ddd83a9120724490b192bc8e7a3b9558e5299ef9a3bc745b43d4292ef6d"
+            "previous_hash": "db0b517ff3e70276343d12828fc0afa6c4c977470159cb922abe7d23ff79774f",
+            "current_hash": "3114ef49c029f0675696a0d88b4f7218996db5a089dc1b7e00da6557508fd107"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.607538+00:00",
+            "timestamp": "2026-07-26T05:03:20.378377+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 2,
               "passed": true
             },
             "decision_id": "TRIAGE-0018",
-            "previous_hash": "2ab40ddd83a9120724490b192bc8e7a3b9558e5299ef9a3bc745b43d4292ef6d",
-            "current_hash": "e08e2104f3177a96d08d695861d5192847541ce0628a044d26197a539129222c"
+            "previous_hash": "3114ef49c029f0675696a0d88b4f7218996db5a089dc1b7e00da6557508fd107",
+            "current_hash": "7f7b9fb6428580b2385ab35735ab5ed442cdb8e014126c5b86526da7166ed07e"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.607554+00:00",
+            "timestamp": "2026-07-26T05:03:20.378392+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0018",
-            "previous_hash": "e08e2104f3177a96d08d695861d5192847541ce0628a044d26197a539129222c",
-            "current_hash": "9f0536a099030209ed2fc29312477d34cf710d5ef9e11089f7efb53004b890ff"
+            "previous_hash": "7f7b9fb6428580b2385ab35735ab5ed442cdb8e014126c5b86526da7166ed07e",
+            "current_hash": "4413bec1fd93b3374a29d621c40f5a8b061921703db7e42d6a71a1d4268ba218"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.607565+00:00",
+            "timestamp": "2026-07-26T05:03:20.378420+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0018",
-            "previous_hash": "9f0536a099030209ed2fc29312477d34cf710d5ef9e11089f7efb53004b890ff",
-            "current_hash": "6f43660a37d33b099d86506e1a2186a680a928c347eca9babb31896df33e4870"
+            "previous_hash": "4413bec1fd93b3374a29d621c40f5a8b061921703db7e42d6a71a1d4268ba218",
+            "current_hash": "06789296ba7498970c76d8a107a7546b8556477f4cbe12e3c4c02345789167df"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.607575+00:00",
+            "timestamp": "2026-07-26T05:03:20.378431+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0018",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0018",
-            "previous_hash": "6f43660a37d33b099d86506e1a2186a680a928c347eca9babb31896df33e4870",
-            "current_hash": "fb4138abde89526d37d5eb39b005ec90ab83e039f7051863b15b0926e935235e"
+            "previous_hash": "06789296ba7498970c76d8a107a7546b8556477f4cbe12e3c4c02345789167df",
+            "current_hash": "0cb278a2f47b70e78a8caca1a2cbf1af1898d82c4d6031b1c992969834e206df"
           }
         ],
         "chain_integrity_verified": true,
@@ -1164,7 +1164,7 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.609266+00:00",
+      "created_at": "2026-07-26T05:03:20.380497+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0019",
         "patient_id": "P020",
@@ -1176,17 +1176,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.608572+00:00",
+            "timestamp": "2026-07-26T05:03:20.379528+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P020"
             },
             "decision_id": "TRIAGE-0019",
             "previous_hash": "",
-            "current_hash": "96198370d2c47f74113faf199cc0a3f80acd3b8dd2734aa37b00ecfaae281922"
+            "current_hash": "90b53188cf7210d93ba6a7c5d00f3f004d058e1a94e957791095f14fd6f9ce10"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.608600+00:00",
+            "timestamp": "2026-07-26T05:03:20.379559+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 38.5,
@@ -1195,83 +1195,83 @@
               "hr": 120
             },
             "decision_id": "TRIAGE-0019",
-            "previous_hash": "96198370d2c47f74113faf199cc0a3f80acd3b8dd2734aa37b00ecfaae281922",
-            "current_hash": "cfcf97e3def095323d8e0426870c7ea33da01f6557e86cf77f9f6e0c967f6e39"
+            "previous_hash": "90b53188cf7210d93ba6a7c5d00f3f004d058e1a94e957791095f14fd6f9ce10",
+            "current_hash": "6c02f368643f7aa6f67af2d52de6235dce9ecc4a06d964464307234603315e61"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.608662+00:00",
+            "timestamp": "2026-07-26T05:03:20.379673+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 41,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0019",
-            "previous_hash": "cfcf97e3def095323d8e0426870c7ea33da01f6557e86cf77f9f6e0c967f6e39",
-            "current_hash": "34a8e8d49763ac2fb6f14d3dcb93bc30110d95656c26499ad069151a485a2fe3"
+            "previous_hash": "6c02f368643f7aa6f67af2d52de6235dce9ecc4a06d964464307234603315e61",
+            "current_hash": "d879cf2fa6b9012f607dbc3183a901f41c86b35ae0313493225f5508f97fad74"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.608682+00:00",
+            "timestamp": "2026-07-26T05:03:20.379694+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 38.5,
               "passed": true
             },
             "decision_id": "TRIAGE-0019",
-            "previous_hash": "34a8e8d49763ac2fb6f14d3dcb93bc30110d95656c26499ad069151a485a2fe3",
-            "current_hash": "7ba9f2f610ba8634c5bdea91d38ed0dcbad3ca789505fbf1f48ae0480e22145c"
+            "previous_hash": "d879cf2fa6b9012f607dbc3183a901f41c86b35ae0313493225f5508f97fad74",
+            "current_hash": "39cb04d448037e91287cb930b58b37a32859616ab4c195c6744867abd47a9768"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.608697+00:00",
+            "timestamp": "2026-07-26T05:03:20.379708+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 88,
               "passed": false
             },
             "decision_id": "TRIAGE-0019",
-            "previous_hash": "7ba9f2f610ba8634c5bdea91d38ed0dcbad3ca789505fbf1f48ae0480e22145c",
-            "current_hash": "0f652ae2784a3e370007bce861e5dc6e74a79b19b986584b6940f15c590ef2fa"
+            "previous_hash": "39cb04d448037e91287cb930b58b37a32859616ab4c195c6744867abd47a9768",
+            "current_hash": "c707c3ca0adaca3b9d65554eff424bc5fe62ddfa27c8546c84b5ab802a166d97"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.608709+00:00",
+            "timestamp": "2026-07-26T05:03:20.379720+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0019",
-            "previous_hash": "0f652ae2784a3e370007bce861e5dc6e74a79b19b986584b6940f15c590ef2fa",
-            "current_hash": "38cf64c1b5794591a7391f6a9b05b8128e07614e9e9883de6d949327e9fc900d"
+            "previous_hash": "c707c3ca0adaca3b9d65554eff424bc5fe62ddfa27c8546c84b5ab802a166d97",
+            "current_hash": "ccd278b82a3c81476ea5d92bb32263156480fa8e68629b48849c5b9e1c89262f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.608725+00:00",
+            "timestamp": "2026-07-26T05:03:20.379737+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0019",
-            "previous_hash": "38cf64c1b5794591a7391f6a9b05b8128e07614e9e9883de6d949327e9fc900d",
-            "current_hash": "3e6b8248c625d59d825e2da81a80757a69124851adb4f079dbbb27f44c62a714"
+            "previous_hash": "ccd278b82a3c81476ea5d92bb32263156480fa8e68629b48849c5b9e1c89262f",
+            "current_hash": "a94e2df642489310bd279881686791d4a4cf97c3cee070aa9c991a0ada1f6c15"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.608738+00:00",
+            "timestamp": "2026-07-26T05:03:20.379748+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0019",
-            "previous_hash": "3e6b8248c625d59d825e2da81a80757a69124851adb4f079dbbb27f44c62a714",
-            "current_hash": "84bedb3404d0aee026b979f3a8a2f3c744a5d946d4f00961dd6dc473f6958538"
+            "previous_hash": "a94e2df642489310bd279881686791d4a4cf97c3cee070aa9c991a0ada1f6c15",
+            "current_hash": "c1e38d7cee8cfd5db6f09b63dc48d4b9dbe6bf873626decaeb5bfa91540c246e"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.608748+00:00",
+            "timestamp": "2026-07-26T05:03:20.379766+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0019",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0019",
-            "previous_hash": "84bedb3404d0aee026b979f3a8a2f3c744a5d946d4f00961dd6dc473f6958538",
-            "current_hash": "448eb8c59d46d263527a6a0bbce725726f87b6d7782611de22344d6d9505f0f9"
+            "previous_hash": "c1e38d7cee8cfd5db6f09b63dc48d4b9dbe6bf873626decaeb5bfa91540c246e",
+            "current_hash": "efcc8a2bd4ead4097bc437e0827fd27c948e6fb9a6c2d77bc396ded2c008c37e"
           }
         ],
         "chain_integrity_verified": true,
@@ -1349,8 +1349,8 @@
         "critical_gate": true
       },
       "cost_estimate": 1500,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.610594+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.383097+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0020",
         "patient_id": "P021",
@@ -1362,17 +1362,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.609834+00:00",
+            "timestamp": "2026-07-26T05:03:20.381249+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P021"
             },
             "decision_id": "TRIAGE-0020",
             "previous_hash": "",
-            "current_hash": "436f951663f056354c71260bd481bd85fa081c2c070387be4fafbc701ba292bf"
+            "current_hash": "4795661e5c65ecd2aac20e51a41bc0eba49d01af1ce26ed27b1c2aebf45164ec"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.609862+00:00",
+            "timestamp": "2026-07-26T05:03:20.381279+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.6,
@@ -1381,83 +1381,83 @@
               "hr": 105
             },
             "decision_id": "TRIAGE-0020",
-            "previous_hash": "436f951663f056354c71260bd481bd85fa081c2c070387be4fafbc701ba292bf",
-            "current_hash": "4d8236e1cde7a23bf34c99499fd0c3f12db4c82338c519d421ae88d688d13e5d"
+            "previous_hash": "4795661e5c65ecd2aac20e51a41bc0eba49d01af1ce26ed27b1c2aebf45164ec",
+            "current_hash": "1889d981574e0a444b8af0953fa65d9584d7369a6767468e0f66f2777d444404"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.609881+00:00",
+            "timestamp": "2026-07-26T05:03:20.381555+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 15,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0020",
-            "previous_hash": "4d8236e1cde7a23bf34c99499fd0c3f12db4c82338c519d421ae88d688d13e5d",
-            "current_hash": "134e3f39592d8c102c822295239e909b5b1b182851a30518a0aa110d246889be"
+            "previous_hash": "1889d981574e0a444b8af0953fa65d9584d7369a6767468e0f66f2777d444404",
+            "current_hash": "b8f2291dc6d3a147530e57f484223384afd3a5f02e241ce4231ddcbc22821b12"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.609897+00:00",
+            "timestamp": "2026-07-26T05:03:20.381581+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.6,
               "passed": false
             },
             "decision_id": "TRIAGE-0020",
-            "previous_hash": "134e3f39592d8c102c822295239e909b5b1b182851a30518a0aa110d246889be",
-            "current_hash": "65eb82d5e3caefcade7886e295d6f40cfb3af7c64a6272e387fbbf08e9d6b5bd"
+            "previous_hash": "b8f2291dc6d3a147530e57f484223384afd3a5f02e241ce4231ddcbc22821b12",
+            "current_hash": "af58932231cf1be2184adb72c880ab88620304b367dc8e1600c8586869068de2"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.609910+00:00",
+            "timestamp": "2026-07-26T05:03:20.381595+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 95,
               "passed": true
             },
             "decision_id": "TRIAGE-0020",
-            "previous_hash": "65eb82d5e3caefcade7886e295d6f40cfb3af7c64a6272e387fbbf08e9d6b5bd",
-            "current_hash": "cc75ebdd24e9c5fac29cc4b1f981c7c3b9f1beca534d61852a9118be447a0be7"
+            "previous_hash": "af58932231cf1be2184adb72c880ab88620304b367dc8e1600c8586869068de2",
+            "current_hash": "90f89d55519df33338eaedc51f493b183679f40fa66d950c3f30ca36727412f9"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.609959+00:00",
+            "timestamp": "2026-07-26T05:03:20.381686+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0020",
-            "previous_hash": "cc75ebdd24e9c5fac29cc4b1f981c7c3b9f1beca534d61852a9118be447a0be7",
-            "current_hash": "e71091f9690f405c27630ae6124d5ea7a3da3cfd6edcb2d30cdefe146259b797"
+            "previous_hash": "90f89d55519df33338eaedc51f493b183679f40fa66d950c3f30ca36727412f9",
+            "current_hash": "3cdf2f78a4ab5ec303639cf4a95113ed044779311fd9b595755b95f9c6b0e003"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.609981+00:00",
+            "timestamp": "2026-07-26T05:03:20.381711+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "general_admission"
             },
             "decision_id": "TRIAGE-0020",
-            "previous_hash": "e71091f9690f405c27630ae6124d5ea7a3da3cfd6edcb2d30cdefe146259b797",
-            "current_hash": "a43739ae4549d9ae00476b13da633814ec068fc0d4683097207ad7371891c8cf"
+            "previous_hash": "3cdf2f78a4ab5ec303639cf4a95113ed044779311fd9b595755b95f9c6b0e003",
+            "current_hash": "bcafa9c876d4525676642956c45bcac2cd2144aee3f2b2ef01aefc8d13bd0304"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.609995+00:00",
+            "timestamp": "2026-07-26T05:03:20.381733+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0020",
-            "previous_hash": "a43739ae4549d9ae00476b13da633814ec068fc0d4683097207ad7371891c8cf",
-            "current_hash": "abc21b7da9058f55da7d259a133151f7f848beae09297af17bbfa5c97b18e6d2"
+            "previous_hash": "bcafa9c876d4525676642956c45bcac2cd2144aee3f2b2ef01aefc8d13bd0304",
+            "current_hash": "65db1ca54451ebbf10de58dcb9268244320cd8bd764e1b961818a1bbd4861cf3"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.610005+00:00",
+            "timestamp": "2026-07-26T05:03:20.381751+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0020",
               "final_routing": "general_admission"
             },
             "decision_id": "TRIAGE-0020",
-            "previous_hash": "abc21b7da9058f55da7d259a133151f7f848beae09297af17bbfa5c97b18e6d2",
-            "current_hash": "945897c46cd7504bcb86c7ef783d8daf35c0af5cd7c9de87556df937e251c90d"
+            "previous_hash": "65db1ca54451ebbf10de58dcb9268244320cd8bd764e1b961818a1bbd4861cf3",
+            "current_hash": "ad41aad498b0e7c45e28adacdf52cbb9bf18ec6781dbe2d94471f3019b7c9e86"
           }
         ],
         "chain_integrity_verified": true,
@@ -1535,8 +1535,8 @@
         "critical_gate": false
       },
       "cost_estimate": 5000,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.611998+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.385605+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0021",
         "patient_id": "P022",
@@ -1548,17 +1548,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.611183+00:00",
+            "timestamp": "2026-07-26T05:03:20.384247+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P022"
             },
             "decision_id": "TRIAGE-0021",
             "previous_hash": "",
-            "current_hash": "e9dc7e591343d714bc973a6092abdd7abdf42ccc53d6c29568ef20a51b3b4fd4"
+            "current_hash": "d08844aad42233e9bf7414d55a04c9994bcfb9ecf2723835df9f8f5e5cff4785"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.611209+00:00",
+            "timestamp": "2026-07-26T05:03:20.384277+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 40.2,
@@ -1567,83 +1567,83 @@
               "hr": 125
             },
             "decision_id": "TRIAGE-0021",
-            "previous_hash": "e9dc7e591343d714bc973a6092abdd7abdf42ccc53d6c29568ef20a51b3b4fd4",
-            "current_hash": "7200338eaad004278b65d1db1d77e473ce1598d1756e033c354f59ce432d7392"
+            "previous_hash": "d08844aad42233e9bf7414d55a04c9994bcfb9ecf2723835df9f8f5e5cff4785",
+            "current_hash": "fd2ef11411da943406f1f1f7532ba09f2f95e1027697b888b0da36c2b5ac14f4"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.611265+00:00",
+            "timestamp": "2026-07-26T05:03:20.384296+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 70,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0021",
-            "previous_hash": "7200338eaad004278b65d1db1d77e473ce1598d1756e033c354f59ce432d7392",
-            "current_hash": "d6c9748eb111f6c3c47a1835c6f543609e7ca98ff74fa46d5a0b6cb3873cb274"
+            "previous_hash": "fd2ef11411da943406f1f1f7532ba09f2f95e1027697b888b0da36c2b5ac14f4",
+            "current_hash": "9587b13ad7b8f522eb71ea25175736c0406611189987028f616ac576def18f93"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.611323+00:00",
+            "timestamp": "2026-07-26T05:03:20.384583+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 40.2,
               "passed": false
             },
             "decision_id": "TRIAGE-0021",
-            "previous_hash": "d6c9748eb111f6c3c47a1835c6f543609e7ca98ff74fa46d5a0b6cb3873cb274",
-            "current_hash": "84b7afdb52a65971dd45fabf53aac9d78970258207d83ff3b5cc4509e82ab0ee"
+            "previous_hash": "9587b13ad7b8f522eb71ea25175736c0406611189987028f616ac576def18f93",
+            "current_hash": "5b8c7d80331742de12eb5814e2f9cbfaec6e01e114d7ca9adabe2e151b4ebca6"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.611349+00:00",
+            "timestamp": "2026-07-26T05:03:20.384609+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 90,
               "passed": false
             },
             "decision_id": "TRIAGE-0021",
-            "previous_hash": "84b7afdb52a65971dd45fabf53aac9d78970258207d83ff3b5cc4509e82ab0ee",
-            "current_hash": "2ccbd5ffe0efdf5a3c6e07f66c14573b9a8266ffa2b9c53c0018f83dec2a2daf"
+            "previous_hash": "5b8c7d80331742de12eb5814e2f9cbfaec6e01e114d7ca9adabe2e151b4ebca6",
+            "current_hash": "50e1f9224c73c8268a5f5febf6e863d5afd1925a36fdafbd764f0b504e7061dc"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.611362+00:00",
+            "timestamp": "2026-07-26T05:03:20.384628+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0021",
-            "previous_hash": "2ccbd5ffe0efdf5a3c6e07f66c14573b9a8266ffa2b9c53c0018f83dec2a2daf",
-            "current_hash": "25434a143c052640f6de78b3f26eaffa28e74bc5387ae1bdd0b3bdc585679ba0"
+            "previous_hash": "50e1f9224c73c8268a5f5febf6e863d5afd1925a36fdafbd764f0b504e7061dc",
+            "current_hash": "915c4150fed2c041b429f58dcc969e78268bfd2ffd4d5c519caea70c66df4514"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.611380+00:00",
+            "timestamp": "2026-07-26T05:03:20.384647+00:00",
             "state": "StateType.ROUTE_ICU",
             "evidence": {
               "routing": "icu"
             },
             "decision_id": "TRIAGE-0021",
-            "previous_hash": "25434a143c052640f6de78b3f26eaffa28e74bc5387ae1bdd0b3bdc585679ba0",
-            "current_hash": "158ef530a88b61ca00938b1a1f5ca1f9388bd188505aa51483acfd0e388227cf"
+            "previous_hash": "915c4150fed2c041b429f58dcc969e78268bfd2ffd4d5c519caea70c66df4514",
+            "current_hash": "204a45ada5808f0cd5c1e552bfa30011a125e3cf815fffc586e1b353cadb8f19"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.611392+00:00",
+            "timestamp": "2026-07-26T05:03:20.384659+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0021",
-            "previous_hash": "158ef530a88b61ca00938b1a1f5ca1f9388bd188505aa51483acfd0e388227cf",
-            "current_hash": "af5a970089f510006165152a24648ce061cb068eb6ef90bd24c333068774763f"
+            "previous_hash": "204a45ada5808f0cd5c1e552bfa30011a125e3cf815fffc586e1b353cadb8f19",
+            "current_hash": "2b94eaeae0aeb323d3c69eca93e185c4a3c1c2532b13108dbd4e812542d7985f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.611402+00:00",
+            "timestamp": "2026-07-26T05:03:20.384670+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0021",
               "final_routing": "icu"
             },
             "decision_id": "TRIAGE-0021",
-            "previous_hash": "af5a970089f510006165152a24648ce061cb068eb6ef90bd24c333068774763f",
-            "current_hash": "a22091e4fef251c080b68c6f09a3f40a90351fde53999c34cb8fefec13b3a093"
+            "previous_hash": "2b94eaeae0aeb323d3c69eca93e185c4a3c1c2532b13108dbd4e812542d7985f",
+            "current_hash": "8725a0bcdcae2142d8825dd732d6017febb6aa26f8bc540261f515f9dfdeda11"
           }
         ],
         "chain_integrity_verified": true,
@@ -1721,8 +1721,8 @@
         "critical_gate": true
       },
       "cost_estimate": 2400,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.615682+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.391018+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0024",
         "patient_id": "P025",
@@ -1734,17 +1734,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.614869+00:00",
+            "timestamp": "2026-07-26T05:03:20.389588+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P025"
             },
             "decision_id": "TRIAGE-0024",
             "previous_hash": "",
-            "current_hash": "cd74019b8f1031974665da151e42743a6013cdfba5116ec830fdee588c948435"
+            "current_hash": "d745beb8c4e3cb0769b341f3f1cbd40a912eefb78e29cfab33cd31d88bd23194"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.614896+00:00",
+            "timestamp": "2026-07-26T05:03:20.389715+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 37.8,
@@ -1753,83 +1753,83 @@
               "hr": 135
             },
             "decision_id": "TRIAGE-0024",
-            "previous_hash": "cd74019b8f1031974665da151e42743a6013cdfba5116ec830fdee588c948435",
-            "current_hash": "eb51c3d94068b529fcdbd7776ea0a85b0d1b127627392fe16c649690d2bf4a93"
+            "previous_hash": "d745beb8c4e3cb0769b341f3f1cbd40a912eefb78e29cfab33cd31d88bd23194",
+            "current_hash": "3b7d5c73adf52cb64c20b654465f1b82d597fd77de392ca83dd1a9136be51998"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.614954+00:00",
+            "timestamp": "2026-07-26T05:03:20.389873+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 26,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0024",
-            "previous_hash": "eb51c3d94068b529fcdbd7776ea0a85b0d1b127627392fe16c649690d2bf4a93",
-            "current_hash": "f647d76737874ea6b52ee261f03ac54b1125cae180cfda9ed997517e4c51f0f3"
+            "previous_hash": "3b7d5c73adf52cb64c20b654465f1b82d597fd77de392ca83dd1a9136be51998",
+            "current_hash": "507a02c016bc440af50892a2dba8758df21e7ea4753d15951b11a5e49a72d1b7"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.614974+00:00",
+            "timestamp": "2026-07-26T05:03:20.389895+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 37.8,
               "passed": true
             },
             "decision_id": "TRIAGE-0024",
-            "previous_hash": "f647d76737874ea6b52ee261f03ac54b1125cae180cfda9ed997517e4c51f0f3",
-            "current_hash": "e2910ab8c63d4dc3aa28b7e3b8b35382fb2aa4231364da4f25bdd8d45f97e8c7"
+            "previous_hash": "507a02c016bc440af50892a2dba8758df21e7ea4753d15951b11a5e49a72d1b7",
+            "current_hash": "13293d849ff4d6add31272edf870abb404275e3a1df75863e62c3fd31c3930d5"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.614988+00:00",
+            "timestamp": "2026-07-26T05:03:20.389909+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 85,
               "passed": false
             },
             "decision_id": "TRIAGE-0024",
-            "previous_hash": "e2910ab8c63d4dc3aa28b7e3b8b35382fb2aa4231364da4f25bdd8d45f97e8c7",
-            "current_hash": "1372b990d7779baae31392895c0a56bfdfd8b5a0e212c2e5b03d5d6b54c98af9"
+            "previous_hash": "13293d849ff4d6add31272edf870abb404275e3a1df75863e62c3fd31c3930d5",
+            "current_hash": "0cb85f44fd4c65338906d447f535f449e7aacf786ae16b6c24d645fb665695cb"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.615000+00:00",
+            "timestamp": "2026-07-26T05:03:20.389922+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0024",
-            "previous_hash": "1372b990d7779baae31392895c0a56bfdfd8b5a0e212c2e5b03d5d6b54c98af9",
-            "current_hash": "594e75a0de87fd8570e2f11d56c2e997c8898e7cf0b1d2318708a5ca844e4946"
+            "previous_hash": "0cb85f44fd4c65338906d447f535f449e7aacf786ae16b6c24d645fb665695cb",
+            "current_hash": "680953a2b7bf5b88fad54487d84815671972f4fddf73d2f747f057240f960a9b"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.615017+00:00",
+            "timestamp": "2026-07-26T05:03:20.389951+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0024",
-            "previous_hash": "594e75a0de87fd8570e2f11d56c2e997c8898e7cf0b1d2318708a5ca844e4946",
-            "current_hash": "785fd6455f032ad7425d27ecae96c1c6813df38eb6ca72ccf79aca0f754371fa"
+            "previous_hash": "680953a2b7bf5b88fad54487d84815671972f4fddf73d2f747f057240f960a9b",
+            "current_hash": "92ea807fee5092cf8732ac96807b44a8e2d7bff844132b0236de59cc6648106a"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.615029+00:00",
+            "timestamp": "2026-07-26T05:03:20.390010+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0024",
-            "previous_hash": "785fd6455f032ad7425d27ecae96c1c6813df38eb6ca72ccf79aca0f754371fa",
-            "current_hash": "3faff21575d25510d9e6272a7f272ce81b622792d955428c23032709632d752d"
+            "previous_hash": "92ea807fee5092cf8732ac96807b44a8e2d7bff844132b0236de59cc6648106a",
+            "current_hash": "e784626495ef4a6138b9343c3c21c1c67a721192d80ffe55c8487ea2e182c1f9"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.615039+00:00",
+            "timestamp": "2026-07-26T05:03:20.390026+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0024",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0024",
-            "previous_hash": "3faff21575d25510d9e6272a7f272ce81b622792d955428c23032709632d752d",
-            "current_hash": "323d8b72facc86b88799577959c301a8bdde3c9b3a3f9410540e6b12e87276e4"
+            "previous_hash": "e784626495ef4a6138b9343c3c21c1c67a721192d80ffe55c8487ea2e182c1f9",
+            "current_hash": "cbc44511a857da39f54df75e562c75e06e044226da6df81a74349a3287fb8747"
           }
         ],
         "chain_integrity_verified": true,
@@ -1907,8 +1907,8 @@
         "critical_gate": true
       },
       "cost_estimate": 2400,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.635621+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.420844+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0039",
         "patient_id": "P040",
@@ -1920,17 +1920,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.634789+00:00",
+            "timestamp": "2026-07-26T05:03:20.419170+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P040"
             },
             "decision_id": "TRIAGE-0039",
             "previous_hash": "",
-            "current_hash": "290054d8a4631af402a1862e69445ae591f8003f476b10ac33b18f4cf6d57f41"
+            "current_hash": "d317e323b455be1bb8471deb04669eba2d53a684f0870317a79d1cec1962cbf3"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.634822+00:00",
+            "timestamp": "2026-07-26T05:03:20.419204+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 38.7,
@@ -1939,83 +1939,83 @@
               "hr": 108
             },
             "decision_id": "TRIAGE-0039",
-            "previous_hash": "290054d8a4631af402a1862e69445ae591f8003f476b10ac33b18f4cf6d57f41",
-            "current_hash": "ee47fb70935e16bd8f9ef2d4545604c35f37cf004818f986f6115d70a7cc250e"
+            "previous_hash": "d317e323b455be1bb8471deb04669eba2d53a684f0870317a79d1cec1962cbf3",
+            "current_hash": "e15b325dc4d2175baf5d588d0a7f1c03d8011f15f57c0ba25409e779153aded6"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.634841+00:00",
+            "timestamp": "2026-07-26T05:03:20.419224+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 57,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0039",
-            "previous_hash": "ee47fb70935e16bd8f9ef2d4545604c35f37cf004818f986f6115d70a7cc250e",
-            "current_hash": "674e0355f199630071f1811592fbc4d52b9f911150a28bc581085f9d31cd6fbc"
+            "previous_hash": "e15b325dc4d2175baf5d588d0a7f1c03d8011f15f57c0ba25409e779153aded6",
+            "current_hash": "7a4b6429b8b9ba1465e1e234bc77e2eae0598490bc980f29b05744bf0c7f9e41"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.634856+00:00",
+            "timestamp": "2026-07-26T05:03:20.419241+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 38.7,
               "passed": true
             },
             "decision_id": "TRIAGE-0039",
-            "previous_hash": "674e0355f199630071f1811592fbc4d52b9f911150a28bc581085f9d31cd6fbc",
-            "current_hash": "24785093faf48cdd949d159699813391b13a9631f77ffb44cfa3c5a2f4ae84e4"
+            "previous_hash": "7a4b6429b8b9ba1465e1e234bc77e2eae0598490bc980f29b05744bf0c7f9e41",
+            "current_hash": "1570da9e9ae85837e80190c6c4a668a1ce65858f296d8ed60db68780d0e84392"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.634869+00:00",
+            "timestamp": "2026-07-26T05:03:20.419255+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 91,
               "passed": false
             },
             "decision_id": "TRIAGE-0039",
-            "previous_hash": "24785093faf48cdd949d159699813391b13a9631f77ffb44cfa3c5a2f4ae84e4",
-            "current_hash": "d64fc6d31b007529284e2a217bdda43b1b31292dfa5f815596826beb26475786"
+            "previous_hash": "1570da9e9ae85837e80190c6c4a668a1ce65858f296d8ed60db68780d0e84392",
+            "current_hash": "ad5d304f812735314f40136dac235b91bbcb29dacc898c7060d0856eab9a588e"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.634881+00:00",
+            "timestamp": "2026-07-26T05:03:20.419460+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0039",
-            "previous_hash": "d64fc6d31b007529284e2a217bdda43b1b31292dfa5f815596826beb26475786",
-            "current_hash": "9af17da90d5c8c58496e751dfc9820724ad9bd964844be97ac08ca23d22ad563"
+            "previous_hash": "ad5d304f812735314f40136dac235b91bbcb29dacc898c7060d0856eab9a588e",
+            "current_hash": "004a4ebabd77576e09b72eca1e154fb15baa8d4060b19fbd9e3f0006a908a999"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.634897+00:00",
+            "timestamp": "2026-07-26T05:03:20.419486+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0039",
-            "previous_hash": "9af17da90d5c8c58496e751dfc9820724ad9bd964844be97ac08ca23d22ad563",
-            "current_hash": "9ce707078a396c12dbbe63aaa5a8b13ddaac7398408a800a3013053d1f60b7a6"
+            "previous_hash": "004a4ebabd77576e09b72eca1e154fb15baa8d4060b19fbd9e3f0006a908a999",
+            "current_hash": "acf5a2119f8db4303b2bde80250b36a0fe2b99e0208771a73e3413f26287e83a"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.634953+00:00",
+            "timestamp": "2026-07-26T05:03:20.419612+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0039",
-            "previous_hash": "9ce707078a396c12dbbe63aaa5a8b13ddaac7398408a800a3013053d1f60b7a6",
-            "current_hash": "7a31744286720e997e9f123aed406df165396ebacfd71496256e89cdce4f69df"
+            "previous_hash": "acf5a2119f8db4303b2bde80250b36a0fe2b99e0208771a73e3413f26287e83a",
+            "current_hash": "a1b9ce62c715d898be1cffc430f30ff3ff5e1b5077d02c844234dd5ea8963a12"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.634971+00:00",
+            "timestamp": "2026-07-26T05:03:20.419629+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0039",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0039",
-            "previous_hash": "7a31744286720e997e9f123aed406df165396ebacfd71496256e89cdce4f69df",
-            "current_hash": "7c9d8242b010682cb9fd428e5e1ba8d57a8d5844bccf579aeaf33180273f95e6"
+            "previous_hash": "a1b9ce62c715d898be1cffc430f30ff3ff5e1b5077d02c844234dd5ea8963a12",
+            "current_hash": "1bf29c7f76cda4d2534bf682e10e02e4879d1fc91bc1e24e1bd17c1b9ce9c547"
           }
         ],
         "chain_integrity_verified": true,
@@ -2094,7 +2094,7 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.638144+00:00",
+      "created_at": "2026-07-26T05:03:20.423827+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0041",
         "patient_id": "P042",
@@ -2106,17 +2106,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.637393+00:00",
+            "timestamp": "2026-07-26T05:03:20.422845+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P042"
             },
             "decision_id": "TRIAGE-0041",
             "previous_hash": "",
-            "current_hash": "57fee4a9071971c538eeb2a9c3dab0b9e1eac2000ceb5df117f928e8ae99156c"
+            "current_hash": "66370aa555979074a07673b57b66172b4203fda4fb0b817c96c1891c49cd404d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.637417+00:00",
+            "timestamp": "2026-07-26T05:03:20.422868+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.8,
@@ -2125,83 +2125,83 @@
               "hr": 125
             },
             "decision_id": "TRIAGE-0041",
-            "previous_hash": "57fee4a9071971c538eeb2a9c3dab0b9e1eac2000ceb5df117f928e8ae99156c",
-            "current_hash": "6d67088c6583942e73a4513c229ff4ac4f534cbe2ca9f88bc07d5d37811b662c"
+            "previous_hash": "66370aa555979074a07673b57b66172b4203fda4fb0b817c96c1891c49cd404d",
+            "current_hash": "9601c4bee8b54d1dd8a1be034212bdbc62f93965b08bb786e6ea995e74e8c6c9"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.637434+00:00",
+            "timestamp": "2026-07-26T05:03:20.422884+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 76,
               "escalation_required": true
             },
             "decision_id": "TRIAGE-0041",
-            "previous_hash": "6d67088c6583942e73a4513c229ff4ac4f534cbe2ca9f88bc07d5d37811b662c",
-            "current_hash": "1a6b353a61ae8c270a7937e3bcb759ff911ee1bd7a0ac21e209d36e539762670"
+            "previous_hash": "9601c4bee8b54d1dd8a1be034212bdbc62f93965b08bb786e6ea995e74e8c6c9",
+            "current_hash": "373beb4be2a251b977b3fd16cab0f6bdd37caaa717640c57b5977f12d9cebe68"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.637449+00:00",
+            "timestamp": "2026-07-26T05:03:20.422900+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.8,
               "passed": false
             },
             "decision_id": "TRIAGE-0041",
-            "previous_hash": "1a6b353a61ae8c270a7937e3bcb759ff911ee1bd7a0ac21e209d36e539762670",
-            "current_hash": "05ad05cb04666a3a097e5f21c32cec2ef866e54545f3edab5851a4bb93ba8bc2"
+            "previous_hash": "373beb4be2a251b977b3fd16cab0f6bdd37caaa717640c57b5977f12d9cebe68",
+            "current_hash": "03d97aca467126ad62382b630d9f9c3f0ee4deb1641ce0a11ea39cddf89bfb74"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.637463+00:00",
+            "timestamp": "2026-07-26T05:03:20.422912+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 95,
               "passed": true
             },
             "decision_id": "TRIAGE-0041",
-            "previous_hash": "05ad05cb04666a3a097e5f21c32cec2ef866e54545f3edab5851a4bb93ba8bc2",
-            "current_hash": "a1d8a04a0782bd0fc3a4b99ec36de50847373670560cc798d6fa645178f4c2e4"
+            "previous_hash": "03d97aca467126ad62382b630d9f9c3f0ee4deb1641ce0a11ea39cddf89bfb74",
+            "current_hash": "b419ea8542078be3d77807e6707b8a44d901761a5116170f9e848bb096f77ca9"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.637475+00:00",
+            "timestamp": "2026-07-26T05:03:20.422924+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0041",
-            "previous_hash": "a1d8a04a0782bd0fc3a4b99ec36de50847373670560cc798d6fa645178f4c2e4",
-            "current_hash": "4fbb1ac28bfda64321e58eed16e332c22bfa250bf443fad911081df7fdc53f81"
+            "previous_hash": "b419ea8542078be3d77807e6707b8a44d901761a5116170f9e848bb096f77ca9",
+            "current_hash": "c99ace50e65c6e4b4d4709b204bf73b3796c252c8a5e6927f06f8da32da88de9"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.637490+00:00",
+            "timestamp": "2026-07-26T05:03:20.422939+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0041",
-            "previous_hash": "4fbb1ac28bfda64321e58eed16e332c22bfa250bf443fad911081df7fdc53f81",
-            "current_hash": "8458ddde2a2dbfd885329f64f0dabb8f01b2a89d5dfc7bb3d77ffb6a4a72442a"
+            "previous_hash": "c99ace50e65c6e4b4d4709b204bf73b3796c252c8a5e6927f06f8da32da88de9",
+            "current_hash": "b9289fea70937b0ee943a4bd80142e048319105229dc7bc15c6f74a3a7c1e016"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.637558+00:00",
+            "timestamp": "2026-07-26T05:03:20.423069+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0041",
-            "previous_hash": "8458ddde2a2dbfd885329f64f0dabb8f01b2a89d5dfc7bb3d77ffb6a4a72442a",
-            "current_hash": "3cb191424c2ccd337f11c72b2c519b37544784d6824ff83649eaa4228a57b78a"
+            "previous_hash": "b9289fea70937b0ee943a4bd80142e048319105229dc7bc15c6f74a3a7c1e016",
+            "current_hash": "0ba7b2342a4fdf86cb29ebd2dd9f521f1096da8520bad2ec2ebdfb0ba7164211"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.637575+00:00",
+            "timestamp": "2026-07-26T05:03:20.423096+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0041",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0041",
-            "previous_hash": "3cb191424c2ccd337f11c72b2c519b37544784d6824ff83649eaa4228a57b78a",
-            "current_hash": "d81ec8d3c47b25db51b725487bc3f22862da658bb494b5fa3761342ce3069062"
+            "previous_hash": "0ba7b2342a4fdf86cb29ebd2dd9f521f1096da8520bad2ec2ebdfb0ba7164211",
+            "current_hash": "c872412fb8a6e2c4193269f24a7be8609d2773dd980f6209fe6f778e89802408"
           }
         ],
         "chain_integrity_verified": true,
@@ -2279,8 +2279,8 @@
         "critical_gate": false
       },
       "cost_estimate": 5000,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.640863+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.428247+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0043",
         "patient_id": "P044",
@@ -2292,17 +2292,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.640150+00:00",
+            "timestamp": "2026-07-26T05:03:20.427198+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P044"
             },
             "decision_id": "TRIAGE-0043",
             "previous_hash": "",
-            "current_hash": "27f0e4f33ffb0d383caa2b7893d118e8c44c9fee67edb1d665d42ea3493efb21"
+            "current_hash": "5802cbf7600c928d1f20f9149de72e592b18efe7d57a04f8e272667c448d0e6e"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.640179+00:00",
+            "timestamp": "2026-07-26T05:03:20.427233+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 40.1,
@@ -2311,83 +2311,83 @@
               "hr": 125
             },
             "decision_id": "TRIAGE-0043",
-            "previous_hash": "27f0e4f33ffb0d383caa2b7893d118e8c44c9fee67edb1d665d42ea3493efb21",
-            "current_hash": "07f25520405faa08c729919b1532425d0a9100335994625574f55d65e33d37b6"
+            "previous_hash": "5802cbf7600c928d1f20f9149de72e592b18efe7d57a04f8e272667c448d0e6e",
+            "current_hash": "f0ed35d54da3c5da80a1499d1b675a1f8d05d8a441d4282c1fc7965386efb92a"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.640197+00:00",
+            "timestamp": "2026-07-26T05:03:20.427253+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 66,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0043",
-            "previous_hash": "07f25520405faa08c729919b1532425d0a9100335994625574f55d65e33d37b6",
-            "current_hash": "25c7d68d05659a52bbf434556ba23cf1ed7000a9fbd9d77a6cca5bda0539b5e6"
+            "previous_hash": "f0ed35d54da3c5da80a1499d1b675a1f8d05d8a441d4282c1fc7965386efb92a",
+            "current_hash": "f24acefbc9f9383e467264b860efce0f80814cc541542c838dd29b91b8377512"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.640212+00:00",
+            "timestamp": "2026-07-26T05:03:20.427270+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 40.1,
               "passed": false
             },
             "decision_id": "TRIAGE-0043",
-            "previous_hash": "25c7d68d05659a52bbf434556ba23cf1ed7000a9fbd9d77a6cca5bda0539b5e6",
-            "current_hash": "1b420a0f59ad875145950b02f9f02566a29d8e4d461dccaf4f3c36d585464948"
+            "previous_hash": "f24acefbc9f9383e467264b860efce0f80814cc541542c838dd29b91b8377512",
+            "current_hash": "65bbcf11618c86e5c0b804334455b4551d82b798e5cb335146b334d6ef421997"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.640226+00:00",
+            "timestamp": "2026-07-26T05:03:20.427284+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 87,
               "passed": false
             },
             "decision_id": "TRIAGE-0043",
-            "previous_hash": "1b420a0f59ad875145950b02f9f02566a29d8e4d461dccaf4f3c36d585464948",
-            "current_hash": "165822302e57a88897df4bda04ee4ef3b3f8b7f5eadceab2a18f6567355bf3c8"
+            "previous_hash": "65bbcf11618c86e5c0b804334455b4551d82b798e5cb335146b334d6ef421997",
+            "current_hash": "3646ccd107bcea56c0626343d4315d71139acdaf160165025c8009eba2c0949f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.640238+00:00",
+            "timestamp": "2026-07-26T05:03:20.427295+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0043",
-            "previous_hash": "165822302e57a88897df4bda04ee4ef3b3f8b7f5eadceab2a18f6567355bf3c8",
-            "current_hash": "724b1cb0b2cc0b5f2896f46260cc2db41f3fa96f461023fdb4069db716549f08"
+            "previous_hash": "3646ccd107bcea56c0626343d4315d71139acdaf160165025c8009eba2c0949f",
+            "current_hash": "b9b28816d9cdb46bf58a4155a5dda4be8954110161b24e6ee1dfa4c2943eafa0"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.640254+00:00",
+            "timestamp": "2026-07-26T05:03:20.427311+00:00",
             "state": "StateType.ROUTE_ICU",
             "evidence": {
               "routing": "icu"
             },
             "decision_id": "TRIAGE-0043",
-            "previous_hash": "724b1cb0b2cc0b5f2896f46260cc2db41f3fa96f461023fdb4069db716549f08",
-            "current_hash": "bd7214236f852187232d89086eeac851be8d163dd78ac57ee97dbed02b1ed5aa"
+            "previous_hash": "b9b28816d9cdb46bf58a4155a5dda4be8954110161b24e6ee1dfa4c2943eafa0",
+            "current_hash": "744c8d0544921684777d5f55b96cbf67e2984696774f574f0bfa38fe2fd79dab"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.640305+00:00",
+            "timestamp": "2026-07-26T05:03:20.427456+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0043",
-            "previous_hash": "bd7214236f852187232d89086eeac851be8d163dd78ac57ee97dbed02b1ed5aa",
-            "current_hash": "a73e5796d2e577069ca246832daddc97ac872e65881ac18d835001f0a13e209c"
+            "previous_hash": "744c8d0544921684777d5f55b96cbf67e2984696774f574f0bfa38fe2fd79dab",
+            "current_hash": "ad7b29e5930716b08baba02a4133f67fb7fe478d138ea562461aba9667bfbfca"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.640323+00:00",
+            "timestamp": "2026-07-26T05:03:20.427473+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0043",
               "final_routing": "icu"
             },
             "decision_id": "TRIAGE-0043",
-            "previous_hash": "a73e5796d2e577069ca246832daddc97ac872e65881ac18d835001f0a13e209c",
-            "current_hash": "be042ca2a1bc37ecb6a902848e977e1d096034ce8afaeee4d1ae0281c2fe0470"
+            "previous_hash": "ad7b29e5930716b08baba02a4133f67fb7fe478d138ea562461aba9667bfbfca",
+            "current_hash": "0504e312bd88ccbfc38fd82d2e2951b958d51ce18592c6dd71e1b2c6b646438c"
           }
         ],
         "chain_integrity_verified": true,
@@ -2466,7 +2466,7 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 1,
-      "created_at": "2026-07-26T05:00:42.642532+00:00",
+      "created_at": "2026-07-26T05:03:20.430425+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0044",
         "patient_id": "P045",
@@ -2478,17 +2478,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.641808+00:00",
+            "timestamp": "2026-07-26T05:03:20.429597+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P045"
             },
             "decision_id": "TRIAGE-0044",
             "previous_hash": "",
-            "current_hash": "fa09afaa7782d86c251f60cd80d97f5fd6d34be9935d034e5fe5a5d9025d5513"
+            "current_hash": "92b866bf85c0cf8042cfd1a308dbfa396c69c1832adc88677e4cbe3b9f8c7a63"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.641843+00:00",
+            "timestamp": "2026-07-26T05:03:20.429638+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 38.9,
@@ -2497,83 +2497,83 @@
               "hr": 135
             },
             "decision_id": "TRIAGE-0044",
-            "previous_hash": "fa09afaa7782d86c251f60cd80d97f5fd6d34be9935d034e5fe5a5d9025d5513",
-            "current_hash": "d5bba3b1a13e85c53427a8b44b5a8b88be4283de66defaf6751bbe0dd40949fb"
+            "previous_hash": "92b866bf85c0cf8042cfd1a308dbfa396c69c1832adc88677e4cbe3b9f8c7a63",
+            "current_hash": "2c49556bc5cc89efd4d3058d13fdb823e6afd2852decd6f1ceba44e6e12ed9ce"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.641867+00:00",
+            "timestamp": "2026-07-26T05:03:20.429660+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 18,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0044",
-            "previous_hash": "d5bba3b1a13e85c53427a8b44b5a8b88be4283de66defaf6751bbe0dd40949fb",
-            "current_hash": "aca0c760dd167609533e06731d3c072f352e7ccd58f6aa408d79909b5f95fce2"
+            "previous_hash": "2c49556bc5cc89efd4d3058d13fdb823e6afd2852decd6f1ceba44e6e12ed9ce",
+            "current_hash": "f7e615361494b1b2136d36cfbef00835a05f0b43eb211847e9c71d7ea0713013"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.641886+00:00",
+            "timestamp": "2026-07-26T05:03:20.429676+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 38.9,
               "passed": true
             },
             "decision_id": "TRIAGE-0044",
-            "previous_hash": "aca0c760dd167609533e06731d3c072f352e7ccd58f6aa408d79909b5f95fce2",
-            "current_hash": "f135debe657922b5d3208d09d41f3b1cb370c1aad2b2f34f3afab6eb249e146d"
+            "previous_hash": "f7e615361494b1b2136d36cfbef00835a05f0b43eb211847e9c71d7ea0713013",
+            "current_hash": "d47fb6f6015e232039592bcf2fdaaf6d3a8eae91b16d3d425280e3aa800039bf"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.641900+00:00",
+            "timestamp": "2026-07-26T05:03:20.429695+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 82,
               "passed": false
             },
             "decision_id": "TRIAGE-0044",
-            "previous_hash": "f135debe657922b5d3208d09d41f3b1cb370c1aad2b2f34f3afab6eb249e146d",
-            "current_hash": "c2b61f9d348f7aebe1396fda477776d97f03914567b223b42bd4bcc006060e6d"
+            "previous_hash": "d47fb6f6015e232039592bcf2fdaaf6d3a8eae91b16d3d425280e3aa800039bf",
+            "current_hash": "50c118c78228355d5854b729095ef316d5046666fdbe601e5938790211572cff"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.641912+00:00",
+            "timestamp": "2026-07-26T05:03:20.429709+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0044",
-            "previous_hash": "c2b61f9d348f7aebe1396fda477776d97f03914567b223b42bd4bcc006060e6d",
-            "current_hash": "0b40c1b0f624c6f88575c5efb30473be942159a7da00fef7e8adb5d3eec62c42"
+            "previous_hash": "50c118c78228355d5854b729095ef316d5046666fdbe601e5938790211572cff",
+            "current_hash": "171025c09e382d62d20dbada6cac2c7dcd1ba9a908fc84af441b92cebb3653a6"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.641933+00:00",
+            "timestamp": "2026-07-26T05:03:20.429726+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0044",
-            "previous_hash": "0b40c1b0f624c6f88575c5efb30473be942159a7da00fef7e8adb5d3eec62c42",
-            "current_hash": "054dd1adaf70eb0394b482ffc21b430073ab7dbc3b2c97826f9c19c394d8ab1c"
+            "previous_hash": "171025c09e382d62d20dbada6cac2c7dcd1ba9a908fc84af441b92cebb3653a6",
+            "current_hash": "2bbc14feb297d92c003a1901bcfb9cf4d3dcb87db162c1c8274fb6f456fae461"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.641948+00:00",
+            "timestamp": "2026-07-26T05:03:20.429738+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0044",
-            "previous_hash": "054dd1adaf70eb0394b482ffc21b430073ab7dbc3b2c97826f9c19c394d8ab1c",
-            "current_hash": "0df9065851dd987855c49139401ad488845f6600495a50e45fa2d19159b687e1"
+            "previous_hash": "2bbc14feb297d92c003a1901bcfb9cf4d3dcb87db162c1c8274fb6f456fae461",
+            "current_hash": "b3b716dafea3718bc86dc9bb1c531cdf43c3ed6381de3215ba1a302df6a38f2e"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.641957+00:00",
+            "timestamp": "2026-07-26T05:03:20.429755+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0044",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0044",
-            "previous_hash": "0df9065851dd987855c49139401ad488845f6600495a50e45fa2d19159b687e1",
-            "current_hash": "56f407ad917106b3efa8bf68c0aab7e4744014ea43f61a63d6c6837106157573"
+            "previous_hash": "b3b716dafea3718bc86dc9bb1c531cdf43c3ed6381de3215ba1a302df6a38f2e",
+            "current_hash": "56608fc98b88aece0d536ebb2c27755731aaa1d4d07503a15c3f3c286f982b16"
           }
         ],
         "chain_integrity_verified": true,
@@ -2652,7 +2652,7 @@
       },
       "cost_estimate": 1500,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.649281+00:00",
+      "created_at": "2026-07-26T05:03:20.438789+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0050",
         "patient_id": "P051",
@@ -2664,17 +2664,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.648542+00:00",
+            "timestamp": "2026-07-26T05:03:20.438122+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P051"
             },
             "decision_id": "TRIAGE-0050",
             "previous_hash": "",
-            "current_hash": "05ec0fcedc95cae7fbbf9613a08000d3827eee37718a3df400177ff5ae745352"
+            "current_hash": "990f146878fe966785b65043f5bfc6928a98c2e052370ec20d2c43632df4f2ba"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.648615+00:00",
+            "timestamp": "2026-07-26T05:03:20.438147+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.7,
@@ -2683,83 +2683,83 @@
               "hr": 112
             },
             "decision_id": "TRIAGE-0050",
-            "previous_hash": "05ec0fcedc95cae7fbbf9613a08000d3827eee37718a3df400177ff5ae745352",
-            "current_hash": "f8fd5171cdfe00b03b34d08942339ede3bf66c45598cc8a8724f1b7eb83f4d90"
+            "previous_hash": "990f146878fe966785b65043f5bfc6928a98c2e052370ec20d2c43632df4f2ba",
+            "current_hash": "351fc60b5e3329b24eadaf681dadd0a0781ddf9fe86963d4632908da617a8aa9"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.648642+00:00",
+            "timestamp": "2026-07-26T05:03:20.438165+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 44,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0050",
-            "previous_hash": "f8fd5171cdfe00b03b34d08942339ede3bf66c45598cc8a8724f1b7eb83f4d90",
-            "current_hash": "ccf83708306f5c5da9168c819977dd50a5df5615f5b5c2fbbb9479dedff4c9ab"
+            "previous_hash": "351fc60b5e3329b24eadaf681dadd0a0781ddf9fe86963d4632908da617a8aa9",
+            "current_hash": "aa202c8a884dff2e8d2ca501c67934807ee81f28eb865976e4c7fa1cde12fc2a"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.648658+00:00",
+            "timestamp": "2026-07-26T05:03:20.438182+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.7,
               "passed": false
             },
             "decision_id": "TRIAGE-0050",
-            "previous_hash": "ccf83708306f5c5da9168c819977dd50a5df5615f5b5c2fbbb9479dedff4c9ab",
-            "current_hash": "3f14d157aea474223372b904694daa01b1deb57fc4158b9c08eff23e1b3475e8"
+            "previous_hash": "aa202c8a884dff2e8d2ca501c67934807ee81f28eb865976e4c7fa1cde12fc2a",
+            "current_hash": "b1419839314369031279166a55859e7189bc061e03a4cbb0fa2ce23837d93672"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.648671+00:00",
+            "timestamp": "2026-07-26T05:03:20.438196+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 96,
               "passed": true
             },
             "decision_id": "TRIAGE-0050",
-            "previous_hash": "3f14d157aea474223372b904694daa01b1deb57fc4158b9c08eff23e1b3475e8",
-            "current_hash": "b42e1ba716408c7fcc04be95ba42387cdfe250a51dc3ebfa83876194eaf8ad96"
+            "previous_hash": "b1419839314369031279166a55859e7189bc061e03a4cbb0fa2ce23837d93672",
+            "current_hash": "e2a0458b9f8b07907e5411cec84e7fde8970ca3f7cdf916df961b70e11bda32a"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.648685+00:00",
+            "timestamp": "2026-07-26T05:03:20.438208+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0050",
-            "previous_hash": "b42e1ba716408c7fcc04be95ba42387cdfe250a51dc3ebfa83876194eaf8ad96",
-            "current_hash": "2aa5e487b1f6dd580ceb602fd29c8f735bcc525461ead9a62b3ae842803012f4"
+            "previous_hash": "e2a0458b9f8b07907e5411cec84e7fde8970ca3f7cdf916df961b70e11bda32a",
+            "current_hash": "d8d7bb86e04630981164e4bf9e12dc7ffacf3bb7a7f9971ddcd21a389e056375"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.648708+00:00",
+            "timestamp": "2026-07-26T05:03:20.438229+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "general_admission"
             },
             "decision_id": "TRIAGE-0050",
-            "previous_hash": "2aa5e487b1f6dd580ceb602fd29c8f735bcc525461ead9a62b3ae842803012f4",
-            "current_hash": "b9f1bb71ce0df4849b9f1f76d0e5652fa6ada12e30524b34cf7731c733368969"
+            "previous_hash": "d8d7bb86e04630981164e4bf9e12dc7ffacf3bb7a7f9971ddcd21a389e056375",
+            "current_hash": "c12c3009c2e9261e123401c751fc4b2cf3137738be03d63a7dbc5f4991d316f9"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.648726+00:00",
+            "timestamp": "2026-07-26T05:03:20.438244+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0050",
-            "previous_hash": "b9f1bb71ce0df4849b9f1f76d0e5652fa6ada12e30524b34cf7731c733368969",
-            "current_hash": "67d30b181f5c134145842f29bbb8abf161a0eea8f9bebfe57876cdca3300c3dd"
+            "previous_hash": "c12c3009c2e9261e123401c751fc4b2cf3137738be03d63a7dbc5f4991d316f9",
+            "current_hash": "74062758d39be6acf3cd47336dc760d39655730215022e85b0b461251342266d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.648741+00:00",
+            "timestamp": "2026-07-26T05:03:20.438254+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0050",
               "final_routing": "general_admission"
             },
             "decision_id": "TRIAGE-0050",
-            "previous_hash": "67d30b181f5c134145842f29bbb8abf161a0eea8f9bebfe57876cdca3300c3dd",
-            "current_hash": "8832dc530655ad37467c15b295a776f4f1f9c25b269a6f266c3e2999bcc2c686"
+            "previous_hash": "74062758d39be6acf3cd47336dc760d39655730215022e85b0b461251342266d",
+            "current_hash": "62b111a47a1c694a462f95a1220713f875897f8c24160e717735b94b2cbd8e92"
           }
         ],
         "chain_integrity_verified": true,
@@ -2839,7 +2839,7 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.657476+00:00",
+      "created_at": "2026-07-26T05:03:20.449661+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0056",
         "patient_id": "P057",
@@ -2851,17 +2851,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.656700+00:00",
+            "timestamp": "2026-07-26T05:03:20.448583+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P057"
             },
             "decision_id": "TRIAGE-0056",
             "previous_hash": "",
-            "current_hash": "f078bff3a1076e11b58598f71c91f6933769e93221276207d5024c3781299144"
+            "current_hash": "47a4c30a61d1edfc1402a4a19402e491fd046fca4a4f8fce665816aff69bd757"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.656735+00:00",
+            "timestamp": "2026-07-26T05:03:20.448605+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.5,
@@ -2870,83 +2870,83 @@
               "hr": 120
             },
             "decision_id": "TRIAGE-0056",
-            "previous_hash": "f078bff3a1076e11b58598f71c91f6933769e93221276207d5024c3781299144",
-            "current_hash": "51d7938e26bd7463888b2605a0ec85b4da490250d8309a85b7e6d94de78e1b81"
+            "previous_hash": "47a4c30a61d1edfc1402a4a19402e491fd046fca4a4f8fce665816aff69bd757",
+            "current_hash": "f04c22d90a0d302050954a4075f08f6063e47bb1b3f2ff55bc39f252117f0c6d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.656857+00:00",
+            "timestamp": "2026-07-26T05:03:20.449024+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 58,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0056",
-            "previous_hash": "51d7938e26bd7463888b2605a0ec85b4da490250d8309a85b7e6d94de78e1b81",
-            "current_hash": "941938cd0d0ebf417b65249a9c9aa13fa3709a82bf7c2f40776e6e7da7a9d761"
+            "previous_hash": "f04c22d90a0d302050954a4075f08f6063e47bb1b3f2ff55bc39f252117f0c6d",
+            "current_hash": "2a95043391e0fa85ca673488237626cd981b9f304324e15c27628564cc61b1c9"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.656879+00:00",
+            "timestamp": "2026-07-26T05:03:20.449048+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.5,
               "passed": true
             },
             "decision_id": "TRIAGE-0056",
-            "previous_hash": "941938cd0d0ebf417b65249a9c9aa13fa3709a82bf7c2f40776e6e7da7a9d761",
-            "current_hash": "895f532696944447417d545c048ae257038cc1745d1b74d6815bbc83af385570"
+            "previous_hash": "2a95043391e0fa85ca673488237626cd981b9f304324e15c27628564cc61b1c9",
+            "current_hash": "10dff89238c6a396e1eda5785034f95d2c8042b9b1a95da45812689adf6b4fba"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.656894+00:00",
+            "timestamp": "2026-07-26T05:03:20.449063+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 90,
               "passed": false
             },
             "decision_id": "TRIAGE-0056",
-            "previous_hash": "895f532696944447417d545c048ae257038cc1745d1b74d6815bbc83af385570",
-            "current_hash": "4a15b64f2bc0bb410643d9d2a4413678224e9e3384e0b29521a9fe6d6b0985d3"
+            "previous_hash": "10dff89238c6a396e1eda5785034f95d2c8042b9b1a95da45812689adf6b4fba",
+            "current_hash": "03e00d47ff5104b05779b85d36478ab71305c3c0c42c4b00f259211dc5d4a077"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.656907+00:00",
+            "timestamp": "2026-07-26T05:03:20.449075+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 2,
               "passed": true
             },
             "decision_id": "TRIAGE-0056",
-            "previous_hash": "4a15b64f2bc0bb410643d9d2a4413678224e9e3384e0b29521a9fe6d6b0985d3",
-            "current_hash": "8e0a37b2ce44707c99abb882f82cc1dcce60ee45bbbf23f88534c9c69915e21c"
+            "previous_hash": "03e00d47ff5104b05779b85d36478ab71305c3c0c42c4b00f259211dc5d4a077",
+            "current_hash": "8280c6a30ea85054ce404ce42d956578695fdc21b5763ae3e9d6d5e6e1c27bd5"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.656924+00:00",
+            "timestamp": "2026-07-26T05:03:20.449092+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0056",
-            "previous_hash": "8e0a37b2ce44707c99abb882f82cc1dcce60ee45bbbf23f88534c9c69915e21c",
-            "current_hash": "878fe5be4a4f6b233781271899629af29e46621dfdd56e34b3c941e14e9d414f"
+            "previous_hash": "8280c6a30ea85054ce404ce42d956578695fdc21b5763ae3e9d6d5e6e1c27bd5",
+            "current_hash": "922f84ff64a2b6e7fa6024e1459559cc956949f134d2b09e19896f17772e2827"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.656936+00:00",
+            "timestamp": "2026-07-26T05:03:20.449104+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0056",
-            "previous_hash": "878fe5be4a4f6b233781271899629af29e46621dfdd56e34b3c941e14e9d414f",
-            "current_hash": "35fe56aae21aae1a8eeecf1dea57554c0eb97b3d8e139f449f746ddeb2faf973"
+            "previous_hash": "922f84ff64a2b6e7fa6024e1459559cc956949f134d2b09e19896f17772e2827",
+            "current_hash": "37ad27c4b97f8cc981afdac08197f70f3c1798493f80979ca5422e6a1e0d1b35"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.656947+00:00",
+            "timestamp": "2026-07-26T05:03:20.449115+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0056",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0056",
-            "previous_hash": "35fe56aae21aae1a8eeecf1dea57554c0eb97b3d8e139f449f746ddeb2faf973",
-            "current_hash": "aa9bdc757e4e1369eadd64a9293064070baf439cd1affe7e36e5d5797916f1ac"
+            "previous_hash": "37ad27c4b97f8cc981afdac08197f70f3c1798493f80979ca5422e6a1e0d1b35",
+            "current_hash": "04935e65af19406bac6afd94b38918fd16f6f961e03c055d0f8faf443bfc7eee"
           }
         ],
         "chain_integrity_verified": true,
@@ -3025,8 +3025,8 @@
         "critical_gate": false
       },
       "cost_estimate": 5000,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.660179+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.453939+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0058",
         "patient_id": "P059",
@@ -3038,17 +3038,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.659222+00:00",
+            "timestamp": "2026-07-26T05:03:20.452542+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P059"
             },
             "decision_id": "TRIAGE-0058",
             "previous_hash": "",
-            "current_hash": "3895b71ba37d6643f04e856c1643011554263ad8f6b8a34597b30217168531f2"
+            "current_hash": "17368aacdcc8802ad30278d9cae74ccfa6c0e3872e06e187af86a1821f3049a3"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.659250+00:00",
+            "timestamp": "2026-07-26T05:03:20.452585+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 40.5,
@@ -3057,83 +3057,83 @@
               "hr": 135
             },
             "decision_id": "TRIAGE-0058",
-            "previous_hash": "3895b71ba37d6643f04e856c1643011554263ad8f6b8a34597b30217168531f2",
-            "current_hash": "3c9ba63606af9c7ade1189cd28a51bdac3e5556c201e50a82f5228291f42db88"
+            "previous_hash": "17368aacdcc8802ad30278d9cae74ccfa6c0e3872e06e187af86a1821f3049a3",
+            "current_hash": "1543f99562a4b3e7105b792826d09a20c74727ffeaaff9c98ddf227ec0b25744"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.659269+00:00",
+            "timestamp": "2026-07-26T05:03:20.452624+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 67,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0058",
-            "previous_hash": "3c9ba63606af9c7ade1189cd28a51bdac3e5556c201e50a82f5228291f42db88",
-            "current_hash": "4f1232ca16c8afaa259a743541e3a189c9843a5bd6d4840aaff662b7810fb145"
+            "previous_hash": "1543f99562a4b3e7105b792826d09a20c74727ffeaaff9c98ddf227ec0b25744",
+            "current_hash": "bcecb2be0c3984077307041fd64541c4a87ed0be8cc39b8686b95725c006992c"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.659285+00:00",
+            "timestamp": "2026-07-26T05:03:20.452645+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 40.5,
               "passed": false
             },
             "decision_id": "TRIAGE-0058",
-            "previous_hash": "4f1232ca16c8afaa259a743541e3a189c9843a5bd6d4840aaff662b7810fb145",
-            "current_hash": "bff08b4545fc47d42c2d9fc51b884a2c2e82e1d525b8e66874aceabc72556cbf"
+            "previous_hash": "bcecb2be0c3984077307041fd64541c4a87ed0be8cc39b8686b95725c006992c",
+            "current_hash": "530bcc3af0db79c7d6e0f74a5d9ac8d875bd92e75caa018b6f77d11778d5b23a"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.659349+00:00",
+            "timestamp": "2026-07-26T05:03:20.453033+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 88,
               "passed": false
             },
             "decision_id": "TRIAGE-0058",
-            "previous_hash": "bff08b4545fc47d42c2d9fc51b884a2c2e82e1d525b8e66874aceabc72556cbf",
-            "current_hash": "1eb963add1de0c99db9e1e42894b90bcd903d37b8f10c38aba63216d2711daf5"
+            "previous_hash": "530bcc3af0db79c7d6e0f74a5d9ac8d875bd92e75caa018b6f77d11778d5b23a",
+            "current_hash": "defc92093fc774bbbdf0053fc0d763dd1f72721a901f3eb54396633d847dc994"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.659367+00:00",
+            "timestamp": "2026-07-26T05:03:20.453055+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 2,
               "passed": true
             },
             "decision_id": "TRIAGE-0058",
-            "previous_hash": "1eb963add1de0c99db9e1e42894b90bcd903d37b8f10c38aba63216d2711daf5",
-            "current_hash": "4383b3866b0745d7843a96683bb3892b671013be89eed9e9991ff87477692091"
+            "previous_hash": "defc92093fc774bbbdf0053fc0d763dd1f72721a901f3eb54396633d847dc994",
+            "current_hash": "2ead9d96a87f4d532cd53f062c8e4a9a5e18b9173d7c30cf42fd4f3a143c861f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.659388+00:00",
+            "timestamp": "2026-07-26T05:03:20.453074+00:00",
             "state": "StateType.ROUTE_ICU",
             "evidence": {
               "routing": "icu"
             },
             "decision_id": "TRIAGE-0058",
-            "previous_hash": "4383b3866b0745d7843a96683bb3892b671013be89eed9e9991ff87477692091",
-            "current_hash": "fa26987b82275abad5a89c5df0d543f09693eb3de121abff003d2ac1bba66004"
+            "previous_hash": "2ead9d96a87f4d532cd53f062c8e4a9a5e18b9173d7c30cf42fd4f3a143c861f",
+            "current_hash": "fe07c9bcb8b609a0b855e19d2431fa2a96699b6731ff223d4b3540e035d2a887"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.659406+00:00",
+            "timestamp": "2026-07-26T05:03:20.453087+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0058",
-            "previous_hash": "fa26987b82275abad5a89c5df0d543f09693eb3de121abff003d2ac1bba66004",
-            "current_hash": "b563c2609fc4ad80ebc45d0f116cbfc08e9b8db65b90d1949e26580732db0c1a"
+            "previous_hash": "fe07c9bcb8b609a0b855e19d2431fa2a96699b6731ff223d4b3540e035d2a887",
+            "current_hash": "9095125116edd0d6dccc993d59ea3e367eec4aa0cd52be3c2ce15a6b36dcbedd"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.659424+00:00",
+            "timestamp": "2026-07-26T05:03:20.453098+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0058",
               "final_routing": "icu"
             },
             "decision_id": "TRIAGE-0058",
-            "previous_hash": "b563c2609fc4ad80ebc45d0f116cbfc08e9b8db65b90d1949e26580732db0c1a",
-            "current_hash": "73fc011009574b388ceb4f6132940353100de7a6b3936daecffba9c6593091d0"
+            "previous_hash": "9095125116edd0d6dccc993d59ea3e367eec4aa0cd52be3c2ce15a6b36dcbedd",
+            "current_hash": "14d51163b91e6c0807952b83e3e833ea7254d1f63441403b76e038212d4829c6"
           }
         ],
         "chain_integrity_verified": true,
@@ -3213,7 +3213,7 @@
       },
       "cost_estimate": 2400,
       "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.661395+00:00",
+      "created_at": "2026-07-26T05:03:20.455466+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0059",
         "patient_id": "P060",
@@ -3225,17 +3225,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.660705+00:00",
+            "timestamp": "2026-07-26T05:03:20.454717+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P060"
             },
             "decision_id": "TRIAGE-0059",
             "previous_hash": "",
-            "current_hash": "e4b04197892ab03012b566bcbb6945d729f671046bfa85a5c8d2cc4064cca002"
+            "current_hash": "eafd90df30077043ecd7db529f91cded05bc06865b90105d4822153c40399b94"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.660768+00:00",
+            "timestamp": "2026-07-26T05:03:20.454746+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.1,
@@ -3244,83 +3244,83 @@
               "hr": 140
             },
             "decision_id": "TRIAGE-0059",
-            "previous_hash": "e4b04197892ab03012b566bcbb6945d729f671046bfa85a5c8d2cc4064cca002",
-            "current_hash": "7b8821038fcac6315e3031a018a9a707bc501c95492d00b21ee9fb98542e784d"
+            "previous_hash": "eafd90df30077043ecd7db529f91cded05bc06865b90105d4822153c40399b94",
+            "current_hash": "d733877373f12f7a281ae952d55af0299fb1f86d0a0491a3bd1570ec2249244f"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.660789+00:00",
+            "timestamp": "2026-07-26T05:03:20.454764+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 21,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0059",
-            "previous_hash": "7b8821038fcac6315e3031a018a9a707bc501c95492d00b21ee9fb98542e784d",
-            "current_hash": "47c27bcf14696252cc362070f8ea5bd565030e53143b3c9bf2f80f66c7c6c563"
+            "previous_hash": "d733877373f12f7a281ae952d55af0299fb1f86d0a0491a3bd1570ec2249244f",
+            "current_hash": "8932d298f9998f2f0ec38a8db4c9e1b7f859148e15e713110e9fb91651266cec"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.660805+00:00",
+            "timestamp": "2026-07-26T05:03:20.454781+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.1,
               "passed": true
             },
             "decision_id": "TRIAGE-0059",
-            "previous_hash": "47c27bcf14696252cc362070f8ea5bd565030e53143b3c9bf2f80f66c7c6c563",
-            "current_hash": "e87d11dfa0bed3e65986a200b5ae838c4e2e1e3682f2e54d43d0eb02dbcc439d"
+            "previous_hash": "8932d298f9998f2f0ec38a8db4c9e1b7f859148e15e713110e9fb91651266cec",
+            "current_hash": "025fc91ed2151f0bcccb960ee0365ca9e2d5dbece9669cc5ccb7be4917a6fab8"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.660819+00:00",
+            "timestamp": "2026-07-26T05:03:20.454795+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 85,
               "passed": false
             },
             "decision_id": "TRIAGE-0059",
-            "previous_hash": "e87d11dfa0bed3e65986a200b5ae838c4e2e1e3682f2e54d43d0eb02dbcc439d",
-            "current_hash": "3ff38e554b37efbd929cc1f61e6a59d8fbcd45b382639bc8135de8ffa2220fd9"
+            "previous_hash": "025fc91ed2151f0bcccb960ee0365ca9e2d5dbece9669cc5ccb7be4917a6fab8",
+            "current_hash": "a3b95ef11e3b817db0e6ea2ce97dd5645bedbb85f3c2149bd8616b134fc51d6d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.660831+00:00",
+            "timestamp": "2026-07-26T05:03:20.454807+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0059",
-            "previous_hash": "3ff38e554b37efbd929cc1f61e6a59d8fbcd45b382639bc8135de8ffa2220fd9",
-            "current_hash": "e6f8e4fa5005a2338946eaf44a2f9c00c1156d8a99b7db7921cc604c7392e6ce"
+            "previous_hash": "a3b95ef11e3b817db0e6ea2ce97dd5645bedbb85f3c2149bd8616b134fc51d6d",
+            "current_hash": "c0f999398f0b87008033cd90818b7f5db061cdcc384daa6b5498b9b220f55e47"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.660848+00:00",
+            "timestamp": "2026-07-26T05:03:20.454824+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0059",
-            "previous_hash": "e6f8e4fa5005a2338946eaf44a2f9c00c1156d8a99b7db7921cc604c7392e6ce",
-            "current_hash": "b36ccf95361f65ac27139d7db82c0155fea522ce3269f12f08e74d75bb0b2319"
+            "previous_hash": "c0f999398f0b87008033cd90818b7f5db061cdcc384daa6b5498b9b220f55e47",
+            "current_hash": "98c20859a13df28f404b54789c3df9face8d189cab1df4e8c51875d46bbe9792"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.660860+00:00",
+            "timestamp": "2026-07-26T05:03:20.454845+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0059",
-            "previous_hash": "b36ccf95361f65ac27139d7db82c0155fea522ce3269f12f08e74d75bb0b2319",
-            "current_hash": "f025461f4b2c7a2c16b951d6232583b52e1c705d645b8df3f4af37f3147d7c8b"
+            "previous_hash": "98c20859a13df28f404b54789c3df9face8d189cab1df4e8c51875d46bbe9792",
+            "current_hash": "586a3a60da16c0b02fd952f509bcba9e720ec29d0d74ea8790e5127f4ecb19c5"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.660870+00:00",
+            "timestamp": "2026-07-26T05:03:20.454857+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0059",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0059",
-            "previous_hash": "f025461f4b2c7a2c16b951d6232583b52e1c705d645b8df3f4af37f3147d7c8b",
-            "current_hash": "63709fffb60015f442b95d76fa41df4ad5bf2368c26163a348fc999b0a506e88"
+            "previous_hash": "586a3a60da16c0b02fd952f509bcba9e720ec29d0d74ea8790e5127f4ecb19c5",
+            "current_hash": "9f305156a887fc01f8041761323ce86e65be0e9ccc33bece4c7bf842bd6c6de5"
           }
         ],
         "chain_integrity_verified": true,
@@ -3398,8 +3398,8 @@
         "critical_gate": true
       },
       "cost_estimate": 2400,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.666490+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.464944+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0063",
         "patient_id": "P064",
@@ -3411,17 +3411,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.665839+00:00",
+            "timestamp": "2026-07-26T05:03:20.464092+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P064"
             },
             "decision_id": "TRIAGE-0063",
             "previous_hash": "",
-            "current_hash": "cdbc10fa79112cc4feca5051c52639fecb853eca91ee4be8d035f4428e8f94a9"
+            "current_hash": "52edf4e5693a6de9b59f4416dd3eb38c35313d4d3153a73a0b5ebc9fe37fb1aa"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.665865+00:00",
+            "timestamp": "2026-07-26T05:03:20.464138+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 37.9,
@@ -3430,83 +3430,83 @@
               "hr": 125
             },
             "decision_id": "TRIAGE-0063",
-            "previous_hash": "cdbc10fa79112cc4feca5051c52639fecb853eca91ee4be8d035f4428e8f94a9",
-            "current_hash": "d3527fce68b03a3c136aff01053cc7b21c01d6f54518b5ef9eee41636f980fd1"
+            "previous_hash": "52edf4e5693a6de9b59f4416dd3eb38c35313d4d3153a73a0b5ebc9fe37fb1aa",
+            "current_hash": "1c6175a118a45babdf11df811ef6ac150a5b4640ae3787cd899b5bfb0253cbf2"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.665883+00:00",
+            "timestamp": "2026-07-26T05:03:20.464165+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 46,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0063",
-            "previous_hash": "d3527fce68b03a3c136aff01053cc7b21c01d6f54518b5ef9eee41636f980fd1",
-            "current_hash": "f621e20a9392c4ce5e542f5453804f9139429008c90521efe0deeb938ff33c41"
+            "previous_hash": "1c6175a118a45babdf11df811ef6ac150a5b4640ae3787cd899b5bfb0253cbf2",
+            "current_hash": "a3251b73075aa7844b25547de4a8a1cc681c62ff46311c18c8d15882399a54c0"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.665898+00:00",
+            "timestamp": "2026-07-26T05:03:20.464186+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 37.9,
               "passed": true
             },
             "decision_id": "TRIAGE-0063",
-            "previous_hash": "f621e20a9392c4ce5e542f5453804f9139429008c90521efe0deeb938ff33c41",
-            "current_hash": "9894ed18ad94d010acf1822459caa18c146b57f93b84249f3b95d554369855c4"
+            "previous_hash": "a3251b73075aa7844b25547de4a8a1cc681c62ff46311c18c8d15882399a54c0",
+            "current_hash": "61513edc75cc5e62d242f914e6d1013c9d0687e1110859fac691df2491704688"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.665911+00:00",
+            "timestamp": "2026-07-26T05:03:20.464203+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 89,
               "passed": false
             },
             "decision_id": "TRIAGE-0063",
-            "previous_hash": "9894ed18ad94d010acf1822459caa18c146b57f93b84249f3b95d554369855c4",
-            "current_hash": "4d914e65f340e67b2b712ed31c7022946be9c51066f2558bf7c850167e32bbc7"
+            "previous_hash": "61513edc75cc5e62d242f914e6d1013c9d0687e1110859fac691df2491704688",
+            "current_hash": "34f3dcbdb154df9cb77992428304cda97c812e73cb663f4e6efa6832638d1b72"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.665923+00:00",
+            "timestamp": "2026-07-26T05:03:20.464218+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0063",
-            "previous_hash": "4d914e65f340e67b2b712ed31c7022946be9c51066f2558bf7c850167e32bbc7",
-            "current_hash": "eded86b21f72fe608ffbb3bcb59a3d96c2d4f18c9e0373198dfd6543ae251a2f"
+            "previous_hash": "34f3dcbdb154df9cb77992428304cda97c812e73cb663f4e6efa6832638d1b72",
+            "current_hash": "73da2dba24d58120417c7ae33554801cd654d8accaca4f80cc7483b316a197dc"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.665939+00:00",
+            "timestamp": "2026-07-26T05:03:20.464239+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "ed"
             },
             "decision_id": "TRIAGE-0063",
-            "previous_hash": "eded86b21f72fe608ffbb3bcb59a3d96c2d4f18c9e0373198dfd6543ae251a2f",
-            "current_hash": "ed3c4670655946d6a6c18f801c7091eed99ed83f9ebf80911e153406204fe144"
+            "previous_hash": "73da2dba24d58120417c7ae33554801cd654d8accaca4f80cc7483b316a197dc",
+            "current_hash": "8d810216a49e1afe5e3ed5f890fea74eb1aa0a0eafeb6a9bce9b17a85d871249"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.665951+00:00",
+            "timestamp": "2026-07-26T05:03:20.464254+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0063",
-            "previous_hash": "ed3c4670655946d6a6c18f801c7091eed99ed83f9ebf80911e153406204fe144",
-            "current_hash": "b67cbd42e6dfd10a5b8a07e2d74eabee4fc4ee837f106ded4a9cd4f499fc6338"
+            "previous_hash": "8d810216a49e1afe5e3ed5f890fea74eb1aa0a0eafeb6a9bce9b17a85d871249",
+            "current_hash": "4e2a7a98a96c845b9d02e2a6a6e1981085ffb1f4fecfd067d5e230e3dc09bbe4"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.665961+00:00",
+            "timestamp": "2026-07-26T05:03:20.464268+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0063",
               "final_routing": "ed"
             },
             "decision_id": "TRIAGE-0063",
-            "previous_hash": "b67cbd42e6dfd10a5b8a07e2d74eabee4fc4ee837f106ded4a9cd4f499fc6338",
-            "current_hash": "4c0b3ae94dcdccf950e24fe1b228eae6f45896c2902f13f12f61a737ae171dab"
+            "previous_hash": "4e2a7a98a96c845b9d02e2a6a6e1981085ffb1f4fecfd067d5e230e3dc09bbe4",
+            "current_hash": "f43d75c7a10b1d453dd0b47145dcb171725f68297dfe7708b0ade50c80ea9ce3"
           }
         ],
         "chain_integrity_verified": true,
@@ -3584,8 +3584,8 @@
         "critical_gate": true
       },
       "cost_estimate": 1500,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.674458+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.478477+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0069",
         "patient_id": "P070",
@@ -3597,17 +3597,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.673590+00:00",
+            "timestamp": "2026-07-26T05:03:20.476615+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P070"
             },
             "decision_id": "TRIAGE-0069",
             "previous_hash": "",
-            "current_hash": "00cadbf601d65e502a38c7db0c4a338386a0a0966c9d8b0c574ea7856cc710a9"
+            "current_hash": "4d2134f74606769440144ed1f0f158c65143fa45dbdca951351ea6682b488ddf"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.673616+00:00",
+            "timestamp": "2026-07-26T05:03:20.476652+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.8,
@@ -3616,83 +3616,83 @@
               "hr": 115
             },
             "decision_id": "TRIAGE-0069",
-            "previous_hash": "00cadbf601d65e502a38c7db0c4a338386a0a0966c9d8b0c574ea7856cc710a9",
-            "current_hash": "189c480c7d77f3f4c3f8d2af21dde08bf7f7060f20f1a7cd0af41c1236aa6583"
+            "previous_hash": "4d2134f74606769440144ed1f0f158c65143fa45dbdca951351ea6682b488ddf",
+            "current_hash": "c812852de913f46d5dd73f6d1f3953e0061becf3b057d3241c824ce1880d6988"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.673644+00:00",
+            "timestamp": "2026-07-26T05:03:20.476674+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 38,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0069",
-            "previous_hash": "189c480c7d77f3f4c3f8d2af21dde08bf7f7060f20f1a7cd0af41c1236aa6583",
-            "current_hash": "04d9b7196b0a54e18c7e09e38ccca15950f04d84653cc3d04cc8cc20cc738c37"
+            "previous_hash": "c812852de913f46d5dd73f6d1f3953e0061becf3b057d3241c824ce1880d6988",
+            "current_hash": "25d202a51bb6f8fe68b3837505e245a3871dcdf50a9061582c3669169487b5d4"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.673660+00:00",
+            "timestamp": "2026-07-26T05:03:20.476698+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.8,
               "passed": false
             },
             "decision_id": "TRIAGE-0069",
-            "previous_hash": "04d9b7196b0a54e18c7e09e38ccca15950f04d84653cc3d04cc8cc20cc738c37",
-            "current_hash": "f46e0f1fb004418c26eef796659e16e79726cbb4d8780e80ecd231bcf2331498"
+            "previous_hash": "25d202a51bb6f8fe68b3837505e245a3871dcdf50a9061582c3669169487b5d4",
+            "current_hash": "76506abfc4dfea9a022d880f08b54fd367a640544b318db7bf9f9e29ddc2a507"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.673673+00:00",
+            "timestamp": "2026-07-26T05:03:20.476712+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 92,
               "passed": true
             },
             "decision_id": "TRIAGE-0069",
-            "previous_hash": "f46e0f1fb004418c26eef796659e16e79726cbb4d8780e80ecd231bcf2331498",
-            "current_hash": "2d75499165034378c290f7f820c75b2ce2e5956f6b139731c38f5f289c9d1c88"
+            "previous_hash": "76506abfc4dfea9a022d880f08b54fd367a640544b318db7bf9f9e29ddc2a507",
+            "current_hash": "31e3e248b3574461321b23d872859a73f0ee16fe1da86c91c1f535822a93d5b7"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.673684+00:00",
+            "timestamp": "2026-07-26T05:03:20.476724+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 1,
               "passed": true
             },
             "decision_id": "TRIAGE-0069",
-            "previous_hash": "2d75499165034378c290f7f820c75b2ce2e5956f6b139731c38f5f289c9d1c88",
-            "current_hash": "b558f6fc531dcddfde750dd409fc45a88a47b5a77558d33fcec6c99399d26749"
+            "previous_hash": "31e3e248b3574461321b23d872859a73f0ee16fe1da86c91c1f535822a93d5b7",
+            "current_hash": "ac8ab51350ec7bc4f6eee6a097591b59961c4384864ba14967e44d5f50766213"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.673742+00:00",
+            "timestamp": "2026-07-26T05:03:20.476922+00:00",
             "state": "StateType.ROUTE_ED",
             "evidence": {
               "routing": "general_admission"
             },
             "decision_id": "TRIAGE-0069",
-            "previous_hash": "b558f6fc531dcddfde750dd409fc45a88a47b5a77558d33fcec6c99399d26749",
-            "current_hash": "372eb42b627e94dfd2deb9713056243e8c2bd9c9028941fe364e51672e1a212d"
+            "previous_hash": "ac8ab51350ec7bc4f6eee6a097591b59961c4384864ba14967e44d5f50766213",
+            "current_hash": "420345c635a3eabc252d79acd860babc0cf48a5a72caf02331eb1b9437e17371"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.673760+00:00",
+            "timestamp": "2026-07-26T05:03:20.476942+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0069",
-            "previous_hash": "372eb42b627e94dfd2deb9713056243e8c2bd9c9028941fe364e51672e1a212d",
-            "current_hash": "b5ee419c3dd29d4bad37df6c05b475bfcbfa61b3a0f94a37023a3c3942f5008e"
+            "previous_hash": "420345c635a3eabc252d79acd860babc0cf48a5a72caf02331eb1b9437e17371",
+            "current_hash": "7a1b98ac3aceb327601f5521cccd93749a388f74cecbfde57ad8256c43c47595"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.673773+00:00",
+            "timestamp": "2026-07-26T05:03:20.476985+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0069",
               "final_routing": "general_admission"
             },
             "decision_id": "TRIAGE-0069",
-            "previous_hash": "b5ee419c3dd29d4bad37df6c05b475bfcbfa61b3a0f94a37023a3c3942f5008e",
-            "current_hash": "44f02e4b57358b6601e7cd368ed27089faf86ffa8dfed1515aae07670149e81a"
+            "previous_hash": "7a1b98ac3aceb327601f5521cccd93749a388f74cecbfde57ad8256c43c47595",
+            "current_hash": "75d2367d3e0ccdb67bd719073397981471eeb0833c0d3a1d628d8edabc347e15"
           }
         ],
         "chain_integrity_verified": true,
@@ -3771,8 +3771,8 @@
         "critical_gate": false
       },
       "cost_estimate": 5000,
-      "decision_time_ms": 0,
-      "created_at": "2026-07-26T05:00:42.677059+00:00",
+      "decision_time_ms": 1,
+      "created_at": "2026-07-26T05:03:20.482370+00:00",
       "dag_journey": {
         "decision_id": "TRIAGE-0071",
         "patient_id": "P072",
@@ -3784,17 +3784,17 @@
         },
         "evidence_chain": [
           {
-            "timestamp": "2026-07-26T05:00:42.676241+00:00",
+            "timestamp": "2026-07-26T05:03:20.480885+00:00",
             "state": "StateType.START",
             "evidence": {
               "patient_id": "P072"
             },
             "decision_id": "TRIAGE-0071",
             "previous_hash": "",
-            "current_hash": "973e439e078afd458de8b218f5c431c64ea7dc72dc1ef4dcefdec5b404a461f3"
+            "current_hash": "e6af35042b3a6f0240fd9fb31da6235a03f8441c11642d6747a630ed068f3256"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.676269+00:00",
+            "timestamp": "2026-07-26T05:03:20.480917+00:00",
             "state": "StateType.ASSESS_VITALS",
             "evidence": {
               "temperature": 39.0,
@@ -3803,83 +3803,83 @@
               "hr": 135
             },
             "decision_id": "TRIAGE-0071",
-            "previous_hash": "973e439e078afd458de8b218f5c431c64ea7dc72dc1ef4dcefdec5b404a461f3",
-            "current_hash": "a44d7c70a116d37ef63dafb9b35bad7416c035b6ac92ccdcac7f0020368866af"
+            "previous_hash": "e6af35042b3a6f0240fd9fb31da6235a03f8441c11642d6747a630ed068f3256",
+            "current_hash": "9f6dc9acacfcaee254ebe5aabd1358e472e6ecee4b283e55eace91c8ff501def"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.676286+00:00",
+            "timestamp": "2026-07-26T05:03:20.480935+00:00",
             "state": "StateType.GATE_AGE",
             "evidence": {
               "age": 61,
               "escalation_required": false
             },
             "decision_id": "TRIAGE-0071",
-            "previous_hash": "a44d7c70a116d37ef63dafb9b35bad7416c035b6ac92ccdcac7f0020368866af",
-            "current_hash": "85922eb3829244cdb18b82ef0938217e5b8de295ce2f6a62840dfe72627783b8"
+            "previous_hash": "9f6dc9acacfcaee254ebe5aabd1358e472e6ecee4b283e55eace91c8ff501def",
+            "current_hash": "f61a67a134f7f763062632b7edb77fccc03e387162a992f09764dc793d28b18c"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.676301+00:00",
+            "timestamp": "2026-07-26T05:03:20.480987+00:00",
             "state": "StateType.GATE_FEVER",
             "evidence": {
               "temp": 39.0,
               "passed": true
             },
             "decision_id": "TRIAGE-0071",
-            "previous_hash": "85922eb3829244cdb18b82ef0938217e5b8de295ce2f6a62840dfe72627783b8",
-            "current_hash": "0b8ac611d04b1037e134393ba04f4a99aaf140fc83e0c1179cc755d953bcad2f"
+            "previous_hash": "f61a67a134f7f763062632b7edb77fccc03e387162a992f09764dc793d28b18c",
+            "current_hash": "e24ef8b1c46cdb53701ca2628207647a994b4ae893410866b0060ce6314dc6c6"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.676315+00:00",
+            "timestamp": "2026-07-26T05:03:20.481009+00:00",
             "state": "StateType.GATE_HYPOXIA",
             "evidence": {
               "spo2": 86,
               "passed": false
             },
             "decision_id": "TRIAGE-0071",
-            "previous_hash": "0b8ac611d04b1037e134393ba04f4a99aaf140fc83e0c1179cc755d953bcad2f",
-            "current_hash": "c7a58ae20cf0cddcd694daf1f6b384ac75a40f54f42421f7bacd67686c51778b"
+            "previous_hash": "e24ef8b1c46cdb53701ca2628207647a994b4ae893410866b0060ce6314dc6c6",
+            "current_hash": "8b6492d6f2e9bbf57d5f5704ff6510266abe49abe76aac48514f31f270da0fa2"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.676327+00:00",
+            "timestamp": "2026-07-26T05:03:20.481024+00:00",
             "state": "StateType.GATE_COMORBID",
             "evidence": {
               "comorbidities": 2,
               "passed": true
             },
             "decision_id": "TRIAGE-0071",
-            "previous_hash": "c7a58ae20cf0cddcd694daf1f6b384ac75a40f54f42421f7bacd67686c51778b",
-            "current_hash": "830d8a6ad1002fd9eec8e8fa450551217eb9445279b20de1ab3d770361f5678c"
+            "previous_hash": "8b6492d6f2e9bbf57d5f5704ff6510266abe49abe76aac48514f31f270da0fa2",
+            "current_hash": "6c040773238f965d58343689a32ce1a6e053074a463bf569527443085cbded5d"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.676343+00:00",
+            "timestamp": "2026-07-26T05:03:20.481044+00:00",
             "state": "StateType.ROUTE_ICU",
             "evidence": {
               "routing": "icu"
             },
             "decision_id": "TRIAGE-0071",
-            "previous_hash": "830d8a6ad1002fd9eec8e8fa450551217eb9445279b20de1ab3d770361f5678c",
-            "current_hash": "3caaac0985a1328fc10dbe8624cc84569135bff28d45038cbf782638a4d5d81b"
+            "previous_hash": "6c040773238f965d58343689a32ce1a6e053074a463bf569527443085cbded5d",
+            "current_hash": "b20d7704569d28aefce5902c3d0b4b771e2861c04cd73db14842d2cc28125bd0"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.676355+00:00",
+            "timestamp": "2026-07-26T05:03:20.481070+00:00",
             "state": "StateType.APPROVAL",
             "evidence": {
               "approved": false
             },
             "decision_id": "TRIAGE-0071",
-            "previous_hash": "3caaac0985a1328fc10dbe8624cc84569135bff28d45038cbf782638a4d5d81b",
-            "current_hash": "1a515d0a7dcc6c62f894b1f7fc29668165938e20159a426417090c8163a7841f"
+            "previous_hash": "b20d7704569d28aefce5902c3d0b4b771e2861c04cd73db14842d2cc28125bd0",
+            "current_hash": "df9ec5cb1d70af54b5bfaf52bdd7f8cd78fb7009fbacb9079161336ba1330509"
           },
           {
-            "timestamp": "2026-07-26T05:00:42.676409+00:00",
+            "timestamp": "2026-07-26T05:03:20.481253+00:00",
             "state": "StateType.COMPLETE",
             "evidence": {
               "decision_id": "TRIAGE-0071",
               "final_routing": "icu"
             },
             "decision_id": "TRIAGE-0071",
-            "previous_hash": "1a515d0a7dcc6c62f894b1f7fc29668165938e20159a426417090c8163a7841f",
-            "current_hash": "4d738f18b18223e2b546bde31bc7d6c686d65065761409a95ab1abf851d716e8"
+            "previous_hash": "df9ec5cb1d70af54b5bfaf52bdd7f8cd78fb7009fbacb9079161336ba1330509",
+            "current_hash": "fa8213ab76f9faec05e524497be9c74e6b3c1c960733861ebaf023fceaca36a1"
           }
         ],
         "chain_integrity_verified": true,
@@ -3923,7 +3923,7 @@
     "auto_approve_rate": 0.72,
     "escalation_rate": 0.28,
     "override_rate": 0.0,
-    "avg_latency_ms": 0.02666666666666667,
+    "avg_latency_ms": 0.6,
     "total_cost": 70300,
     "pending_count": 21,
     "dag_chain_integrity_rate": 1.0

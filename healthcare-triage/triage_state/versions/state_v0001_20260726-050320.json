@@ -1,0 +1,1430 @@
+{
+  "schema_version": 1,
+  "snapshot_seq": 1,
+  "generated_at": "2026-07-26T05:03:20.074286+00:00",
+  "config": {
+    "decision_timeout_minutes": 5,
+    "escalation_timeout_minutes": 15,
+    "policy_version": 1,
+    "triage_levels": {
+      "green": {
+        "name": "Stable",
+        "max_vital_deviation": 0.1,
+        "routing": "discharge"
+      },
+      "yellow": {
+        "name": "Watchful Waiting",
+        "max_vital_deviation": 0.2,
+        "routing": "general_admission"
+      },
+      "orange": {
+        "name": "Urgent",
+        "max_vital_deviation": 0.4,
+        "routing": "ed"
+      },
+      "red": {
+        "name": "Critical",
+        "max_vital_deviation": 1.0,
+        "routing": "icu"
+      }
+    },
+    "policy_gates": {
+      "age_gate": {
+        "rule": "age < 5 or age > 75",
+        "action": "escalate",
+        "reason": "Age-based escalation"
+      },
+      "fever_gate": {
+        "rule": "temp > 39.5",
+        "action": "escalate",
+        "reason": "High fever"
+      },
+      "hypoxia_gate": {
+        "rule": "spo2 < 92",
+        "action": "escalate",
+        "reason": "Low oxygen"
+      },
+      "comorbidity_gate": {
+        "rule": "comorbidities > 2",
+        "action": "escalate",
+        "reason": "Multiple comorbidities"
+      },
+      "pregnancy_gate": {
+        "rule": "pregnant and red_triage",
+        "action": "escalate",
+        "reason": "Pregnant critical case"
+      }
+    }
+  },
+  "patients": [
+    {
+      "patient_id": "P001",
+      "age": 42,
+      "sex": "M",
+      "chief_complaint": "chest pain",
+      "vital_temp": 37.2,
+      "vital_spo2": 98,
+      "vital_bp_sys": 145,
+      "vital_hr": 92,
+      "comorbidities": [
+        "hypertension"
+      ],
+      "allergies": [
+        "penicillin"
+      ],
+      "prior_visits": 3,
+      "arrival_time": "2026-07-26T05:03:20.070153+00:00"
+    },
+    {
+      "patient_id": "P002",
+      "age": 7,
+      "sex": "F",
+      "chief_complaint": "fever cough",
+      "vital_temp": 39.8,
+      "vital_spo2": 94,
+      "vital_bp_sys": 105,
+      "vital_hr": 118,
+      "comorbidities": [
+        "asthma"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.070179+00:00"
+    },
+    {
+      "patient_id": "P003",
+      "age": 81,
+      "sex": "M",
+      "chief_complaint": "shortness of breath",
+      "vital_temp": 36.8,
+      "vital_spo2": 88,
+      "vital_bp_sys": 155,
+      "vital_hr": 102,
+      "comorbidities": [
+        "COPD",
+        "heart failure"
+      ],
+      "allergies": [
+        "NSAIDs"
+      ],
+      "prior_visits": 12,
+      "arrival_time": "2026-07-26T05:03:20.070190+00:00"
+    },
+    {
+      "patient_id": "P004",
+      "age": 28,
+      "sex": "F",
+      "chief_complaint": "abdominal pain",
+      "vital_temp": 38.5,
+      "vital_spo2": 97,
+      "vital_bp_sys": 125,
+      "vital_hr": 88,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.070384+00:00"
+    },
+    {
+      "patient_id": "P005",
+      "age": 65,
+      "sex": "M",
+      "chief_complaint": "confusion",
+      "vital_temp": 37.5,
+      "vital_spo2": 96,
+      "vital_bp_sys": 168,
+      "vital_hr": 78,
+      "comorbidities": [
+        "diabetes",
+        "hypertension"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 5,
+      "arrival_time": "2026-07-26T05:03:20.070398+00:00"
+    },
+    {
+      "patient_id": "P006",
+      "age": 34,
+      "sex": "F",
+      "chief_complaint": "pregnant bleeding",
+      "vital_temp": 37.1,
+      "vital_spo2": 99,
+      "vital_bp_sys": 130,
+      "vital_hr": 76,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "codeine"
+      ],
+      "prior_visits": 2,
+      "arrival_time": "2026-07-26T05:03:20.070408+00:00"
+    },
+    {
+      "patient_id": "P007",
+      "age": 19,
+      "sex": "M",
+      "chief_complaint": "severe headache",
+      "vital_temp": 39.2,
+      "vital_spo2": 97,
+      "vital_bp_sys": 140,
+      "vital_hr": 110,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.070417+00:00"
+    },
+    {
+      "patient_id": "P008",
+      "age": 73,
+      "sex": "F",
+      "chief_complaint": "fall fracture",
+      "vital_temp": 36.5,
+      "vital_spo2": 95,
+      "vital_bp_sys": 122,
+      "vital_hr": 70,
+      "comorbidities": [
+        "osteoporosis",
+        "arthritis"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 8,
+      "arrival_time": "2026-07-26T05:03:20.070434+00:00"
+    },
+    {
+      "patient_id": "P009",
+      "age": 11,
+      "sex": "M",
+      "chief_complaint": "sore throat",
+      "vital_temp": 39.5,
+      "vital_spo2": 96,
+      "vital_bp_sys": 110,
+      "vital_hr": 95,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.070646+00:00"
+    },
+    {
+      "patient_id": "P010",
+      "age": 56,
+      "sex": "F",
+      "chief_complaint": "chest tightness",
+      "vital_temp": 37.8,
+      "vital_spo2": 91,
+      "vital_bp_sys": 155,
+      "vital_hr": 105,
+      "comorbidities": [
+        "CAD",
+        "hypertension"
+      ],
+      "allergies": [
+        "aspirin allergy"
+      ],
+      "prior_visits": 4,
+      "arrival_time": "2026-07-26T05:03:20.070658+00:00"
+    },
+    {
+      "patient_id": "P011",
+      "age": 22,
+      "sex": "F",
+      "chief_complaint": "allergic reaction",
+      "vital_temp": 38.1,
+      "vital_spo2": 93,
+      "vital_bp_sys": 118,
+      "vital_hr": 115,
+      "comorbidities": [
+        "asthma"
+      ],
+      "allergies": [
+        "penicillin",
+        "sulfa"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.070667+00:00"
+    },
+    {
+      "patient_id": "P012",
+      "age": 68,
+      "sex": "M",
+      "chief_complaint": "severe dizziness",
+      "vital_temp": 36.2,
+      "vital_spo2": 97,
+      "vital_bp_sys": 88,
+      "vital_hr": 52,
+      "comorbidities": [
+        "atrial fibrillation"
+      ],
+      "allergies": [
+        "warfarin"
+      ],
+      "prior_visits": 6,
+      "arrival_time": "2026-07-26T05:03:20.070901+00:00"
+    },
+    {
+      "patient_id": "P013",
+      "age": 45,
+      "sex": "M",
+      "chief_complaint": "severe laceration",
+      "vital_temp": 37.0,
+      "vital_spo2": 98,
+      "vital_bp_sys": 140,
+      "vital_hr": 100,
+      "comorbidities": [
+        "diabetes"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.070915+00:00"
+    },
+    {
+      "patient_id": "P014",
+      "age": 3,
+      "sex": "F",
+      "chief_complaint": "persistent cough",
+      "vital_temp": 39.1,
+      "vital_spo2": 89,
+      "vital_bp_sys": 98,
+      "vital_hr": 125,
+      "comorbidities": [
+        "RSV risk"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.070923+00:00"
+    },
+    {
+      "patient_id": "P015",
+      "age": 52,
+      "sex": "F",
+      "chief_complaint": "severe leg pain",
+      "vital_temp": 37.9,
+      "vital_spo2": 96,
+      "vital_bp_sys": 148,
+      "vital_hr": 88,
+      "comorbidities": [
+        "DVT risk"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 2,
+      "arrival_time": "2026-07-26T05:03:20.070931+00:00"
+    },
+    {
+      "patient_id": "P016",
+      "age": 38,
+      "sex": "M",
+      "chief_complaint": "altered mental status",
+      "vital_temp": 38.7,
+      "vital_spo2": 92,
+      "vital_bp_sys": 135,
+      "vital_hr": 110,
+      "comorbidities": [
+        "substance use history"
+      ],
+      "allergies": [
+        "cocaine"
+      ],
+      "prior_visits": 3,
+      "arrival_time": "2026-07-26T05:03:20.070939+00:00"
+    },
+    {
+      "patient_id": "P017",
+      "age": 60,
+      "sex": "F",
+      "chief_complaint": "crushing chest pain",
+      "vital_temp": 37.5,
+      "vital_spo2": 89,
+      "vital_bp_sys": 165,
+      "vital_hr": 125,
+      "comorbidities": [
+        "MI risk",
+        "diabetes"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 5,
+      "arrival_time": "2026-07-26T05:03:20.070947+00:00"
+    },
+    {
+      "patient_id": "P018",
+      "age": 29,
+      "sex": "F",
+      "chief_complaint": "severe nausea",
+      "vital_temp": 39.3,
+      "vital_spo2": 97,
+      "vital_bp_sys": 128,
+      "vital_hr": 95,
+      "comorbidities": [
+        "migraine",
+        "IBS"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.070954+00:00"
+    },
+    {
+      "patient_id": "P019",
+      "age": 77,
+      "sex": "M",
+      "chief_complaint": "syncope",
+      "vital_temp": 36.8,
+      "vital_spo2": 94,
+      "vital_bp_sys": 100,
+      "vital_hr": 48,
+      "comorbidities": [
+        "heart failure",
+        "anemia"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 9,
+      "arrival_time": "2026-07-26T05:03:20.070962+00:00"
+    },
+    {
+      "patient_id": "P020",
+      "age": 41,
+      "sex": "F",
+      "chief_complaint": "severe allergic reaction",
+      "vital_temp": 38.5,
+      "vital_spo2": 88,
+      "vital_bp_sys": 130,
+      "vital_hr": 120,
+      "comorbidities": [
+        "anaphylaxis history"
+      ],
+      "allergies": [
+        "peanut",
+        "shellfish"
+      ],
+      "prior_visits": 4,
+      "arrival_time": "2026-07-26T05:03:20.071111+00:00"
+    },
+    {
+      "patient_id": "P021",
+      "age": 15,
+      "sex": "M",
+      "chief_complaint": "severe abdominal pain",
+      "vital_temp": 39.6,
+      "vital_spo2": 95,
+      "vital_bp_sys": 125,
+      "vital_hr": 105,
+      "comorbidities": [
+        "appendicitis suspect"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.071124+00:00"
+    },
+    {
+      "patient_id": "P022",
+      "age": 70,
+      "sex": "F",
+      "chief_complaint": "severe infection signs",
+      "vital_temp": 40.2,
+      "vital_spo2": 90,
+      "vital_bp_sys": 160,
+      "vital_hr": 125,
+      "comorbidities": [
+        "immunocompromised"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 8,
+      "arrival_time": "2026-07-26T05:03:20.071134+00:00"
+    },
+    {
+      "patient_id": "P023",
+      "age": 33,
+      "sex": "F",
+      "chief_complaint": "severe palpitations",
+      "vital_temp": 37.2,
+      "vital_spo2": 98,
+      "vital_bp_sys": 155,
+      "vital_hr": 145,
+      "comorbidities": [
+        "SVT history"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 2,
+      "arrival_time": "2026-07-26T05:03:20.071463+00:00"
+    },
+    {
+      "patient_id": "P024",
+      "age": 47,
+      "sex": "M",
+      "chief_complaint": "severe weakness",
+      "vital_temp": 37.0,
+      "vital_spo2": 95,
+      "vital_bp_sys": 105,
+      "vital_hr": 60,
+      "comorbidities": [
+        "myocardial infarction risk"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.071474+00:00"
+    },
+    {
+      "patient_id": "P025",
+      "age": 26,
+      "sex": "F",
+      "chief_complaint": "severe dyspnea",
+      "vital_temp": 37.8,
+      "vital_spo2": 85,
+      "vital_bp_sys": 140,
+      "vital_hr": 135,
+      "comorbidities": [
+        "asthma exacerbation"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 3,
+      "arrival_time": "2026-07-26T05:03:20.071482+00:00"
+    },
+    {
+      "patient_id": "P026",
+      "age": 51,
+      "sex": "F",
+      "chief_complaint": "stable chest discomfort",
+      "vital_temp": 37.1,
+      "vital_spo2": 99,
+      "vital_bp_sys": 130,
+      "vital_hr": 75,
+      "comorbidities": [
+        "anxiety"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.071489+00:00"
+    },
+    {
+      "patient_id": "P027",
+      "age": 44,
+      "sex": "M",
+      "chief_complaint": "stable headache",
+      "vital_temp": 36.9,
+      "vital_spo2": 99,
+      "vital_bp_sys": 120,
+      "vital_hr": 70,
+      "comorbidities": [
+        "tension headache"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.071497+00:00"
+    },
+    {
+      "patient_id": "P028",
+      "age": 58,
+      "sex": "F",
+      "chief_complaint": "stable joint pain",
+      "vital_temp": 37.3,
+      "vital_spo2": 97,
+      "vital_bp_sys": 128,
+      "vital_hr": 80,
+      "comorbidities": [
+        "osteoarthritis"
+      ],
+      "allergies": [
+        "ibuprofen"
+      ],
+      "prior_visits": 5,
+      "arrival_time": "2026-07-26T05:03:20.071706+00:00"
+    },
+    {
+      "patient_id": "P029",
+      "age": 35,
+      "sex": "M",
+      "chief_complaint": "stable rash",
+      "vital_temp": 37.0,
+      "vital_spo2": 98,
+      "vital_bp_sys": 115,
+      "vital_hr": 72,
+      "comorbidities": [
+        "eczema"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.071720+00:00"
+    },
+    {
+      "patient_id": "P030",
+      "age": 64,
+      "sex": "M",
+      "chief_complaint": "stable cough",
+      "vital_temp": 37.2,
+      "vital_spo2": 96,
+      "vital_bp_sys": 125,
+      "vital_hr": 78,
+      "comorbidities": [
+        "chronic bronchitis"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 3,
+      "arrival_time": "2026-07-26T05:03:20.071728+00:00"
+    },
+    {
+      "patient_id": "P031",
+      "age": 48,
+      "sex": "F",
+      "chief_complaint": "minor laceration",
+      "vital_temp": 37.1,
+      "vital_spo2": 99,
+      "vital_bp_sys": 118,
+      "vital_hr": 68,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.071736+00:00"
+    },
+    {
+      "patient_id": "P032",
+      "age": 22,
+      "sex": "M",
+      "chief_complaint": "minor ankle pain",
+      "vital_temp": 36.8,
+      "vital_spo2": 99,
+      "vital_bp_sys": 112,
+      "vital_hr": 70,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.071744+00:00"
+    },
+    {
+      "patient_id": "P033",
+      "age": 39,
+      "sex": "F",
+      "chief_complaint": "minor sore throat",
+      "vital_temp": 37.4,
+      "vital_spo2": 98,
+      "vital_bp_sys": 122,
+      "vital_hr": 75,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.071756+00:00"
+    },
+    {
+      "patient_id": "P034",
+      "age": 55,
+      "sex": "M",
+      "chief_complaint": "minor indigestion",
+      "vital_temp": 37.0,
+      "vital_spo2": 99,
+      "vital_bp_sys": 128,
+      "vital_hr": 72,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.071764+00:00"
+    },
+    {
+      "patient_id": "P035",
+      "age": 27,
+      "sex": "F",
+      "chief_complaint": "minor eye irritation",
+      "vital_temp": 37.1,
+      "vital_spo2": 98,
+      "vital_bp_sys": 120,
+      "vital_hr": 73,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.071772+00:00"
+    },
+    {
+      "patient_id": "P036",
+      "age": 50,
+      "sex": "F",
+      "chief_complaint": "moderate fever",
+      "vital_temp": 38.9,
+      "vital_spo2": 95,
+      "vital_bp_sys": 145,
+      "vital_hr": 98,
+      "comorbidities": [
+        "hypertension"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 2,
+      "arrival_time": "2026-07-26T05:03:20.071957+00:00"
+    },
+    {
+      "patient_id": "P037",
+      "age": 32,
+      "sex": "M",
+      "chief_complaint": "moderate cough",
+      "vital_temp": 38.6,
+      "vital_spo2": 94,
+      "vital_bp_sys": 135,
+      "vital_hr": 105,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.072133+00:00"
+    },
+    {
+      "patient_id": "P038",
+      "age": 61,
+      "sex": "M",
+      "chief_complaint": "moderate chest pain",
+      "vital_temp": 38.5,
+      "vital_spo2": 93,
+      "vital_bp_sys": 160,
+      "vital_hr": 102,
+      "comorbidities": [
+        "diabetes"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 4,
+      "arrival_time": "2026-07-26T05:03:20.072148+00:00"
+    },
+    {
+      "patient_id": "P039",
+      "age": 24,
+      "sex": "F",
+      "chief_complaint": "moderate leg swelling",
+      "vital_temp": 38.2,
+      "vital_spo2": 96,
+      "vital_bp_sys": 122,
+      "vital_hr": 92,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.072157+00:00"
+    },
+    {
+      "patient_id": "P040",
+      "age": 57,
+      "sex": "F",
+      "chief_complaint": "moderate shortness breath",
+      "vital_temp": 38.7,
+      "vital_spo2": 91,
+      "vital_bp_sys": 150,
+      "vital_hr": 108,
+      "comorbidities": [
+        "COPD"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 6,
+      "arrival_time": "2026-07-26T05:03:20.072164+00:00"
+    },
+    {
+      "patient_id": "P041",
+      "age": 40,
+      "sex": "M",
+      "chief_complaint": "severe dizziness fall",
+      "vital_temp": 39.5,
+      "vital_spo2": 92,
+      "vital_bp_sys": 98,
+      "vital_hr": 65,
+      "comorbidities": [
+        "syncope risk"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.072172+00:00"
+    },
+    {
+      "patient_id": "P042",
+      "age": 76,
+      "sex": "F",
+      "chief_complaint": "severe dehydration",
+      "vital_temp": 39.8,
+      "vital_spo2": 95,
+      "vital_bp_sys": 110,
+      "vital_hr": 125,
+      "comorbidities": [
+        "kidney disease"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 5,
+      "arrival_time": "2026-07-26T05:03:20.072180+00:00"
+    },
+    {
+      "patient_id": "P043",
+      "age": 31,
+      "sex": "F",
+      "chief_complaint": "severe migraine",
+      "vital_temp": 39.2,
+      "vital_spo2": 97,
+      "vital_bp_sys": 145,
+      "vital_hr": 110,
+      "comorbidities": [
+        "migraine",
+        "pregnancy"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.072511+00:00"
+    },
+    {
+      "patient_id": "P044",
+      "age": 66,
+      "sex": "M",
+      "chief_complaint": "severe pneumonia signs",
+      "vital_temp": 40.1,
+      "vital_spo2": 87,
+      "vital_bp_sys": 155,
+      "vital_hr": 125,
+      "comorbidities": [
+        "lung disease"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 3,
+      "arrival_time": "2026-07-26T05:03:20.072527+00:00"
+    },
+    {
+      "patient_id": "P045",
+      "age": 18,
+      "sex": "F",
+      "chief_complaint": "severe acute asthma",
+      "vital_temp": 38.9,
+      "vital_spo2": 82,
+      "vital_bp_sys": 140,
+      "vital_hr": 135,
+      "comorbidities": [
+        "asthma"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 2,
+      "arrival_time": "2026-07-26T05:03:20.072536+00:00"
+    },
+    {
+      "patient_id": "P046",
+      "age": 49,
+      "sex": "M",
+      "chief_complaint": "stable cardiac",
+      "vital_temp": 37.0,
+      "vital_spo2": 98,
+      "vital_bp_sys": 125,
+      "vital_hr": 72,
+      "comorbidities": [
+        "post-MI"
+      ],
+      "allergies": [
+        "aspirin"
+      ],
+      "prior_visits": 8,
+      "arrival_time": "2026-07-26T05:03:20.072544+00:00"
+    },
+    {
+      "patient_id": "P047",
+      "age": 36,
+      "sex": "F",
+      "chief_complaint": "stable post-surgery",
+      "vital_temp": 37.2,
+      "vital_spo2": 99,
+      "vital_bp_sys": 120,
+      "vital_hr": 76,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.072552+00:00"
+    },
+    {
+      "patient_id": "P048",
+      "age": 71,
+      "sex": "M",
+      "chief_complaint": "stable chronic pain",
+      "vital_temp": 37.1,
+      "vital_spo2": 96,
+      "vital_bp_sys": 128,
+      "vital_hr": 74,
+      "comorbidities": [
+        "arthritis"
+      ],
+      "allergies": [
+        "NSAIDs"
+      ],
+      "prior_visits": 10,
+      "arrival_time": "2026-07-26T05:03:20.072563+00:00"
+    },
+    {
+      "patient_id": "P049",
+      "age": 25,
+      "sex": "F",
+      "chief_complaint": "stable URI",
+      "vital_temp": 37.3,
+      "vital_spo2": 97,
+      "vital_bp_sys": 115,
+      "vital_hr": 78,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.072574+00:00"
+    },
+    {
+      "patient_id": "P050",
+      "age": 53,
+      "sex": "F",
+      "chief_complaint": "stable management",
+      "vital_temp": 37.0,
+      "vital_spo2": 98,
+      "vital_bp_sys": 130,
+      "vital_hr": 71,
+      "comorbidities": [
+        "diabetes control"
+      ],
+      "allergies": [
+        "metformin"
+      ],
+      "prior_visits": 4,
+      "arrival_time": "2026-07-26T05:03:20.072582+00:00"
+    },
+    {
+      "patient_id": "P051",
+      "age": 44,
+      "sex": "F",
+      "chief_complaint": "fever vomiting",
+      "vital_temp": 39.7,
+      "vital_spo2": 96,
+      "vital_bp_sys": 135,
+      "vital_hr": 112,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.072906+00:00"
+    },
+    {
+      "patient_id": "P052",
+      "age": 20,
+      "sex": "M",
+      "chief_complaint": "severe diarrhea",
+      "vital_temp": 39.1,
+      "vital_spo2": 97,
+      "vital_bp_sys": 118,
+      "vital_hr": 105,
+      "comorbidities": [
+        "gastroenteritis"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.072923+00:00"
+    },
+    {
+      "patient_id": "P053",
+      "age": 62,
+      "sex": "F",
+      "chief_complaint": "chest wall pain",
+      "vital_temp": 37.4,
+      "vital_spo2": 99,
+      "vital_bp_sys": 145,
+      "vital_hr": 82,
+      "comorbidities": [
+        "musculoskeletal"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 2,
+      "arrival_time": "2026-07-26T05:03:20.072933+00:00"
+    },
+    {
+      "patient_id": "P054",
+      "age": 37,
+      "sex": "M",
+      "chief_complaint": "severe kidney pain",
+      "vital_temp": 38.8,
+      "vital_spo2": 96,
+      "vital_bp_sys": 155,
+      "vital_hr": 105,
+      "comorbidities": [
+        "kidney stone"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.072942+00:00"
+    },
+    {
+      "patient_id": "P055",
+      "age": 73,
+      "sex": "F",
+      "chief_complaint": "severe fatigue",
+      "vital_temp": 37.0,
+      "vital_spo2": 94,
+      "vital_bp_sys": 120,
+      "vital_hr": 55,
+      "comorbidities": [
+        "anemia",
+        "thyroid"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 7,
+      "arrival_time": "2026-07-26T05:03:20.072950+00:00"
+    },
+    {
+      "patient_id": "P056",
+      "age": 29,
+      "sex": "F",
+      "chief_complaint": "moderate anxiety",
+      "vital_temp": 37.1,
+      "vital_spo2": 99,
+      "vital_bp_sys": 128,
+      "vital_hr": 95,
+      "comorbidities": [
+        "anxiety disorder"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.072959+00:00"
+    },
+    {
+      "patient_id": "P057",
+      "age": 58,
+      "sex": "M",
+      "chief_complaint": "severe stroke symptoms",
+      "vital_temp": 39.5,
+      "vital_spo2": 90,
+      "vital_bp_sys": 180,
+      "vital_hr": 120,
+      "comorbidities": [
+        "hypertension",
+        "afib"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 4,
+      "arrival_time": "2026-07-26T05:03:20.072967+00:00"
+    },
+    {
+      "patient_id": "P058",
+      "age": 43,
+      "sex": "M",
+      "chief_complaint": "moderate trauma",
+      "vital_temp": 38.2,
+      "vital_spo2": 97,
+      "vital_bp_sys": 140,
+      "vital_hr": 98,
+      "comorbidities": [
+        "MVA risk"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.073181+00:00"
+    },
+    {
+      "patient_id": "P059",
+      "age": 67,
+      "sex": "F",
+      "chief_complaint": "severe sepsis signs",
+      "vital_temp": 40.5,
+      "vital_spo2": 88,
+      "vital_bp_sys": 145,
+      "vital_hr": 135,
+      "comorbidities": [
+        "immunocompromised",
+        "diabetes"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 6,
+      "arrival_time": "2026-07-26T05:03:20.073196+00:00"
+    },
+    {
+      "patient_id": "P060",
+      "age": 21,
+      "sex": "F",
+      "chief_complaint": "severe anaphylaxis",
+      "vital_temp": 39.1,
+      "vital_spo2": 85,
+      "vital_bp_sys": 105,
+      "vital_hr": 140,
+      "comorbidities": [
+        "severe allergies"
+      ],
+      "allergies": [
+        "peanut",
+        "tree nut"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.073372+00:00"
+    },
+    {
+      "patient_id": "P061",
+      "age": 51,
+      "sex": "M",
+      "chief_complaint": "stable follow-up",
+      "vital_temp": 37.2,
+      "vital_spo2": 98,
+      "vital_bp_sys": 125,
+      "vital_hr": 72,
+      "comorbidities": [
+        "HTN control"
+      ],
+      "allergies": [
+        "lisinopril"
+      ],
+      "prior_visits": 5,
+      "arrival_time": "2026-07-26T05:03:20.073381+00:00"
+    },
+    {
+      "patient_id": "P062",
+      "age": 35,
+      "sex": "F",
+      "chief_complaint": "minor injury",
+      "vital_temp": 37.0,
+      "vital_spo2": 99,
+      "vital_bp_sys": 120,
+      "vital_hr": 70,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.073395+00:00"
+    },
+    {
+      "patient_id": "P063",
+      "age": 64,
+      "sex": "M",
+      "chief_complaint": "moderate flu",
+      "vital_temp": 38.7,
+      "vital_spo2": 94,
+      "vital_bp_sys": 150,
+      "vital_hr": 110,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 2,
+      "arrival_time": "2026-07-26T05:03:20.073404+00:00"
+    },
+    {
+      "patient_id": "P064",
+      "age": 46,
+      "sex": "F",
+      "chief_complaint": "severe GI bleed",
+      "vital_temp": 37.9,
+      "vital_spo2": 89,
+      "vital_bp_sys": 95,
+      "vital_hr": 125,
+      "comorbidities": [
+        "GI ulcer risk"
+      ],
+      "allergies": [
+        "NSAIDs"
+      ],
+      "prior_visits": 3,
+      "arrival_time": "2026-07-26T05:03:20.073413+00:00"
+    },
+    {
+      "patient_id": "P065",
+      "age": 28,
+      "sex": "M",
+      "chief_complaint": "stable wellness",
+      "vital_temp": 37.1,
+      "vital_spo2": 99,
+      "vital_bp_sys": 115,
+      "vital_hr": 68,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.073531+00:00"
+    },
+    {
+      "patient_id": "P066",
+      "age": 72,
+      "sex": "F",
+      "chief_complaint": "severe UTI symptoms",
+      "vital_temp": 39.3,
+      "vital_spo2": 96,
+      "vital_bp_sys": 140,
+      "vital_hr": 95,
+      "comorbidities": [
+        "diabetes"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 4,
+      "arrival_time": "2026-07-26T05:03:20.073639+00:00"
+    },
+    {
+      "patient_id": "P067",
+      "age": 41,
+      "sex": "M",
+      "chief_complaint": "moderate trauma",
+      "vital_temp": 38.1,
+      "vital_spo2": 96,
+      "vital_bp_sys": 135,
+      "vital_hr": 105,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.073651+00:00"
+    },
+    {
+      "patient_id": "P068",
+      "age": 26,
+      "sex": "F",
+      "chief_complaint": "severe psychiatric",
+      "vital_temp": 37.0,
+      "vital_spo2": 97,
+      "vital_bp_sys": 125,
+      "vital_hr": 110,
+      "comorbidities": [
+        "bipolar",
+        "depression"
+      ],
+      "allergies": [
+        "lithium"
+      ],
+      "prior_visits": 2,
+      "arrival_time": "2026-07-26T05:03:20.073661+00:00"
+    },
+    {
+      "patient_id": "P069",
+      "age": 55,
+      "sex": "M",
+      "chief_complaint": "stable diabetes",
+      "vital_temp": 37.3,
+      "vital_spo2": 98,
+      "vital_bp_sys": 130,
+      "vital_hr": 76,
+      "comorbidities": [
+        "diabetes type 2"
+      ],
+      "allergies": [
+        "metformin"
+      ],
+      "prior_visits": 6,
+      "arrival_time": "2026-07-26T05:03:20.073669+00:00"
+    },
+    {
+      "patient_id": "P070",
+      "age": 38,
+      "sex": "F",
+      "chief_complaint": "severe infection",
+      "vital_temp": 39.8,
+      "vital_spo2": 92,
+      "vital_bp_sys": 155,
+      "vital_hr": 115,
+      "comorbidities": [
+        "immunocompromised"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 5,
+      "arrival_time": "2026-07-26T05:03:20.073677+00:00"
+    },
+    {
+      "patient_id": "P071",
+      "age": 49,
+      "sex": "F",
+      "chief_complaint": "moderate pain",
+      "vital_temp": 38.2,
+      "vital_spo2": 97,
+      "vital_bp_sys": 128,
+      "vital_hr": 90,
+      "comorbidities": [
+        "fibromyalgia"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 1,
+      "arrival_time": "2026-07-26T05:03:20.073686+00:00"
+    },
+    {
+      "patient_id": "P072",
+      "age": 61,
+      "sex": "M",
+      "chief_complaint": "severe cardiac",
+      "vital_temp": 39.0,
+      "vital_spo2": 86,
+      "vital_bp_sys": 175,
+      "vital_hr": 135,
+      "comorbidities": [
+        "heart failure",
+        "afib"
+      ],
+      "allergies": [
+        "digoxin"
+      ],
+      "prior_visits": 8,
+      "arrival_time": "2026-07-26T05:03:20.073695+00:00"
+    },
+    {
+      "patient_id": "P073",
+      "age": 33,
+      "sex": "M",
+      "chief_complaint": "minor viral",
+      "vital_temp": 37.5,
+      "vital_spo2": 99,
+      "vital_bp_sys": 120,
+      "vital_hr": 75,
+      "comorbidities": [
+        "none"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.073839+00:00"
+    },
+    {
+      "patient_id": "P074",
+      "age": 70,
+      "sex": "F",
+      "chief_complaint": "severe fall injury",
+      "vital_temp": 37.1,
+      "vital_spo2": 95,
+      "vital_bp_sys": 110,
+      "vital_hr": 85,
+      "comorbidities": [
+        "osteoporosis",
+        "frail"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 9,
+      "arrival_time": "2026-07-26T05:03:20.073854+00:00"
+    },
+    {
+      "patient_id": "P075",
+      "age": 24,
+      "sex": "F",
+      "chief_complaint": "severe burns",
+      "vital_temp": 38.9,
+      "vital_spo2": 93,
+      "vital_bp_sys": 140,
+      "vital_hr": 125,
+      "comorbidities": [
+        "burn wound"
+      ],
+      "allergies": [
+        "none"
+      ],
+      "prior_visits": 0,
+      "arrival_time": "2026-07-26T05:03:20.073865+00:00"
+    }
+  ],
+  "decisions": [],
+  "audit_ledger": []
+}
